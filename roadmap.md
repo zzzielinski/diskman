@@ -32,7 +32,7 @@ Pierwsza dzialajaca wersja Diskman ma:
 - [x] Dodac licencje open source.
 - [x] Ustalic bundle identifier: `com.zzzielinski.diskman`.
 - [x] Ustalic minimalny deployment target dla MVP: macOS 26+ jako primary target.
-- [ ] Wypchnac pierwsza wersje dokumentacji na GitHub.
+- [x] Wypchnac pierwsza wersje dokumentacji na GitHub.
 
 Done kiedy:
 
@@ -315,11 +315,12 @@ Done kiedy:
 - [x] Powstal dokument analizy projektu: `info.md`.
 - [x] Powstala roadmapa projektu: `roadmap.md`.
 - [x] Repo lokalne zostalo zainicjalizowane jako git.
-- [ ] Repo GitHub `zzzielinski/diskman` istnieje i jest puste.
+- [x] Repo GitHub `zzzielinski/diskman` istnieje i ma dokumentacje startowa.
 - [ ] Nie ma jeszcze projektu Xcode.
 
 ## Najblizszy nastepny krok
 
-1. Zrobic pierwszy commit dokumentacji.
-2. Wypchnac dokumentacje startowa do `main`.
-3. Dopiero potem zaczac scaffold projektu Xcode.
+1. Zaczac scaffold projektu Xcode.
+2. Dodac target aplikacji macOS `DiskmanApp`.
+3. Dodac target widgetow `DiskmanWidgets`.
+4. Dodac modul core `DiskmanCore`.
