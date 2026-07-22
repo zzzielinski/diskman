@@ -42,19 +42,19 @@ Done kiedy:
 
 ## Etap 1 - Szkielet aplikacji macOS
 
-- [ ] Utworzyc projekt Xcode `Diskman`.
-- [ ] Dodac target aplikacji macOS `DiskmanApp`.
-- [ ] Dodac target `DiskmanWidgets` dla WidgetKit.
-- [ ] Dodac modul/core package `DiskmanCore`.
-- [ ] Skonfigurowac App Group dla aplikacji i widget extension.
-- [ ] Dodac podstawowa aplikacje menu bar bez glownego okna.
-- [ ] Dodac `NSStatusItem` z ikona w pasku menu.
-- [ ] Dodac minimalne menu:
-  - [ ] `Refresh Now`
-  - [ ] `Language`
-  - [ ] `About Diskman`
-  - [ ] `Quit Diskman`
-- [ ] Dodac placeholder ekranu About.
+- [x] Utworzyc projekt Xcode `Diskman`.
+- [x] Dodac target aplikacji macOS `DiskmanApp`.
+- [x] Dodac target `DiskmanWidgets` dla WidgetKit.
+- [x] Dodac modul/core package `DiskmanCore`.
+- [x] Skonfigurowac App Group dla aplikacji i widget extension.
+- [x] Dodac podstawowa aplikacje menu bar bez glownego okna.
+- [x] Dodac `NSStatusItem` z ikona w pasku menu.
+- [x] Dodac minimalne menu:
+  - [x] `Refresh Now`
+  - [x] `Language`
+  - [x] `About Diskman`
+  - [x] `Quit Diskman`
+- [x] Dodac placeholder ekranu About.
 
 Done kiedy:
 
@@ -316,11 +316,10 @@ Done kiedy:
 - [x] Powstala roadmapa projektu: `roadmap.md`.
 - [x] Repo lokalne zostalo zainicjalizowane jako git.
 - [x] Repo GitHub `zzzielinski/diskman` istnieje i ma dokumentacje startowa.
-- [ ] Nie ma jeszcze projektu Xcode.
+- [x] Powstal szkielet projektu Xcode z appka, widgetami i `DiskmanCore`.
 
 ## Najblizszy nastepny krok
 
-1. Zaczac scaffold projektu Xcode.
-2. Dodac target aplikacji macOS `DiskmanApp`.
-3. Dodac target widgetow `DiskmanWidgets`.
-4. Dodac modul core `DiskmanCore`.
+1. Zweryfikowac build Etapu 1.
+2. Zaczac Etap 2: modele i prawdziwy `VolumeProvider`.
+3. Dodac pierwsze testy core dla obliczania pojemnosci.

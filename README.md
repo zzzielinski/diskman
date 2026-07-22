@@ -12,7 +12,11 @@ The goal is to provide a clean Liquid Glass-inspired disk widget for macOS:
 
 ## Project Status
 
-Diskman is currently in the planning and foundation phase.
+Diskman is currently in early scaffolding. The repository already contains:
+
+- `DiskmanApp`: the macOS menu bar app target,
+- `DiskmanWidgets`: the WidgetKit extension target,
+- `DiskmanCore`: a local Swift package shared by the app and widgets.
 
 See:
 
@@ -28,6 +32,38 @@ See:
 - Disk Arbitration
 - App Groups
 - ServiceManagement for launch at login
+
+## Local Development
+
+Requirements:
+
+- macOS with Xcode 26+
+- Swift 6
+
+List project targets:
+
+```bash
+xcodebuild -list -project Diskman.xcodeproj
+```
+
+Build the app and widget extension without signing:
+
+```bash
+xcodebuild \
+  -project Diskman.xcodeproj \
+  -scheme DiskmanApp \
+  -configuration Debug \
+  -destination platform=macOS \
+  CODE_SIGNING_ALLOWED=NO \
+  build
+```
+
+Run core package tests:
+
+```bash
+cd DiskmanCore
+swift test
+```
 
 ## Privacy
 
