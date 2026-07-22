@@ -65,32 +65,32 @@ Done kiedy:
 
 ## Etap 2 - Core danych o dyskach
 
-- [ ] Zdefiniowac modele:
-  - [ ] `DiskSnapshot`
-  - [ ] `VolumeSnapshot`
-  - [ ] `VolumeKind`
-  - [ ] `StorageCategorySnapshot`
-  - [ ] `StorageCategoryID`
-- [ ] Zrobic `ByteFormatter` dla GB/GiB i lokalizowanych stringow.
-- [ ] Zrobic `VolumeProvider` oparty o `FileManager.mountedVolumeURLs`.
-- [ ] Pobierac dla kazdego wolumenu:
-  - [ ] nazwe,
-  - [ ] lokalizowana nazwe, jesli system ja zwroci,
-  - [ ] mount path,
-  - [ ] total bytes,
-  - [ ] available bytes,
-  - [ ] used bytes,
-  - [ ] file system description,
-  - [ ] informacje browsable/internal/ejectable/removable, jesli dostepne.
-- [ ] Odfiltrowac techniczne wolumeny, ktorych uzytkownik nie powinien widziec.
-- [ ] Dodac klasyfikacje:
-  - [ ] internal,
-  - [ ] external,
-  - [ ] removable,
-  - [ ] network,
-  - [ ] disk image,
-  - [ ] unknown.
-- [ ] Dodac testy jednostkowe dla obliczania procentow i formatowania bajtow.
+- [x] Zdefiniowac modele:
+  - [x] `DiskSnapshot`
+  - [x] `VolumeSnapshot`
+  - [x] `VolumeKind`
+  - [x] `StorageCategorySnapshot`
+  - [x] `StorageCategoryID`
+- [x] Zrobic `ByteFormatter` dla GB/GiB i lokalizowanych stringow.
+- [x] Zrobic `VolumeProvider` oparty o `FileManager.mountedVolumeURLs`.
+- [x] Pobierac dla kazdego wolumenu:
+  - [x] nazwe,
+  - [x] lokalizowana nazwe, jesli system ja zwroci,
+  - [x] mount path,
+  - [x] total bytes,
+  - [x] available bytes,
+  - [x] used bytes,
+  - [x] file system description,
+  - [x] informacje browsable/internal/ejectable/removable, jesli dostepne.
+- [x] Odfiltrowac techniczne wolumeny, ktorych uzytkownik nie powinien widziec.
+- [x] Dodac klasyfikacje:
+  - [x] internal,
+  - [x] external,
+  - [x] removable,
+  - [x] network,
+  - [x] disk image,
+  - [x] unknown.
+- [x] Dodac testy jednostkowe dla obliczania procentow i formatowania bajtow.
 
 Done kiedy:
 
@@ -320,6 +320,6 @@ Done kiedy:
 
 ## Najblizszy nastepny krok
 
-1. Zweryfikowac build Etapu 1.
-2. Zaczac Etap 2: modele i prawdziwy `VolumeProvider`.
-3. Dodac pierwsze testy core dla obliczania pojemnosci.
+1. Zaczac Etap 3: `StorageSnapshotStore`.
+2. Zapisac snapshot do App Group container.
+3. Podpiac widget timeline pod zapisany snapshot zamiast placeholdera.

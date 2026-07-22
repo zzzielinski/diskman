@@ -19,6 +19,7 @@ public struct VolumeSnapshot: Codable, Hashable, Identifiable, Sendable {
     public let fileSystemName: String?
     public let totalBytes: Int64
     public let availableBytes: Int64
+    public let importantAvailableBytes: Int64?
     public let usedBytes: Int64
     public let categories: [StorageCategorySnapshot]
 
@@ -31,6 +32,7 @@ public struct VolumeSnapshot: Codable, Hashable, Identifiable, Sendable {
         fileSystemName: String?,
         totalBytes: Int64,
         availableBytes: Int64,
+        importantAvailableBytes: Int64?,
         usedBytes: Int64,
         categories: [StorageCategorySnapshot]
     ) {
@@ -42,6 +44,7 @@ public struct VolumeSnapshot: Codable, Hashable, Identifiable, Sendable {
         self.fileSystemName = fileSystemName
         self.totalBytes = totalBytes
         self.availableBytes = availableBytes
+        self.importantAvailableBytes = importantAvailableBytes
         self.usedBytes = usedBytes
         self.categories = categories
     }
@@ -52,12 +55,12 @@ public struct VolumeSnapshot: Codable, Hashable, Identifiable, Sendable {
 
     public var freeSpaceRatio: Double {
         guard totalBytes > 0 else { return 0 }
-        return Double(availableBytes) / Double(totalBytes)
+        return Self.ratio(availableBytes, totalBytes)
     }
 
     public var usedSpaceRatio: Double {
         guard totalBytes > 0 else { return 0 }
-        return Double(usedBytes) / Double(totalBytes)
+        return Self.ratio(usedBytes, totalBytes)
     }
 
     public var freePercentText: String {
@@ -65,7 +68,12 @@ public struct VolumeSnapshot: Codable, Hashable, Identifiable, Sendable {
     }
 
     public var capacitySummary: String {
-        "\(ByteCountFormatter.diskmanString(fromByteCount: availableBytes)) free of \(ByteCountFormatter.diskmanString(fromByteCount: totalBytes))"
+        "\(DiskByteFormatter.decimal.string(fromByteCount: availableBytes)) free of \(DiskByteFormatter.decimal.string(fromByteCount: totalBytes))"
+    }
+
+    public static func ratio(_ value: Int64, _ total: Int64) -> Double {
+        guard total > 0 else { return 0 }
+        return max(0, min(Double(value) / Double(total), 1))
     }
 }
 
@@ -148,6 +156,7 @@ public extension DiskSnapshot {
                 fileSystemName: "APFS",
                 totalBytes: 245_110_000_000,
                 availableBytes: 92_400_000_000,
+                importantAvailableBytes: nil,
                 usedBytes: 152_710_000_000,
                 categories: [
                     StorageCategorySnapshot(
@@ -168,15 +177,4 @@ public extension DiskSnapshot {
             )
         ]
     )
-}
-
-public extension ByteCountFormatter {
-    static func diskmanString(fromByteCount byteCount: Int64) -> String {
-        let formatter = ByteCountFormatter()
-        formatter.allowedUnits = [.useGB, .useTB]
-        formatter.countStyle = .decimal
-        formatter.includesUnit = true
-        formatter.isAdaptive = true
-        return formatter.string(fromByteCount: byteCount)
-    }
 }

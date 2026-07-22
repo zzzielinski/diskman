@@ -4,11 +4,14 @@ import WidgetKit
 
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
+    private let volumeProvider = VolumeProvider()
     private var statusItem: NSStatusItem?
+    private var statusMenuItem: NSMenuItem?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
         configureStatusItem()
+        refreshVolumeStatus(reloadWidgets: false)
     }
 
     private func configureStatusItem() {
@@ -30,8 +33,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func makeMenu() -> NSMenu {
         let menu = NSMenu()
 
-        let status = NSMenuItem(title: "Waiting for disk snapshot", action: nil, keyEquivalent: "")
+        let status = NSMenuItem(title: "Loading disks...", action: nil, keyEquivalent: "")
         status.isEnabled = false
+        statusMenuItem = status
         menu.addItem(status)
         menu.addItem(.separator())
 
@@ -58,7 +62,28 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc private func refreshNow() {
+        refreshVolumeStatus(reloadWidgets: true)
+    }
+
+    private func refreshVolumeStatus(reloadWidgets: Bool) {
+        do {
+            let snapshot = try volumeProvider.snapshot()
+            statusMenuItem?.title = menuStatusTitle(for: snapshot)
+        } catch {
+            statusMenuItem?.title = "Unable to read disks"
+        }
+
+        guard reloadWidgets else { return }
         WidgetCenter.shared.reloadAllTimelines()
+    }
+
+    private func menuStatusTitle(for snapshot: DiskSnapshot) -> String {
+        guard let primaryVolume = snapshot.volumes.first else {
+            return "No disks found"
+        }
+
+        let diskLabel = snapshot.volumes.count == 1 ? "disk" : "disks"
+        return "\(snapshot.volumes.count) \(diskLabel) - \(primaryVolume.displayName): \(primaryVolume.freePercentText) free"
     }
 
     @objc private func selectSystemLanguage() {
