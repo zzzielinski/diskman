@@ -1,61 +1,59 @@
 # Diskman
 
-Diskman is an open source macOS menu bar app and widget set for monitoring connected disks.
+Diskman is an open source macOS menu bar app and WidgetKit extension for monitoring mounted disks.
 
-The goal is to provide a clean Liquid Glass-inspired disk widget for macOS:
+It is useful for people who frequently work with external drives, disk images, network volumes, development machines, or Macs with limited internal storage. Diskman shows connected volumes, free or used space, storage bars, and optional estimated categories directly from macOS desktop widgets and the menu bar.
 
-- a small desktop widget with circular free-space indicators,
-- a larger desktop widget with storage bars,
-- a menu bar controller for refresh, language, about, settings, and quit,
-- real disk data collected by a lightweight background app,
+## Features
+
+- Menu bar app that runs in the background.
+- Small widget with circular disk usage indicators.
+- Medium and large widgets with segmented storage bars.
+- Mounted volume detection for internal, external, removable, network, and disk image volumes.
+- Manual refresh plus automatic refresh using polling and Disk Arbitration events.
+- Settings for language, disk visibility, percent mode, units, categories, and launch at login.
 - English and Polish localization.
+- Optional estimated categories for Applications, Developer, Documents, Photos, Messages, System Data, Other, and Available.
+- Local App Group snapshot cache shared between the app and widgets.
+- Liquid Glass visual styling on supported macOS versions with a material fallback.
 
-## Project Status
+## Screenshots
 
-Diskman is currently in early scaffolding. The repository already contains:
+Screenshots will be added before the first public release.
 
-- `DiskmanApp`: the macOS menu bar app target,
-- `DiskmanWidgets`: the WidgetKit extension target,
-- `DiskmanCore`: a local Swift package shared by the app and widgets,
-- `VolumeProvider`: the first real mounted-volume reader based on Foundation volume APIs,
-- `StorageSnapshotStore`: the JSON snapshot bridge between the app and WidgetKit extension,
-- `DiskMonitor`: polling plus Disk Arbitration-driven refreshes,
-- small WidgetKit disk rings for connected-volume free space,
-- medium and large WidgetKit storage bars for used and available space,
-- `DiskmanGlass`: a SwiftUI visual wrapper for Liquid Glass with material fallback,
-- polished menu actions, interactive Settings surface, and open-source-ready About window,
-- shared English/Polish localization through `LocalizationProvider`,
-- optional estimated storage categories with App Group cache.
+## Privacy
 
-See:
+Diskman works 100% offline.
 
-- [info.md](info.md) for the technical/product analysis,
-- [roadmap.md](roadmap.md) for the implementation checklist.
+The app does not require an internet connection, does not collect analytics, does not send disk data anywhere, and does not use any network API at runtime. Diskman reads local macOS volume metadata such as name, mount path, total capacity, available capacity, and volume kind.
 
-## Planned Tech Stack
+Estimated storage categories are optional. When enabled, Diskman scans local folders on the Mac, caches the results locally, and labels the categories as estimates because they are not the same private data shown by macOS System Settings.
 
-- Swift and SwiftUI
-- WidgetKit
-- AppKit `NSStatusItem`
-- Foundation volume APIs
-- Disk Arbitration
-- App Groups
-- ServiceManagement for launch at login
+## Open Source
 
-## Local Development
+Diskman is open source under the MIT License. You can fork it, change it, improve it, build your own version, or contribute fixes and features.
 
-Requirements:
+## Requirements
 
 - macOS with Xcode 26+
 - Swift 6
 
-List project targets:
+## Build From Source
+
+Clone the repository:
+
+```bash
+git clone https://github.com/zzzielinski/diskman.git
+cd diskman
+```
+
+List available schemes:
 
 ```bash
 xcodebuild -list -project Diskman.xcodeproj
 ```
 
-Build the app and widget extension without signing:
+Build the app and widget extension without code signing:
 
 ```bash
 xcodebuild \
@@ -67,27 +65,25 @@ xcodebuild \
   build
 ```
 
-Run core package tests:
+Run core tests:
 
 ```bash
 cd DiskmanCore
 swift test
 ```
 
-## Privacy
-
-Diskman is designed to work locally. The app should not send analytics or disk data anywhere. The MVP will only read mounted volume metadata such as name, mount path, total capacity, and available capacity.
-
-Estimated category scanning is opt-in. When enabled, Diskman scans local folders such as Applications, Documents, Developer, Photos, and Messages where macOS permissions allow it. Results are cached to avoid frequent disk work, and the app labels these categories as estimates because they are not the same private data shown by System Settings.
-
 ## Installation
 
-Installation is not available yet. The planned flow is:
+Packaged installation is not available yet. For now, build the project from source in Xcode.
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/zzzielinski/diskman/main/scripts/install.sh | bash
+## Project Structure
+
+```text
+DiskmanApp/       macOS menu bar app, settings, and about window
+DiskmanWidgets/   WidgetKit extension
+DiskmanCore/      shared models, disk monitoring, persistence, localization, and category scanning
 ```
 
 ## License
 
-MIT License. See [LICENSE](LICENSE).
+Diskman is released under the MIT License. See [LICENSE](LICENSE).
