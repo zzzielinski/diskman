@@ -110,3 +110,29 @@ func resourceSnapshotClassifiesNetworkAndDiskImages() {
     #expect(VolumeSnapshot(resource: network)?.kind == .network)
     #expect(VolumeSnapshot(resource: diskImage)?.kind == .diskImage)
 }
+
+@Test
+func snapshotStoreRoundTripsSnapshot() throws {
+    let directoryURL = FileManager.default.temporaryDirectory
+        .appending(path: "diskman-store-tests")
+        .appending(path: UUID().uuidString)
+    let store = StorageSnapshotStore(snapshotDirectoryURL: directoryURL)
+    let snapshot = DiskSnapshot.placeholder
+
+    try store.write(snapshot)
+
+    let savedSnapshot = try #require(try store.read())
+    #expect(savedSnapshot == snapshot)
+}
+
+@Test
+func snapshotStoreReturnsNilWhenSnapshotDoesNotExist() throws {
+    let directoryURL = FileManager.default.temporaryDirectory
+        .appending(path: "diskman-store-tests")
+        .appending(path: UUID().uuidString)
+    let store = StorageSnapshotStore(snapshotDirectoryURL: directoryURL)
+
+    let savedSnapshot = try store.read()
+
+    #expect(savedSnapshot == nil)
+}

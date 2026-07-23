@@ -144,6 +144,10 @@ public enum CategoryConfidence: String, Codable, Hashable, Sendable {
 }
 
 public extension DiskSnapshot {
+    static var empty: DiskSnapshot {
+        DiskSnapshot(generatedAt: Date(), volumes: [])
+    }
+
     static let placeholder = DiskSnapshot(
         generatedAt: Date(timeIntervalSince1970: 0),
         volumes: [

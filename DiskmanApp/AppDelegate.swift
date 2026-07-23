@@ -5,13 +5,14 @@ import WidgetKit
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private let volumeProvider = VolumeProvider()
+    private let snapshotStore = StorageSnapshotStore()
     private var statusItem: NSStatusItem?
     private var statusMenuItem: NSMenuItem?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
         configureStatusItem()
-        refreshVolumeStatus(reloadWidgets: false)
+        refreshVolumeStatus()
     }
 
     private func configureStatusItem() {
@@ -62,18 +63,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc private func refreshNow() {
-        refreshVolumeStatus(reloadWidgets: true)
+        refreshVolumeStatus()
     }
 
-    private func refreshVolumeStatus(reloadWidgets: Bool) {
+    private func refreshVolumeStatus() {
         do {
             let snapshot = try volumeProvider.snapshot()
             statusMenuItem?.title = menuStatusTitle(for: snapshot)
+
+            do {
+                try snapshotStore.write(snapshot)
+            } catch {
+                statusMenuItem?.title = "\(menuStatusTitle(for: snapshot)) - Widget snapshot unavailable"
+            }
         } catch {
             statusMenuItem?.title = "Unable to read disks"
         }
 
-        guard reloadWidgets else { return }
         WidgetCenter.shared.reloadAllTimelines()
     }
 

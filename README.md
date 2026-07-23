@@ -17,7 +17,8 @@ Diskman is currently in early scaffolding. The repository already contains:
 - `DiskmanApp`: the macOS menu bar app target,
 - `DiskmanWidgets`: the WidgetKit extension target,
 - `DiskmanCore`: a local Swift package shared by the app and widgets,
-- `VolumeProvider`: the first real mounted-volume reader based on Foundation volume APIs.
+- `VolumeProvider`: the first real mounted-volume reader based on Foundation volume APIs,
+- `StorageSnapshotStore`: the JSON snapshot bridge between the app and WidgetKit extension.
 
 See:
 

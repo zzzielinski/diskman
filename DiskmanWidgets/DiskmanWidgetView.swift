@@ -16,7 +16,20 @@ struct DiskmanWidgetView: View {
         .containerBackground(.ultraThinMaterial, for: .widget)
     }
 
+    @ViewBuilder
     private var smallLayout: some View {
+        if entry.snapshot.volumes.isEmpty {
+            ContentUnavailableView(
+                "No Disks",
+                systemImage: "internaldrive",
+                description: Text("Open Diskman to refresh storage data.")
+            )
+        } else {
+            diskRingLayout
+        }
+    }
+
+    private var diskRingLayout: some View {
         HStack(spacing: 14) {
             ForEach(entry.snapshot.volumes.prefix(3)) { volume in
                 VStack(spacing: 8) {
@@ -42,7 +55,20 @@ struct DiskmanWidgetView: View {
         .padding()
     }
 
+    @ViewBuilder
     private var largeLayout: some View {
+        if entry.snapshot.volumes.isEmpty {
+            ContentUnavailableView(
+                "No Disks",
+                systemImage: "internaldrive",
+                description: Text("Open Diskman to refresh storage data.")
+            )
+        } else {
+            diskBarLayout
+        }
+    }
+
+    private var diskBarLayout: some View {
         VStack(alignment: .leading, spacing: 12) {
             ForEach(entry.snapshot.volumes.prefix(3)) { volume in
                 VStack(alignment: .leading, spacing: 7) {

@@ -100,13 +100,13 @@ Done kiedy:
 
 ## Etap 3 - Snapshot i komunikacja z widgetem
 
-- [ ] Zrobic `StorageSnapshotStore`.
-- [ ] Zapisywac snapshot jako JSON albo plist w App Group container.
-- [ ] Czytac snapshot z aplikacji i widget extension.
-- [ ] Dodac fallback snapshot dla pustego stanu.
-- [ ] Dodac obsluge bledow odczytu/zapisu.
-- [ ] Po zapisaniu snapshotu wolac `WidgetCenter.reloadAllTimelines()`.
-- [ ] Dodac testy encode/decode snapshotu.
+- [x] Zrobic `StorageSnapshotStore`.
+- [x] Zapisywac snapshot jako JSON albo plist w App Group container.
+- [x] Czytac snapshot z aplikacji i widget extension.
+- [x] Dodac fallback snapshot dla pustego stanu.
+- [x] Dodac obsluge bledow odczytu/zapisu.
+- [x] Po zapisaniu snapshotu wolac `WidgetCenter.reloadAllTimelines()`.
+- [x] Dodac testy encode/decode snapshotu.
 
 Done kiedy:
 
@@ -320,6 +320,6 @@ Done kiedy:
 
 ## Najblizszy nastepny krok
 
-1. Zaczac Etap 3: `StorageSnapshotStore`.
-2. Zapisac snapshot do App Group container.
-3. Podpiac widget timeline pod zapisany snapshot zamiast placeholdera.
+1. Zaczac Etap 4: `DiskMonitor`.
+2. Dodac polling co 30-60 sekund.
+3. Dodac Disk Arbitration dla mount/unmount/eject.
