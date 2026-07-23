@@ -1,325 +1,325 @@
-# Diskman - roadmapa projektu
+# Diskman - Project Roadmap
 
-Ten plik jest robocza mapa projektu. Aktualizujemy go po kazdym wiekszym kroku, zeby bylo jasne, co juz dziala, co jest w trakcie i co blokuje kolejne etapy.
+This file is the working project map. It is updated after each meaningful step so it stays clear what already works, what is in progress, and what blocks later stages.
 
-Statusy:
+Statuses:
 
-- `[ ]` do zrobienia
-- `[~]` w trakcie
-- `[x]` gotowe
-- `[!]` zablokowane albo wymaga decyzji
+- `[ ]` todo
+- `[~]` in progress
+- `[x]` done
+- `[!]` blocked or needs a decision
 
-## Cel MVP
+## MVP Goal
 
-Pierwsza dzialajaca wersja Diskman ma:
+The first working Diskman version should:
 
-- dzialac jako aplikacja macOS w pasku menu,
-- stale zbierac informacje o podlaczonych dyskach,
-- zapisywac snapshot danych dla widgetow,
-- pokazywac maly widget z okraglymi wskaznikami wolnego miejsca,
-- pokazywac duzy widget z paskiem `used/free`,
-- miec menu z `Refresh`, `Language`, `About`, `Quit Diskman`,
-- wspierac jezyk systemowy oraz reczny wybor `English` / `Polski`,
-- dac sie zbudowac lokalnie i zainstalowac z GitHub Release przez prosty terminalowy skrypt.
+- run as a macOS menu bar app,
+- continuously collect information about connected disks,
+- write a data snapshot for widgets,
+- show a small widget with circular free-space indicators,
+- show a large widget with a `used/free` storage bar,
+- provide a menu with `Refresh`, `Language`, `About`, and `Quit Diskman`,
+- support the system language plus manual `English` / `Polski` selection,
+- build locally and install from a GitHub Release through a simple terminal script.
 
-## Etap 0 - Fundament repo
+## Stage 0 - Repository Foundation
 
-- [x] Zainicjalizowac lokalne repo git w katalogu projektu.
-- [x] Podpiac remote `https://github.com/zzzielinski/diskman.git`.
-- [x] Ustalic glowna galaz: `main`.
-- [x] Dodac `.gitignore` dla Xcode, SwiftPM, build artefaktow i macOS.
-- [x] Dodac podstawowy `README.md`.
-- [x] Dodac licencje open source.
-- [x] Ustalic bundle identifier: `com.zzzielinski.diskman`.
-- [x] Ustalic minimalny deployment target dla MVP: macOS 26+ jako primary target.
-- [x] Wypchnac pierwsza wersje dokumentacji na GitHub.
+- [x] Initialize a local git repository in the project directory.
+- [x] Add remote `https://github.com/zzzielinski/diskman.git`.
+- [x] Set the main branch to `main`.
+- [x] Add `.gitignore` for Xcode, SwiftPM, build artifacts, and macOS files.
+- [x] Add a basic `README.md`.
+- [x] Add an open source license.
+- [x] Set bundle identifier: `com.zzzielinski.diskman`.
+- [x] Set the MVP deployment target: macOS 26+ as the primary target.
+- [x] Push the first documentation version to GitHub.
 
-Done kiedy:
+Done when:
 
-- repo lokalne i GitHub sa zsynchronizowane,
-- `README.md`, `info.md`, `roadmap.md`, `.gitignore` i licencja sa w `main`,
-- da sie zaczac tworzyc projekt Xcode bez balaganu w strukturze.
+- the local repo and GitHub are synchronized,
+- `README.md`, `info.md`, `roadmap.md`, `.gitignore`, and the license are on `main`,
+- the Xcode project can be created without structural clutter.
 
-## Etap 1 - Szkielet aplikacji macOS
+## Stage 1 - macOS App Skeleton
 
-- [x] Utworzyc projekt Xcode `Diskman`.
-- [x] Dodac target aplikacji macOS `DiskmanApp`.
-- [x] Dodac target `DiskmanWidgets` dla WidgetKit.
-- [x] Dodac modul/core package `DiskmanCore`.
-- [x] Skonfigurowac App Group dla aplikacji i widget extension.
-- [x] Dodac podstawowa aplikacje menu bar bez glownego okna.
-- [x] Dodac `NSStatusItem` z ikona w pasku menu.
-- [x] Dodac minimalne menu:
+- [x] Create the Xcode project `Diskman`.
+- [x] Add the macOS app target `DiskmanApp`.
+- [x] Add the `DiskmanWidgets` target for WidgetKit.
+- [x] Add the shared module/core package `DiskmanCore`.
+- [x] Configure App Group for the app and widget extension.
+- [x] Add a basic menu bar app without a main window.
+- [x] Add `NSStatusItem` with an icon in the macOS menu bar.
+- [x] Add a minimal menu:
   - [x] `Refresh Now`
   - [x] `Language`
   - [x] `About Diskman`
   - [x] `Quit Diskman`
-- [x] Dodac placeholder ekranu About.
+- [x] Add an About placeholder.
 
-Done kiedy:
+Done when:
 
-- aplikacja uruchamia sie lokalnie,
-- widac ikone Diskman w menu barze,
-- `Quit Diskman` zamyka aplikacje,
-- target widgetu kompiluje sie razem z aplikacja.
+- the app launches locally,
+- the Diskman icon is visible in the menu bar,
+- `Quit Diskman` exits the app,
+- the widget target compiles with the app.
 
-## Etap 2 - Core danych o dyskach
+## Stage 2 - Disk Data Core
 
-- [x] Zdefiniowac modele:
+- [x] Define models:
   - [x] `DiskSnapshot`
   - [x] `VolumeSnapshot`
   - [x] `VolumeKind`
   - [x] `StorageCategorySnapshot`
   - [x] `StorageCategoryID`
-- [x] Zrobic `ByteFormatter` dla GB/GiB i lokalizowanych stringow.
-- [x] Zrobic `VolumeProvider` oparty o `FileManager.mountedVolumeURLs`.
-- [x] Pobierac dla kazdego wolumenu:
-  - [x] nazwe,
-  - [x] lokalizowana nazwe, jesli system ja zwroci,
+- [x] Add `ByteFormatter` for GB/GiB and localized strings.
+- [x] Add `VolumeProvider` based on `FileManager.mountedVolumeURLs`.
+- [x] Read for each volume:
+  - [x] name,
+  - [x] localized name, if returned by the system,
   - [x] mount path,
   - [x] total bytes,
   - [x] available bytes,
   - [x] used bytes,
   - [x] file system description,
-  - [x] informacje browsable/internal/ejectable/removable, jesli dostepne.
-- [x] Odfiltrowac techniczne wolumeny, ktorych uzytkownik nie powinien widziec.
-- [x] Dodac klasyfikacje:
+  - [x] browsable/internal/ejectable/removable information when available.
+- [x] Filter technical volumes the user should not see.
+- [x] Add classification:
   - [x] internal,
   - [x] external,
   - [x] removable,
   - [x] network,
   - [x] disk image,
   - [x] unknown.
-- [x] Dodac testy jednostkowe dla obliczania procentow i formatowania bajtow.
+- [x] Add unit tests for percentage calculations and byte formatting.
 
-Done kiedy:
+Done when:
 
-- core potrafi zwrocic poprawna liste widocznych dyskow,
-- dla kazdego dysku mamy `used/free/total`,
-- testy core przechodza lokalnie.
+- core can return a correct list of visible disks,
+- each disk has `used/free/total`,
+- core tests pass locally.
 
-## Etap 3 - Snapshot i komunikacja z widgetem
+## Stage 3 - Snapshot And Widget Communication
 
-- [x] Zrobic `StorageSnapshotStore`.
-- [x] Zapisywac snapshot jako JSON albo plist w App Group container.
-- [x] Czytac snapshot z aplikacji i widget extension.
-- [x] Dodac fallback snapshot dla pustego stanu.
-- [x] Dodac obsluge bledow odczytu/zapisu.
-- [x] Po zapisaniu snapshotu wolac `WidgetCenter.reloadAllTimelines()`.
-- [x] Dodac testy encode/decode snapshotu.
+- [x] Add `StorageSnapshotStore`.
+- [x] Write snapshots as JSON or plist in the App Group container.
+- [x] Read snapshots from both the app and widget extension.
+- [x] Add a fallback snapshot for empty state.
+- [x] Add read/write error handling.
+- [x] Call `WidgetCenter.reloadAllTimelines()` after writing a snapshot.
+- [x] Add snapshot encode/decode tests.
 
-Done kiedy:
+Done when:
 
-- aplikacja zapisuje snapshot po starcie,
-- widget moze odczytac snapshot bez uruchamiania aplikacji,
-- brak danych pokazuje ladny empty state zamiast crasha.
+- the app writes a snapshot on startup,
+- widgets can read a snapshot without launching the app,
+- missing data shows a clean empty state instead of crashing.
 
-## Etap 4 - Monitoring w tle
+## Stage 4 - Background Monitoring
 
-- [x] Dodac `DiskMonitor`.
-- [x] Dodac polling co 30-60 sekund dla zmian wolnego miejsca.
-- [x] Dodac reczny refresh z menu bar.
-- [x] Dodac Disk Arbitration dla mount/unmount/eject.
-- [x] Po zdarzeniu dysku odswiezac snapshot.
-- [x] Dodac debounce, zeby kilka eventow naraz nie robilo wielu refreshy.
-- [x] Dodac OSLog dla waznych eventow.
+- [x] Add `DiskMonitor`.
+- [x] Add polling every 30-60 seconds for free-space changes.
+- [x] Add manual refresh from the menu bar.
+- [x] Add Disk Arbitration for mount/unmount/eject.
+- [x] Refresh the snapshot after disk events.
+- [x] Add debounce so event bursts do not trigger many refreshes.
+- [x] Add OSLog for important events.
 
-Done kiedy:
+Done when:
 
-- podlaczenie dysku aktualizuje snapshot,
-- odlaczenie dysku aktualizuje snapshot,
-- zmiana wolnego miejsca odswieza sie okresowo,
-- reczny refresh dziala z menu.
+- connecting a disk updates the snapshot,
+- disconnecting a disk updates the snapshot,
+- free-space changes refresh periodically,
+- manual refresh works from the menu.
 
-## Etap 5 - Maly widget
+## Stage 5 - Small Widget
 
-- [x] Zrobic widget family dla malego widoku.
-- [x] Zbudowac komponent `DiskRingView`.
-- [x] Pokazywac procent wolnego miejsca.
-- [x] Pokazywac ikone typu dysku.
-- [x] Obsluzyc 1, 2, 3 i 4+ dyski.
-- [x] Dobrac kolory statusu:
+- [x] Add the widget family for the small view.
+- [x] Build `DiskRingView`.
+- [x] Show free-space percentage.
+- [x] Show the disk-type icon.
+- [x] Handle 1, 2, 3, and 4+ disks.
+- [x] Choose status colors:
   - [x] ok,
   - [x] warning,
   - [x] critical.
-- [x] Dodac glass/fallback material.
-- [x] Dodac accessibility labels.
-- [ ] Przetestowac jasny i ciemny tryb.
+- [x] Add glass/fallback material.
+- [x] Add accessibility labels.
+- [ ] Test light and dark mode.
 
-Done kiedy:
+Done when:
 
-- maly widget pokazuje aktualne dyski,
-- layout nie przeskakuje przy zmianie procentow,
-- widok jest czytelny na pulpicie i w Notification Center.
+- the small widget shows current disks,
+- layout does not jump when percentages change,
+- the view is readable on the desktop and in Notification Center.
 
-## Etap 6 - Duzy widget
+## Stage 6 - Large Widget
 
-- [x] Zrobic sredni/duzy wariant widgetu.
-- [x] Zbudowac komponent `StorageSegmentBar`.
-- [x] Dla MVP pokazywac segmenty:
+- [x] Add medium/large widget variants.
+- [x] Build `StorageSegmentBar`.
+- [x] For MVP, show segments:
   - [x] `Used`
   - [x] `Available`
-- [x] Pokazywac nazwe dysku.
-- [x] Pokazywac tekst `X free of Y`.
-- [x] Dodac legende.
-- [x] Obsluzyc wiele dyskow w duzym wariancie.
-- [x] Dodac empty/error states.
-- [x] Dodac accessibility labels dla segmentow.
+- [x] Show disk name.
+- [x] Show `X free of Y`.
+- [x] Add a legend.
+- [x] Handle multiple disks in the large layout.
+- [x] Add empty/error states.
+- [x] Add accessibility labels for segments.
 
-Done kiedy:
+Done when:
 
-- duzy widget przypomina logika widok z macOS Storage,
-- dane sa prawdziwe,
-- brak kategorii systemowych jest jasno rozwiazany przez `Used/Available` w MVP.
+- the large widget follows macOS Storage logic,
+- data is real,
+- missing system categories are clearly handled through `Used/Available` in the MVP.
 
-## Etap 7 - Liquid Glass i design polish
+## Stage 7 - Liquid Glass And Design Polish
 
-- [x] Dodac wrapper/modifier `DiskmanGlass`.
-- [x] Na macOS 26+ uzyc `glassEffect(_:in:)`.
-- [x] Na starszych systemach uzyc fallbacku `.ultraThinMaterial`.
-- [ ] Dopracowac ksztalty:
-  - [x] ringi,
+- [x] Add `DiskmanGlass` wrapper/modifier.
+- [x] Use `glassEffect(_:in:)` on macOS 26+.
+- [x] Use `.ultraThinMaterial` fallback on older systems.
+- [ ] Refine shapes:
+  - [x] rings,
   - [x] segment bar,
   - [x] menu popover,
   - [x] about/settings.
-- [x] Ustalic finalna palete kolorow kategorii.
-- [x] Dobrac SF Symbols dla typow dyskow.
-- [ ] Sprawdzic teksty na PL i EN.
-- [ ] Zrobic screenshoty referencyjne.
+- [x] Set the final category color palette.
+- [x] Choose SF Symbols for disk kinds.
+- [ ] Review PL and EN text.
+- [ ] Create reference screenshots.
 
-Done kiedy:
+Done when:
 
-- UI wyglada spojnie z macOS,
-- widget nie jest krzykliwy,
-- Liquid Glass ma fallback i nie blokuje builda na starszym targetcie, jesli taki wspieramy.
+- UI looks coherent with macOS,
+- the widget is not visually loud,
+- Liquid Glass has a fallback and does not block builds on older targets if they are supported.
 
-## Etap 8 - Jezyk i lokalizacja
+## Stage 8 - Language And Localization
 
-- [ ] Dodac String Catalog albo `Localizable.strings`.
-- [ ] Dodac jezyki:
+- [ ] Add String Catalog or `Localizable.strings`.
+- [ ] Add languages:
   - [ ] English
   - [ ] Polski
-- [ ] Dodac tryb jezyka:
+- [ ] Add language mode:
   - [ ] System
   - [ ] English
   - [ ] Polski
-- [ ] Zlokalizowac menu bar.
-- [ ] Zlokalizowac widgety.
-- [ ] Zlokalizowac kategorie MVP:
+- [ ] Localize the menu bar.
+- [ ] Localize widgets.
+- [ ] Localize MVP categories:
   - [ ] Used
   - [ ] Available
   - [ ] Other
   - [ ] System Data
-- [ ] Zrobic `LocalizationProvider`, zeby widoki nie trzymaly tekstow kategorii na sztywno.
+- [ ] Add `LocalizationProvider` so views do not hardcode category text.
 
-Done kiedy:
+Done when:
 
-- aplikacja odpala sie w jezyku systemu,
-- uzytkownik moze wymusic PL albo EN,
-- widget i menu uzywaja tych samych tlumaczen.
+- the app starts in the system language,
+- the user can force PL or EN,
+- widgets and menu use the same translations.
 
-## Etap 9 - Ustawienia i About
+## Stage 9 - Settings And About
 
-- [ ] Dodac okno/panel Settings.
-- [ ] Dodac ustawienie `Launch at Login`.
-- [ ] Dodac ustawienie jezyka.
-- [ ] Dodac wybor typow dyskow:
+- [ ] Add a Settings window/panel.
+- [ ] Add `Launch at Login`.
+- [ ] Add language setting.
+- [ ] Add disk-kind visibility settings:
   - [ ] internal,
   - [ ] external,
   - [ ] network,
   - [ ] disk images.
-- [ ] Dodac ustawienie `show free percent` / `show used percent`.
-- [ ] Dodac wybor GB/GiB.
-- [ ] Dodac About:
-  - [ ] nazwa,
-  - [ ] wersja,
-  - [ ] link do GitHuba,
-  - [ ] licencja,
+- [ ] Add `show free percent` / `show used percent`.
+- [ ] Add GB/GiB selection.
+- [ ] Add About:
+  - [ ] name,
+  - [ ] version,
+  - [ ] GitHub link,
+  - [ ] license,
   - [ ] privacy note.
 
-Done kiedy:
+Done when:
 
-- podstawowe ustawienia sa zapisywane w `UserDefaults`,
-- zmiana ustawien odswieza snapshot i widget,
-- About jest gotowy pod open source.
+- basic settings are saved in `UserDefaults`,
+- setting changes refresh the snapshot and widget,
+- About is ready for open source users.
 
-## Etap 10 - Kategorie zajetosci
+## Stage 10 - Storage Categories
 
-Ten etap nie blokuje MVP. Robimy go dopiero, gdy `used/free` dziala stabilnie.
+This stage does not block the MVP. Build it only after `used/free` is stable.
 
-- [ ] Ustalic zakres scanner kategorii.
-- [ ] Dodac tryb `Categories: Off / Basic / Estimated`.
-- [ ] Dodac cache wynikow skanowania.
-- [ ] Dodac scanner `Applications`.
-- [ ] Dodac scanner `Developer`.
-- [ ] Dodac scanner `Documents`.
-- [ ] Dodac scanner `Photos`.
-- [ ] Dodac scanner `Messages`, tylko jesli uprawnienia pozwalaja.
-- [ ] Dodac `System Data` / `Other` jako reszte.
-- [ ] Dodac confidence label: `Estimated`.
-- [ ] Dodac privacy screen opisujacy skanowanie.
-- [ ] Dodac testy na sztucznych katalogach.
+- [ ] Define the category scanner scope.
+- [ ] Add `Categories: Off / Basic / Estimated` mode.
+- [ ] Add scan-result cache.
+- [ ] Add `Applications` scanner.
+- [ ] Add `Developer` scanner.
+- [ ] Add `Documents` scanner.
+- [ ] Add `Photos` scanner.
+- [ ] Add `Messages` scanner only if permissions allow it.
+- [ ] Add `System Data` / `Other` as the remainder.
+- [ ] Add confidence label: `Estimated`.
+- [ ] Add a privacy screen explaining scanning.
+- [ ] Add tests against artificial directories.
 
-Done kiedy:
+Done when:
 
-- kategorie sa opcjonalne,
-- scanner nie mieli dysku agresywnie,
-- uzytkownik rozumie, ze kategorie sa szacowane, a nie identyczne z System Settings.
+- categories are optional,
+- the scanner does not churn the disk aggressively,
+- users understand that categories are estimated and not identical to System Settings.
 
-## Etap 11 - Instalacja i release
+## Stage 11 - Installation And Release
 
-- [ ] Dodac `scripts/install.sh`.
-- [ ] Dodac `scripts/uninstall.sh`.
-- [ ] Dodac build/release instrukcje w README.
-- [ ] Dodac GitHub Actions dla builda.
-- [ ] Dodac testy w CI.
-- [ ] Przygotowac artefakt `Diskman.app.zip`.
-- [ ] Dodac checksumy release.
-- [ ] Ustalic signing/notarization:
+- [ ] Add `scripts/install.sh`.
+- [ ] Add `scripts/uninstall.sh`.
+- [ ] Add build/release instructions in README.
+- [ ] Add GitHub Actions for builds.
+- [ ] Add tests in CI.
+- [ ] Prepare `Diskman.app.zip`.
+- [ ] Add release checksums.
+- [ ] Decide signing/notarization:
   - [ ] unsigned dev release,
   - [ ] signed release,
   - [ ] notarized release.
-- [ ] Przygotowac pierwszy GitHub Release `v0.1.0`.
-- [ ] Docelowo przygotowac Homebrew Cask.
+- [ ] Prepare first GitHub Release `v0.1.0`.
+- [ ] Eventually prepare Homebrew Cask.
 
-Done kiedy:
+Done when:
 
-- uzytkownik moze zainstalowac Diskman przez terminal,
-- release ma jasna instrukcje,
-- aplikacja uruchamia sie po pobraniu bez recznych krokow poza standardowymi ograniczeniami Gatekeepera.
+- users can install Diskman through the terminal,
+- the release has clear instructions,
+- the app launches after download with no manual steps beyond standard Gatekeeper limitations.
 
-## Etap 12 - QA przed v0.1
+## Stage 12 - QA Before v0.1
 
-- [ ] Test na glownym dysku systemowym.
-- [ ] Test z pendrivem.
-- [ ] Test z zewnetrznym SSD.
-- [ ] Test z DMG.
-- [ ] Test z dyskiem sieciowym.
-- [ ] Test odlaczenia dysku podczas pracy.
-- [ ] Test niskiego miejsca.
-- [ ] Test 4+ dyskow.
-- [ ] Test jasny/ciemny tryb.
-- [ ] Test jezyka PL/EN/System.
-- [ ] Test startu po loginie.
-- [ ] Test po restarcie maca.
-- [ ] Test widgetu bez uruchomionej aplikacji.
+- [ ] Test on the main system disk.
+- [ ] Test with a USB stick.
+- [ ] Test with an external SSD.
+- [ ] Test with a DMG.
+- [ ] Test with a network disk.
+- [ ] Test disconnecting a disk while the app is running.
+- [ ] Test low free space.
+- [ ] Test 4+ disks.
+- [ ] Test light/dark mode.
+- [ ] Test PL/EN/System language.
+- [ ] Test launch after login.
+- [ ] Test after Mac restart.
+- [ ] Test widget without the app currently running.
 
-Done kiedy:
+Done when:
 
-- brak crashy w podstawowych scenariuszach,
-- dane w widgetach zgadzaja sie z Finder/System Settings w granicach normalnych roznic API,
-- README opisuje znane ograniczenia.
+- there are no crashes in basic scenarios,
+- widget data matches Finder/System Settings within normal API differences,
+- README describes known limitations.
 
-## Aktualny status
+## Current Status
 
-- [x] Powstal dokument analizy projektu: `info.md`.
-- [x] Powstala roadmapa projektu: `roadmap.md`.
-- [x] Repo lokalne zostalo zainicjalizowane jako git.
-- [x] Repo GitHub `zzzielinski/diskman` istnieje i ma dokumentacje startowa.
-- [x] Powstal szkielet projektu Xcode z appka, widgetami i `DiskmanCore`.
+- [x] Project analysis document exists: `info.md`.
+- [x] Project roadmap exists: `roadmap.md`.
+- [x] Local git repository has been initialized.
+- [x] GitHub repository `zzzielinski/diskman` exists and has starter documentation.
+- [x] Xcode project skeleton exists with the app, widgets, and `DiskmanCore`.
 
-## Najblizszy nastepny krok
+## Nearest Next Step
 
-1. Wizualnie sprawdzic widgety small/medium/large oraz About/Settings w jasnym i ciemnym trybie.
-2. Sprawdzic teksty na PL i EN.
-3. Zrobic screenshoty referencyjne.
+1. Start Stage 8: localization.
+2. Add shared language settings and `LocalizationProvider`.
+3. Localize app menu, widgets, and MVP storage categories.

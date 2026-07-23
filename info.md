@@ -1,92 +1,92 @@
-# Diskman - analiza projektu
+# Diskman - Project Analysis
 
-## Cel projektu
+## Project Goal
 
-Diskman ma być lekką, open source'ową aplikacją dla macOS, która działa stale w tle, monitoruje aktualnie podłączone dyski i pokazuje ich zajętość w estetycznych widgetach inspirowanych Apple Liquid Glass.
+Diskman is a lightweight open source macOS app that runs continuously in the background, monitors currently connected disks, and displays storage usage in polished widgets inspired by Apple's Liquid Glass visual language.
 
-Projekt ma mieć trzy widoczne części:
+The project has three visible surfaces:
 
-1. Aplikacja działająca w tle, odpowiedzialna za zbieranie danych o dyskach.
-2. Widgety na pulpit macOS:
-   - mały widget z okrągłymi wskaźnikami procentowymi dla dysków,
-   - duży widget z rozpisanym paskiem zajętości, kategoriami i legendą.
-3. Ikona w pasku menu macOS z podstawowymi opcjami: `Quit Diskman`, `Language`, `About`, `Refresh`, ewentualnie `Launch at Login` i szybkie ustawienia widoczności dysków.
+1. A background macOS menu bar app responsible for collecting disk data.
+2. Desktop widgets:
+   - a small widget with circular free-space indicators for disks,
+   - a larger widget with a segmented storage bar, categories, and a legend.
+3. A macOS menu bar item with core actions such as `Quit Diskman`, `Language`, `About`, `Refresh`, and later `Launch at Login` plus quick visibility settings.
 
-Docelowa nazwa repozytorium: `diskman`.
+Target repository name: `diskman`.
 
-## Założenia UX
+## UX Assumptions
 
-Styl ma iść w stronę Apple'owego szkła: półprzezroczystość, rozmycie tła, miękkie światło, spokojny kontrast i animacje reagujące na pointer. Nie kopiujemy dosłownie zrzutów ekranu, tylko bierzemy z nich logikę:
+The visual direction should feel close to Apple's glass aesthetic: translucency, background blur, soft highlights, calm contrast, and subtle pointer-aware interactions. The goal is not to copy the reference screenshots literally, but to borrow their product logic:
 
-- zrzut z ustawień macOS: poziomy pasek zajętości podzielony na kategorie,
-- zrzut od peryferiów: okrągłe wskaźniki procentowe,
-- zrzut z paska menu: mała, systemowa ikona w menu barze.
+- macOS Storage settings: horizontal segmented storage bars,
+- Apple peripheral widgets: circular percentage indicators,
+- macOS menu bar: compact system-native status item.
 
-Interfejs powinien być bardziej dopracowany niż surowy systemowy wykres:
+The interface should feel more considered than a raw system chart:
 
-- czytelne ikony dysków: internal SSD, external drive, network disk, removable/USB,
-- spokojna paleta kategorii, bez krzykliwego efektu "random rainbow",
-- subtelne glass/tint zależne od tapety i trybu jasny/ciemny,
-- brak ciężkich kart wewnątrz kart,
-- stabilne wymiary elementów, żeby widget nie przeskakiwał przy zmianie danych,
-- status "ostatnia aktualizacja" tylko w dużym widoku lub w menu, żeby mały widget pozostał czysty.
+- readable disk icons for internal SSDs, external drives, network disks, removable media, and disk images,
+- a restrained category palette rather than a loud random rainbow,
+- subtle glass/tint behavior that works in light and dark mode,
+- no heavy cards inside other cards,
+- stable dimensions so widgets do not jump when disk values change,
+- "last updated" status only in the larger widget or menu, keeping the small widget clean.
 
-## Ważne ograniczenie: "real time" a WidgetKit
+## Important Limitation: Real Time vs WidgetKit
 
-Oficjalny widget macOS nie działa jak zwykły proces renderujący UI w każdej sekundzie. WidgetKit dostaje od aplikacji dane przez timeline/snapshot, a system decyduje, kiedy dokładnie odświeżyć widok. To oznacza:
+A native macOS widget does not behave like a normal process rendering UI every second. WidgetKit receives data through snapshots and timelines, while macOS decides exactly when to refresh the rendered widget. That means:
 
-- prawdziwy monitoring w czasie rzeczywistym robimy w głównej aplikacji menu bar,
-- widget pokazuje ostatni zapisany snapshot,
-- po zmianie dysków aplikacja wymusza odświeżenie przez `WidgetCenter.reloadAllTimelines()`,
-- dodatkowo robimy okresowe odświeżanie, np. co 30-60 sekund w aplikacji i co kilka minut w timeline widgetu,
-- nie obiecujemy sekundowej dokładności w samym WidgetKit, bo macOS może ograniczać częstotliwość.
+- true real-time monitoring belongs in the main menu bar app,
+- the widget displays the latest saved snapshot,
+- after disk changes, the app can request a refresh with `WidgetCenter.reloadAllTimelines()`,
+- the app should also refresh periodically, for example every 30-60 seconds, while widget timelines can refresh every few minutes,
+- Diskman should not promise second-level accuracy inside WidgetKit because macOS may throttle updates.
 
-Jeśli później będziemy chcieli naprawdę "live" widok na pulpicie, alternatywą jest osobny floating desktop panel w AppKit/SwiftUI. To jednak nie byłby natywny widget dodawany przez system, tylko okno przypięte do pulpitu. Na start lepsza jest droga natywna: WidgetKit plus background collector.
+If the project later needs a truly live desktop surface, the alternative is a separate floating desktop panel built with AppKit/SwiftUI. That would not be a native system-added widget, so the MVP should stay native: WidgetKit plus a background collector.
 
-## Technologie
+## Technologies
 
-Rekomendowany stack:
+Recommended stack:
 
-- Swift 6 lub aktualny Swift z Xcode.
-- SwiftUI dla UI aplikacji, widgetów i ekranu About/Settings.
-- WidgetKit dla natywnych widgetów na pulpit i Notification Center.
-- AppKit przez `NSStatusItem` dla ikony i menu w górnym pasku macOS.
-- Foundation `FileManager` i `URLResourceValues` do listowania wolumenów i pobierania pojemności.
-- Disk Arbitration do szybkiej reakcji na mount/unmount/eject oraz zmiany nazw wolumenów.
-- App Groups do współdzielenia snapshotu danych między aplikacją a widget extension.
-- ServiceManagement `SMAppService` do opcji `Launch at Login`.
-- OSLog do logów diagnostycznych.
-- Swift Package Manager dla warstwy core i testów jednostkowych.
+- Swift 6 or the current Swift version shipped with Xcode.
+- SwiftUI for app UI, widgets, About, and Settings.
+- WidgetKit for native macOS desktop and Notification Center widgets.
+- AppKit through `NSStatusItem` for the macOS menu bar icon and menu.
+- Foundation `FileManager` and `URLResourceValues` for listing volumes and reading capacity values.
+- Disk Arbitration for quick reaction to mount, unmount, eject, and volume description changes.
+- App Groups for sharing the latest snapshot between the app and widget extension.
+- ServiceManagement `SMAppService` for `Launch at Login`.
+- OSLog for diagnostics.
+- Swift Package Manager for the shared core layer and unit tests.
 
 Liquid Glass:
 
-- na macOS Tahoe 26+ używamy SwiftUI `glassEffect(_:in:)`, `Glass`, `GlassEffectContainer` i standardowych komponentów systemowych,
-- na starszych systemach używamy fallbacku: `.background(.ultraThinMaterial)`, rounded rectangle, subtelny stroke i cień,
-- kod UI powinien być warunkowany availability checks, żeby projekt nie rozpadał się na starszym macOS.
+- on macOS Tahoe 26+, use SwiftUI `glassEffect(_:in:)`, `Glass`, `GlassEffectContainer`, and system components,
+- on older systems, use a fallback based on `.background(.ultraThinMaterial)`, rounded shapes, subtle strokes, and shadows,
+- UI code should use availability checks so the project can support older macOS versions if that becomes a goal.
 
-## Minimalne wersje systemu
+## Minimum System Versions
 
-Proponowany podział:
+Suggested split:
 
-- najlepsze doświadczenie: macOS Tahoe 26+ ze względu na Liquid Glass,
-- minimalne wsparcie techniczne: macOS 14+ lub macOS 15+, bo desktop widgets i współczesny SwiftUI/WidgetKit są tam sensownie dostępne,
-- jeśli chcemy zmniejszyć koszt utrzymania MVP, startujemy od macOS 15+ lub 26+ i dopiero później dodajemy fallbacki.
+- best experience: macOS Tahoe 26+ because of Liquid Glass,
+- minimum technical support: macOS 14+ or macOS 15+, where desktop widgets and modern SwiftUI/WidgetKit are reasonably available,
+- if MVP maintenance cost should stay low, start at macOS 15+ or 26+ and add fallback support later.
 
-Decyzja MVP:
+MVP decision:
 
-- `Diskman 0.1`: macOS 26+ jako primary target, żeby projekt od razu wyglądał jak Liquid Glass.
-- `Diskman 0.2+`: fallback wizualny dla starszego macOS, jeśli będzie realne zapotrzebowanie.
+- `Diskman 0.1`: macOS 26+ as the primary target so the app can immediately look like a Liquid Glass app.
+- `Diskman 0.2+`: visual fallback for older macOS versions if there is real demand.
 
-## Architektura
+## Architecture
 
-Proponowane moduły:
+Suggested modules:
 
 ```text
 Diskman/
   DiskmanApp/               # menu bar app + settings/about
   DiskmanWidgets/           # WidgetKit extension
-  DiskmanCore/              # modele, collector, formattery, storage, lokalizacja
-  DiskmanCLI/               # opcjonalny helper do debugowania i install scriptów
+  DiskmanCore/              # models, collector, formatters, storage, localization
+  DiskmanCLI/               # optional helper for debugging and install scripts
   scripts/
     install.sh
     uninstall.sh
@@ -94,20 +94,20 @@ Diskman/
   info.md
 ```
 
-Warstwy logiczne:
+Logical layers:
 
-- `DiskMonitor`: monitoruje pojawianie się i znikanie dysków.
-- `VolumeProvider`: pobiera listę wolumenów i surowe wartości systemowe.
-- `VolumeClassifier`: rozpoznaje typ dysku, np. internal, external, network, removable, Time Machine.
-- `StorageSnapshotStore`: zapisuje ostatni snapshot do App Group container jako JSON lub plist.
-- `WidgetTimelineProvider`: czyta snapshot i buduje widoki widgetów.
-- `CategoryScanner`: opcjonalnie skanuje kategorie zajętości.
-- `LocalizationProvider`: wybiera język i mapuje nazwy kategorii.
-- `MenuBarController`: obsługuje ikonę, menu i akcje aplikacji.
+- `DiskMonitor`: watches disks appear and disappear.
+- `VolumeProvider`: reads mounted volumes and raw system values.
+- `VolumeClassifier`: identifies disk kind, for example internal, external, network, removable, Time Machine.
+- `StorageSnapshotStore`: writes the latest snapshot to the App Group container as JSON or plist.
+- `WidgetTimelineProvider`: reads the snapshot and builds widget views.
+- `CategoryScanner`: optionally estimates storage categories.
+- `LocalizationProvider`: chooses language and maps category IDs to display names.
+- `MenuBarController`: owns the status item, menu, and app actions.
 
-## Model danych
+## Data Model
 
-Przykładowy model core:
+Example core model:
 
 ```swift
 struct DiskSnapshot: Codable, Hashable {
@@ -138,59 +138,59 @@ struct StorageCategorySnapshot: Codable, Hashable, Identifiable {
 }
 ```
 
-Ważne: procent w kółku powinien domyślnie oznaczać wolne miejsce, bo tak opisałeś projekt. Możemy też dodać ustawienie `Show free space` / `Show used space`, ale domyślne zachowanie: `availableBytes / totalBytes`.
+The percentage in the ring should default to free space, because that is the product behavior requested for the widget. A later setting can add `Show free space` / `Show used space`, but the default behavior should be `availableBytes / totalBytes`.
 
-## Pobieranie listy dysków
+## Reading Connected Disks
 
-Podstawowe API:
+Primary APIs:
 
 - `FileManager.default.mountedVolumeURLs(includingResourceValuesForKeys:options:)`,
-- klucze `URLResourceKey`: `volumeNameKey`, `volumeLocalizedNameKey`, `volumeTotalCapacityKey`, `volumeAvailableCapacityKey`, `volumeAvailableCapacityForImportantUsageKey`, `volumeIsBrowsableKey`, `volumeIsInternalKey`, `volumeIsEjectableKey`, `volumeIsRemovableKey`, `volumeLocalizedFormatDescriptionKey`.
+- `URLResourceKey`: `volumeNameKey`, `volumeLocalizedNameKey`, `volumeTotalCapacityKey`, `volumeAvailableCapacityKey`, `volumeAvailableCapacityForImportantUsageKey`, `volumeIsBrowsableKey`, `volumeIsInternalKey`, `volumeIsEjectableKey`, `volumeIsRemovableKey`, `volumeLocalizedFormatDescriptionKey`.
 
-Logika:
+Logic:
 
-1. Pobierz wszystkie zamontowane wolumeny.
-2. Odfiltruj techniczne/systemowe wolumeny, które nie powinny być pokazywane użytkownikowi:
-   - niebrowsable,
-   - automounted,
+1. Load all mounted volumes.
+2. Filter out technical/system helper volumes that should not be shown to users:
+   - non-browsable volumes,
+   - automounted helper volumes,
    - synthetic/system helper volumes,
-   - mounty bez sensownej pojemności.
-3. Zachowaj główny dysk systemowy, dyski zewnętrzne, pendrive'y, karty SD, dyski sieciowe i obrazy DMG, jeśli są browsable.
-4. Dla każdego wolumenu oblicz:
+   - mounts without meaningful capacity.
+3. Keep the main system disk, external disks, USB drives, SD cards, network disks, and DMG images when they are browsable.
+4. For each volume, calculate:
    - total,
    - available,
    - used,
    - free percent,
    - used percent,
-   - rodzaj dysku,
+   - disk kind,
    - display name.
-5. Snapshot zapisz do współdzielonego kontenera.
-6. Poproś WidgetKit o refresh.
+5. Write the snapshot to the shared container.
+6. Ask WidgetKit to refresh.
 
 Fallback:
 
-- jeśli `URLResourceValues` nie odda pełnych danych, użyć `statfs`.
+- if `URLResourceValues` cannot return complete data, use `statfs`.
 
-## Reakcja na zmiany w czasie działania
+## Runtime Change Handling
 
-Potrzebujemy trzech mechanizmów, bo każdy łapie trochę inne przypadki:
+Diskman needs three refresh mechanisms because each catches a different class of changes:
 
 - Disk Arbitration:
   - mount,
   - unmount,
   - eject,
-  - zmiana nazwy/description dysku.
+  - disk name/description changes.
 - Periodic polling:
-  - np. co 30 sekund,
-  - łapie zmianę wolnego miejsca nawet bez mount/unmount.
+  - for example every 30 seconds,
+  - catches free-space changes even without mount/unmount events.
 - Manual refresh:
-  - opcja w menu bar,
-  - przydatne do debugowania i dla użytkownika.
+  - exposed in the menu bar,
+  - useful for debugging and users.
 
 Flow:
 
 ```text
-Disk event albo timer
+Disk event or timer
   -> VolumeProvider.refresh()
   -> DiskSnapshot
   -> StorageSnapshotStore.write()
@@ -198,62 +198,62 @@ Disk event albo timer
   -> menu bar popover/status updates
 ```
 
-## Kategorie zajętości
+## Storage Categories
 
-To jest najtrudniejsza część projektu.
+This is the hardest part of the project.
 
-macOS Settings pokazuje kategorie typu Applications, Documents, Developer, Photos, Messages, System Data. Apple nie udostępnia stabilnego publicznego API, które pozwala aplikacji zewnętrznej pobrać dokładnie te same kategorie i te same lokalizowane nazwy z panelu Storage. Dlatego nie powinniśmy udawać, że w MVP da się 1:1 sklonować System Settings.
+macOS Settings shows categories such as Applications, Documents, Developer, Photos, Messages, and System Data. Apple does not expose a stable public API that lets third-party apps read exactly the same categories and localized names used by the Storage settings panel. The MVP should not pretend it can clone System Settings 1:1.
 
-Proponowane podejście:
+Recommended approach:
 
 ### MVP
 
-Pokazujemy dla każdego dysku:
+Show these values for each disk:
 
-- użyte,
-- wolne,
-- purgeable/important/opportunistic available, jeśli API zwróci dane,
-- typ dysku.
+- used,
+- available,
+- purgeable/important/opportunistic available if the API returns useful data,
+- disk kind.
 
-Duży widget ma pasek:
+The large widget should use a bar with:
 
 - `Used`,
 - `Available`,
-- opcjonalnie `Purgeable/Available for opportunistic usage`, jeśli wartości są sensowne.
+- optionally `Purgeable` / `Available for opportunistic usage` when values are meaningful.
 
-### Wersja 0.2
+### Version 0.2
 
-Dodajemy własny, ostrożny scanner kategorii:
+Add a careful opt-in category scanner:
 
-- Applications: `/Applications`, `~/Applications`, pliki `.app`,
-- Developer: `~/Developer`, Xcode DerivedData, SwiftPM cache, node_modules, repozytoria,
-- Photos: biblioteki Photos, obrazy i wideo w znanych lokalizacjach,
-- Documents: Documents, Desktop, Downloads i typy dokumentów,
-- Messages: załączniki Messages, jeśli użytkownik nada uprawnienia,
-- System Data: reszta lub kategorie nierozpoznane.
+- Applications: `/Applications`, `~/Applications`, `.app` bundles,
+- Developer: `~/Developer`, Xcode DerivedData, SwiftPM cache, `node_modules`, repositories,
+- Photos: Photos libraries, images, and videos in known locations,
+- Documents: Documents, Desktop, Downloads, and document file types,
+- Messages: Messages attachments if the user grants access,
+- System Data: remaining or unrecognized categories.
 
-Scanner musi być:
+The scanner must be:
 
 - opt-in,
-- throttlowany,
-- cache'owany,
-- odporny na permission denied,
-- z informacją o dokładności, np. `Estimated`.
+- throttled,
+- cached,
+- resilient to permission denied,
+- labeled with confidence, for example `Estimated`.
 
-Nie skanujemy agresywnie całego dysku bez zgody użytkownika. To byłoby wolne, energożerne i prywatnościowo średnie.
+Diskman should not aggressively scan the whole disk without user consent. That would be slow, energy-hungry, and bad for privacy.
 
-## Lokalizacja i język
+## Localization And Language
 
-Priorytet:
+Priority:
 
-1. Automatycznie wykryj język systemu przez `Locale.current` / `Bundle.main.preferredLocalizations`.
-2. Użyj `Localizable.strings` albo String Catalog (`.xcstrings`) dla UI aplikacji, menu i kategorii.
-3. Pozwól użytkownikowi wymusić język:
+1. Detect the system language through `Locale.current` / `Bundle.main.preferredLocalizations`.
+2. Use `Localizable.strings` or a String Catalog (`.xcstrings`) for app UI, menu text, widgets, and categories.
+3. Let the user override language:
    - `System`,
    - `English`,
    - `Polski`.
 
-Kategorie nie powinny być hardcodowane jako tekst w widokach. W kodzie używamy stabilnych ID:
+Categories should not be hardcoded as view text. Code should use stable IDs:
 
 ```swift
 enum StorageCategoryID: String, Codable {
@@ -269,71 +269,71 @@ enum StorageCategoryID: String, Codable {
 }
 ```
 
-Widok prosi `LocalizationProvider` o nazwę dla ID. Dzięki temu w przyszłości można dodać kolejne języki bez ruszania logiki.
+Views ask `LocalizationProvider` for the display name for an ID. That allows more languages to be added later without changing storage logic.
 
-Jeśli macOS zwróci lokalizowaną nazwę wolumenu przez `volumeLocalizedNameKey`, używamy jej. Nazw kategorii z System Settings raczej nie pobierzemy publicznym API, więc tłumaczymy własne kategorie.
+If macOS returns a localized volume name through `volumeLocalizedNameKey`, Diskman should use it. Category names from System Settings probably cannot be fetched through public APIs, so Diskman should translate its own category names.
 
-## Mały widget
+## Small Widget
 
-Cel: szybki podgląd wolnego miejsca.
+Goal: quick free-space glance.
 
-Układ:
+Layout:
 
 - glass container,
-- maksymalnie 3-4 dyski w jednym widoku,
-- każdy dysk jako okrągły progress ring,
-- ikona w środku,
-- procent pod spodem,
-- minimalny tekst, np. tylko procent albo skrócona nazwa przy hover/large accessibility label.
+- up to 3-4 disks in one widget,
+- each disk as a circular progress ring,
+- disk icon in the middle,
+- percentage below,
+- minimal text, usually only percentage or a shortened name through accessibility/expanded states.
 
-Logika prezentacji:
+Presentation logic:
 
-- jeśli jest jeden dysk: większy ring,
-- jeśli są 2-3 dyski: równe ringi,
-- jeśli więcej niż 4: pokaż 3 najważniejsze i czwarty slot jako `+N`,
-- kolor ringu:
-  - zielony: dużo wolnego miejsca,
-  - żółty: ostrzeżenie,
-  - czerwony: mało wolnego miejsca,
-  - neutralny niebiesko/szary dla dysków sieciowych lub offline cache.
+- one disk: larger ring,
+- 2-3 disks: equal rings,
+- more than 4 disks: show the three most important disks and a fourth `+N` slot,
+- ring color:
+  - green: plenty of free space,
+  - yellow: warning,
+  - red: low free space,
+  - neutral blue/gray for network disks or offline cache if needed later.
 
-Progi:
+Thresholds:
 
 - >= 25% free: ok,
 - 10-25% free: warning,
 - < 10% free: critical.
 
-## Duży widget
+## Large Widget
 
-Cel: bardziej szczegółowa rozpiska podobna do macOS Storage.
+Goal: a more detailed breakdown similar to macOS Storage.
 
-Układ:
+Layout:
 
-- nazwa dysku,
-- `X GB free of Y GB` albo lokalizowany odpowiednik,
-- segmentowany pasek zajętości,
-- legenda kategorii,
-- lista kilku dysków albo szczegóły jednego wybranego dysku.
+- disk name,
+- `X GB free of Y GB` or localized equivalent,
+- segmented storage bar,
+- category legend,
+- list of several disks or details for one selected disk.
 
-Proponowane warianty:
+Suggested variants:
 
-- `systemMedium`: 1 wybrany dysk z paskiem i legendą,
-- `systemLarge`: 2-3 dyski, każdy z własnym paskiem,
-- konfiguracja widgetu przez App Intent: wybór dysku albo `All disks`.
+- `systemMedium`: one selected disk with bar and legend,
+- `systemLarge`: 2-3 disks, each with its own bar,
+- widget configuration through App Intent: selected disk or `All disks`.
 
-Pasek:
+Bar:
 
-- segmenty sortowane malejąco po rozmiarze,
-- minimalna szerokość wizualna dla małych segmentów, ale tooltip/accessibility powinny mieć prawdziwe wartości,
-- wolne miejsce po prawej jako osobny neutralny segment,
-- etykieta centralna tylko wtedy, gdy się mieści.
+- segments sorted descending by size,
+- minimum visual width for tiny segments, while tooltips/accessibility keep true values,
+- available space on the right as a separate neutral segment,
+- central label only when it fits.
 
-## Menu bar
+## Menu Bar
 
-Ikona w górnym pasku macOS:
+macOS menu bar item:
 
-- symbol SF Symbols, np. `externaldrive`, `internaldrive`, `chart.pie`,
-- stan ostrzegawczy, gdy któryś dysk ma mało miejsca,
+- SF Symbols icon, for example `externaldrive`, `internaldrive`, `chart.pie`,
+- warning state when any disk is low on free space,
 - menu:
   - `Refresh Now`,
   - `Open Settings`,
@@ -348,185 +348,185 @@ Ikona w górnym pasku macOS:
   - `About Diskman`,
   - `Quit Diskman`.
 
-Można też dodać kliknięcie ikony jako mały popover z listą dysków i mini paskami.
+A later version can also make clicking the icon open a compact popover with a disk list and mini bars.
 
-## Ustawienia
+## Settings
 
-Pierwszy zakres:
+Initial scope:
 
-- język,
+- language,
 - launch at login,
-- które typy dysków pokazywać,
-- domyślny dysk dla dużego widgetu,
+- which disk kinds to show,
+- default disk for the large widget,
 - free percent vs used percent,
-- jednostki: decimal GB albo binary GiB,
-- tryb kategorii:
+- units: decimal GB or binary GiB,
+- category mode:
   - Off,
   - Basic,
   - Estimated scanner.
 
-Drugi zakres:
+Second scope:
 
-- cache scanner,
+- scanner cache,
 - reset cache,
-- privacy screen z opisem, co jest skanowane,
-- eksport diagnostyczny bez danych osobowych.
+- privacy screen explaining what is scanned,
+- diagnostics export without personal data.
 
-## Prywatność i uprawnienia
+## Privacy And Permissions
 
-Diskman powinien być bardzo spokojny prywatnościowo:
+Diskman should be privacy-conservative:
 
-- domyślnie nie wysyła żadnych danych,
-- nie ma backendu,
-- nie zbiera analytics,
-- snapshot dla widgetu zawiera tylko nazwy dysków, ścieżki mount pointów i rozmiary,
-- scanner kategorii jest opcjonalny,
-- jeśli scanner wymaga dostępu do katalogów użytkownika, pokazujemy jasny komunikat,
-- jeśli używamy API objętych Required Reason API, dodajemy `PrivacyInfo.xcprivacy` z właściwym powodem.
+- no data is sent by default,
+- no backend,
+- no analytics,
+- widget snapshots contain only disk names, mount paths, and sizes,
+- category scanning is optional,
+- if scanning needs access to user directories, show a clear explanation,
+- if Required Reason APIs are used, add `PrivacyInfo.xcprivacy` with the correct reason.
 
-Warto w README dodać osobną sekcję `Privacy`.
+README should include a separate `Privacy` section.
 
-## Dystrybucja open source
+## Open Source Distribution
 
-Repo:
+Repository:
 
 ```text
 github.com/<owner>/diskman
 ```
 
-Instalacja "jak prosi z GitHuba":
+Installation like a polished GitHub project:
 
-Opcja MVP:
+MVP option:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/<owner>/diskman/main/scripts/install.sh | bash
 ```
 
-Co robi `install.sh`:
+What `install.sh` does:
 
-1. Wykrywa architekturę macOS.
-2. Pobiera najnowszy release z GitHub Releases.
-3. Rozpakowuje `Diskman.app`.
-4. Przenosi aplikację do `/Applications` albo `~/Applications`.
-5. Uruchamia aplikację.
-6. Wyświetla instrukcję dodania widgetu na pulpit.
+1. Detects macOS architecture.
+2. Downloads the latest GitHub Release.
+3. Unpacks `Diskman.app`.
+4. Moves the app to `/Applications` or `~/Applications`.
+5. Launches the app.
+6. Prints instructions for adding the widget to the desktop.
 
-Docelowo lepsza opcja:
+Long-term better option:
 
 ```bash
 brew install --cask diskman
 ```
 
-Do tego potrzebny będzie Homebrew tap albo PR do Homebrew Cask, gdy projekt będzie stabilny.
+That requires a Homebrew tap or a PR to Homebrew Cask once the project is stable.
 
-Ważne dla macOS:
+Important for macOS:
 
-- najlepiej podpisywać i notarizować aplikację,
-- bez notarizacji Gatekeeper może ostrzegać użytkowników,
-- open source nie wyklucza podpisywania, ale wymaga konta Apple Developer.
+- ideally sign and notarize the app,
+- without notarization, Gatekeeper may warn users,
+- open source does not prevent signing, but it requires an Apple Developer account.
 
-## Build i release
+## Build And Release
 
-Proponowany pipeline GitHub Actions:
+Suggested GitHub Actions pipeline:
 
-- build na `macos-latest`,
-- testy `DiskmanCore`,
-- archiwizacja `.app`,
-- podpisywanie, jeśli dostępne sekrety,
-- notarization, jeśli dostępne sekrety,
-- tworzenie `.zip` albo `.dmg`,
-- publikacja GitHub Release.
+- build on `macos-latest`,
+- run `DiskmanCore` tests,
+- archive the `.app`,
+- sign when secrets are available,
+- notarize when secrets are available,
+- create `.zip` or `.dmg`,
+- publish a GitHub Release.
 
-Artefakty:
+Artifacts:
 
 - `Diskman.app.zip`,
-- checksum `SHA256SUMS`,
-- opcjonalnie `.dmg`,
+- `SHA256SUMS`,
+- optional `.dmg`,
 - `install.sh`.
 
-## Testy
+## Tests
 
-Testy jednostkowe:
+Unit tests:
 
-- formatowanie bajtów,
-- obliczanie procentów,
-- sortowanie dysków,
-- mapowanie kategorii,
-- lokalizacja kategorii,
-- zapis i odczyt snapshotu.
+- byte formatting,
+- percentage calculations,
+- disk sorting,
+- category mapping,
+- category localization,
+- snapshot write/read.
 
-Testy integracyjne/manualne:
+Integration/manual tests:
 
-- dysk wewnętrzny,
-- pendrive/USB SSD,
+- internal disk,
+- USB stick / USB SSD,
 - DMG,
-- dysk sieciowy,
-- eject podczas działania aplikacji,
-- zmiana języka,
-- brak uprawnień do skanowania,
-- bardzo mało miejsca,
-- więcej niż 4 dyski.
+- network disk,
+- eject while the app is running,
+- language switching,
+- missing scan permissions,
+- very low free space,
+- more than four disks.
 
-## Roadmapa
+## Roadmap
 
 ### 0.1 - MVP
 
 - menu bar app,
-- wykrywanie dysków,
-- snapshot do App Group,
-- mały widget z ringami,
-- duży widget z paskiem used/free,
-- język System/English/Polski,
-- instalacja przez GitHub Release i `install.sh`.
+- disk detection,
+- App Group snapshot,
+- small widget with rings,
+- large widget with used/free bar,
+- language modes: System / English / Polski,
+- installation through GitHub Release and `install.sh`.
 
-### 0.2 - Kategorie basic
+### 0.2 - Basic Categories
 
-- podstawowy scanner kategorii,
-- cache wyników,
-- szacowana legenda w dużym widgetcie,
-- ustawienia prywatności.
+- basic category scanner,
+- result cache,
+- estimated legend in the large widget,
+- privacy settings.
 
-### 0.3 - Dopieszczenie UX
+### 0.3 - UX Polish
 
-- App Intent do wyboru konkretnego dysku w widgetcie,
-- lepsze ikony,
-- ostrzeżenia o niskim miejscu,
-- popover w menu barze,
+- App Intent for choosing a specific disk in a widget,
+- better icons,
+- low-space warnings,
+- menu bar popover,
 - Homebrew cask.
 
 ### 1.0
 
-- podpisany i notarizowany release,
-- stabilne API core,
-- kompletna dokumentacja,
-- sensowne testy i manual QA matrix,
-- dopracowany wygląd Liquid Glass.
+- signed and notarized release,
+- stable core API,
+- complete documentation,
+- useful tests and manual QA matrix,
+- polished Liquid Glass appearance.
 
-## Ryzyka techniczne
+## Technical Risks
 
-Największe ryzyka:
+Main risks:
 
-- WidgetKit nie daje pełnego real-time renderingu.
-- Kategorie macOS Storage nie są publicznie dostępne 1:1.
-- Skanowanie katalogów może być wolne i wymagać uprawnień.
-- Liquid Glass wymaga nowego SDK/systemu, więc potrzebny jest fallback albo wysoki deployment target.
-- App Group i WidgetKit wymagają poprawnej konfiguracji signing/capabilities.
-- Dystrybucja poza App Store wymaga uwagi przy podpisywaniu i notarization.
+- WidgetKit does not provide fully real-time rendering.
+- macOS Storage categories are not publicly available 1:1.
+- Directory scanning can be slow and require permissions.
+- Liquid Glass requires a new SDK/system, so Diskman needs a fallback or a high deployment target.
+- App Groups and WidgetKit require correct signing/capability setup.
+- Distribution outside the App Store requires care around signing and notarization.
 
-## Decyzje proponowane na start
+## Initial Decisions
 
-1. Budujemy natywną aplikację macOS w SwiftUI + AppKit menu bar.
-2. Widgety robimy przez WidgetKit, a background collector działa w głównej aplikacji.
-3. MVP pokazuje realne dane o dyskach: total, used, free, percent.
-4. Kategorie robimy najpierw jako `Used/Available`, a dopiero potem dokładamy estimated category scanner.
-5. Język jest oparty o system, z override `English` / `Polski`.
-6. Repo nazywa się `diskman`, a instalacja idzie przez GitHub Releases i `scripts/install.sh`.
+1. Build a native macOS app using SwiftUI plus an AppKit menu bar item.
+2. Build widgets through WidgetKit, while the background collector runs in the main app.
+3. MVP shows real disk data: total, used, free, percent.
+4. Start categories as `Used/Available`, then add an estimated category scanner later.
+5. Language follows the system by default, with `English` / `Polski` override.
+6. The repo is named `diskman`, with installation through GitHub Releases and `scripts/install.sh`.
 
-## Źródła techniczne
+## Technical References
 
-- Apple Developer: SwiftUI `Glass` i Liquid Glass: https://developer.apple.com/documentation/swiftui/glass
+- Apple Developer: SwiftUI `Glass` and Liquid Glass: https://developer.apple.com/documentation/swiftui/glass
 - Apple Developer: `glassEffect(_:in:)`: https://developer.apple.com/documentation/swiftui/view/glasseffect%28_%3Ain%3A%29
-- Apple Developer: WidgetKit na macOS: https://developer.apple.com/documentation/widgetkit
+- Apple Developer: WidgetKit on macOS: https://developer.apple.com/documentation/widgetkit
 - Apple Developer: `FileManager.mountedVolumeURLs`: https://developer.apple.com/documentation/foundation/filemanager/mountedvolumeurls%28includingresourcevaluesforkeys%3Aoptions%3A%29
 - Apple Developer: volume capacity keys: https://developer.apple.com/documentation/foundation/urlresourcekey
 - Apple Developer: Disk Arbitration: https://developer.apple.com/documentation/diskarbitration
