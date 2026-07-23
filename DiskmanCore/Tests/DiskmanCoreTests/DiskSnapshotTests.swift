@@ -23,6 +23,13 @@ func byteFormatterProducesUnits() {
 }
 
 @Test
+func binaryByteFormatterProducesGibUnits() {
+    let formatted = DiskByteFormatter.binary.string(fromByteCount: 1_073_741_824)
+
+    #expect(formatted.contains("GiB"))
+}
+
+@Test
 func resourceSnapshotBuildsVolumeSnapshot() throws {
     let resource = VolumeResourceSnapshot(
         url: URL(filePath: "/Volumes/Backup"),
@@ -176,4 +183,87 @@ func settingsStorePersistsLanguageMode() throws {
 
     let restoredStore = DiskmanSettingsStore(userDefaults: userDefaults)
     #expect(restoredStore.languageMode == .polish)
+}
+
+@Test
+func settingsStorePersistsDisplaySettings() throws {
+    let suiteName = "diskman-tests-\(UUID().uuidString)"
+    let userDefaults = try #require(UserDefaults(suiteName: suiteName))
+    defer {
+        userDefaults.removePersistentDomain(forName: suiteName)
+    }
+
+    let store = DiskmanSettingsStore(userDefaults: userDefaults)
+    #expect(store.usageDisplayMode == .free)
+    #expect(store.storageUnitMode == .decimal)
+    #expect(store.visibleVolumeKinds == Set(DiskmanVisibleVolumeKind.allCases))
+
+    store.usageDisplayMode = .used
+    store.storageUnitMode = .binary
+    store.visibleVolumeKinds = []
+
+    let restoredStore = DiskmanSettingsStore(userDefaults: userDefaults)
+    #expect(restoredStore.usageDisplayMode == .used)
+    #expect(restoredStore.storageUnitMode == .binary)
+    #expect(restoredStore.visibleVolumeKinds == [])
+}
+
+@Test
+func snapshotFiltersVolumesByVisibleKinds() {
+    let internalVolume = VolumeSnapshot(
+        id: "internal",
+        name: "Internal",
+        localizedName: nil,
+        mountPath: "/",
+        kind: .internalDrive,
+        fileSystemName: "APFS",
+        totalBytes: 1_000,
+        availableBytes: 400,
+        importantAvailableBytes: nil,
+        usedBytes: 600,
+        categories: []
+    )
+    let networkVolume = VolumeSnapshot(
+        id: "network",
+        name: "Network",
+        localizedName: nil,
+        mountPath: "/Volumes/Network",
+        kind: .network,
+        fileSystemName: "SMB",
+        totalBytes: 1_000,
+        availableBytes: 400,
+        importantAvailableBytes: nil,
+        usedBytes: 600,
+        categories: []
+    )
+    let snapshot = DiskSnapshot(generatedAt: Date(), volumes: [internalVolume, networkVolume])
+
+    let filtered = snapshot.filtered(visibleKinds: [.network])
+
+    #expect(filtered.volumes.map(\.id) == ["network"])
+}
+
+@Test
+func localizationProviderUsesUsageAndUnitSettings() {
+    let volume = VolumeSnapshot(
+        id: "volume",
+        name: "Volume",
+        localizedName: nil,
+        mountPath: "/Volumes/Volume",
+        kind: .externalDrive,
+        fileSystemName: "APFS",
+        totalBytes: 1_073_741_824,
+        availableBytes: 268_435_456,
+        importantAvailableBytes: nil,
+        usedBytes: 805_306_368,
+        categories: []
+    )
+    let localization = LocalizationProvider(
+        languageMode: .english,
+        usageDisplayMode: .used,
+        storageUnitMode: .binary
+    )
+
+    #expect(localization.usagePercentText(for: volume) == "75%")
+    #expect(localization.capacitySummary(for: volume).contains("GiB"))
 }

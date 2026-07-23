@@ -49,6 +49,7 @@ public final class DiskMonitor {
 
     private let volumeProvider: VolumeProviding
     private let snapshotStore: StorageSnapshotStore
+    private let settingsStore: DiskmanSettingsStore
     private let configuration: Configuration
     private let logger = Logger(subsystem: "com.zzzielinski.diskman", category: "DiskMonitor")
 
@@ -60,10 +61,12 @@ public final class DiskMonitor {
     public init(
         volumeProvider: VolumeProviding = VolumeProvider(),
         snapshotStore: StorageSnapshotStore = StorageSnapshotStore(),
+        settingsStore: DiskmanSettingsStore = DiskmanSettingsStore(),
         configuration: Configuration = Configuration()
     ) {
         self.volumeProvider = volumeProvider
         self.snapshotStore = snapshotStore
+        self.settingsStore = settingsStore
         self.configuration = configuration
     }
 
@@ -164,7 +167,9 @@ public final class DiskMonitor {
         logger.debug("Refreshing disks: \(reason.rawValue, privacy: .public)")
 
         do {
-            let snapshot = try volumeProvider.snapshot()
+            let snapshot = try volumeProvider
+                .snapshot()
+                .filtered(visibleKinds: settingsStore.visibleVolumeKinds)
             var writeError: Swift.Error?
 
             do {

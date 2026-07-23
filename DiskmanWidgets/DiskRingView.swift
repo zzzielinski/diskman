@@ -24,7 +24,7 @@ struct DiskRingView: View {
                 }
 
             VStack(spacing: 1) {
-                Text(volume.freePercentText)
+                Text(localization.usagePercentText(for: volume))
                     .font(.system(size: percentFontSize, weight: .semibold, design: .rounded))
                     .monospacedDigit()
                     .lineLimit(1)
@@ -59,14 +59,14 @@ struct DiskRingView: View {
                 .stroke(.secondary.opacity(0.16), lineWidth: lineWidth)
 
             Circle()
-                .trim(from: 0, to: volume.freeSpaceRatio)
+                .trim(from: 0, to: localization.usageRatio(for: volume))
                 .stroke(
                     statusColor,
                     style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
                 )
                 .rotationEffect(.degrees(-90))
         }
-        .animation(.snappy(duration: 0.25), value: volume.freeSpaceRatio)
+        .animation(.snappy(duration: 0.25), value: localization.usageRatio(for: volume))
     }
 
     private var lineWidth: CGFloat {

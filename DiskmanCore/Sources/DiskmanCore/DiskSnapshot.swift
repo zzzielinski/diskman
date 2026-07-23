@@ -67,6 +67,10 @@ public struct VolumeSnapshot: Codable, Hashable, Identifiable, Sendable {
         freeSpaceRatio.formatted(.percent.precision(.fractionLength(0)))
     }
 
+    public var usedPercentText: String {
+        usedSpaceRatio.formatted(.percent.precision(.fractionLength(0)))
+    }
+
     public var capacitySummary: String {
         "\(DiskByteFormatter.decimal.string(fromByteCount: availableBytes)) free of \(DiskByteFormatter.decimal.string(fromByteCount: totalBytes))"
     }
@@ -144,6 +148,17 @@ public enum CategoryConfidence: String, Codable, Hashable, Sendable {
 }
 
 public extension DiskSnapshot {
+    func filtered(visibleKinds: Set<DiskmanVisibleVolumeKind>) -> DiskSnapshot {
+        DiskSnapshot(
+            generatedAt: generatedAt,
+            volumes: volumes.filter { volume in
+                visibleKinds.contains(where: { visibleKind in
+                    visibleKind.includes(volume.kind)
+                })
+            }
+        )
+    }
+
     static var empty: DiskSnapshot {
         DiskSnapshot(generatedAt: Date(), volumes: [])
     }

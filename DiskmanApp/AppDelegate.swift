@@ -5,11 +5,12 @@ import WidgetKit
 
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
-    private let diskMonitor = DiskMonitor()
     private let settingsStore = DiskmanSettingsStore()
+    private lazy var diskMonitor = DiskMonitor(settingsStore: settingsStore)
     private var statusItem: NSStatusItem?
     private var statusMenuItem: NSMenuItem?
     private var aboutWindowController: NSWindowController?
+    private var settingsObserver: NSObjectProtocol?
 
     private var localization: LocalizationProvider {
         LocalizationProvider(settingsStore: settingsStore)
@@ -17,12 +18,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
+        observeSettingsChanges()
         configureStatusItem()
         configureDiskMonitor()
         diskMonitor.start()
     }
 
     func applicationWillTerminate(_ notification: Notification) {
+        if let settingsObserver {
+            NotificationCenter.default.removeObserver(settingsObserver)
+        }
         diskMonitor.stop()
     }
 
@@ -154,11 +159,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         let title = localization.string(
-            .menuStatus,
+            localization.usageDisplayMode == .free ? .menuStatusFree : .menuStatusUsed,
             snapshot.volumes.count,
             localization.diskLabel(count: snapshot.volumes.count),
             primaryVolume.displayName,
-            primaryVolume.freePercentText
+            localization.usagePercentText(for: primaryVolume)
         )
 
         guard snapshotWriteError != nil else {
@@ -182,6 +187,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func setLanguageMode(_ mode: DiskmanLanguageMode) {
         settingsStore.languageMode = mode
+        NotificationCenter.default.post(name: .diskmanSettingsDidChange, object: nil)
+    }
+
+    private func observeSettingsChanges() {
+        settingsObserver = NotificationCenter.default.addObserver(
+            forName: .diskmanSettingsDidChange,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                self?.applySettingsChange()
+            }
+        }
+    }
+
+    private func applySettingsChange() {
         statusItem?.menu = makeMenu()
         aboutWindowController?.close()
         aboutWindowController = nil
@@ -199,7 +220,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 360, height: 250),
+            contentRect: NSRect(x: 0, y: 0, width: 400, height: 330),
             styleMask: [.titled, .closable, .fullSizeContentView],
             backing: .buffered,
             defer: false

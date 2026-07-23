@@ -7,6 +7,8 @@
 "menu.unableToReadDisks" = "Unable to read disks";
 "menu.noDisksFound" = "No disks found";
 "menu.status" = "%d %@ - %@: %@ free";
+"menu.status.free" = "%d %@ - %@: %@ free";
+"menu.status.used" = "%d %@ - %@: %@ used";
 "menu.widgetSnapshotUnavailable" = "Widget snapshot unavailable";
 
 "language.system" = "System";
@@ -17,6 +19,7 @@
 "disk.plural" = "disks";
 "capacity.freeOf" = "%@ free of %@";
 "accessibility.diskFree" = "%@, %@ free";
+"accessibility.diskUsed" = "%@, %@ used";
 
 "widget.noDisks" = "No Disks";
 "widget.noData" = "No Data";
@@ -32,10 +35,20 @@
 "settings.snapshot" = "Snapshot";
 "settings.widgetShared" = "Widget shared";
 "settings.language" = "Language";
+"settings.launchAtLogin" = "Launch at Login";
+"settings.launchAtLoginHelp" = "Start Diskman automatically when you sign in.";
+"settings.display" = "Display";
+"settings.diskVisibility" = "Disk Visibility";
+"settings.storageUnits" = "Storage Units";
+"settings.percentMode" = "Percent Mode";
+"settings.launchAtLoginError" = "Unable to update Launch at Login.";
 
 "about.subtitle" = "A Liquid Glass-inspired disk monitor for macOS.";
 "about.version" = "Version 0.1.0";
 "about.openSource" = "Open Source";
+"about.github" = "GitHub";
+"about.license" = "MIT License";
+"about.privacy" = "Diskman reads local volume metadata only. It does not send analytics or disk data anywhere.";
 
 "category.applications" = "Applications";
 "category.documents" = "Documents";
@@ -46,3 +59,14 @@
 "category.other" = "Other";
 "category.used" = "Used";
 "category.available" = "Available";
+
+"volumeKind.internal" = "Internal";
+"volumeKind.external" = "External";
+"volumeKind.network" = "Network";
+"volumeKind.diskImage" = "Disk Images";
+
+"usageMode.free" = "Free";
+"usageMode.used" = "Used";
+
+"storageUnit.decimal" = "GB";
+"storageUnit.binary" = "GiB";

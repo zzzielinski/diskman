@@ -220,22 +220,22 @@ Done when:
 
 ## Stage 9 - Settings And About
 
-- [ ] Add a Settings window/panel.
-- [ ] Add `Launch at Login`.
-- [ ] Add language setting.
-- [ ] Add disk-kind visibility settings:
-  - [ ] internal,
-  - [ ] external,
-  - [ ] network,
-  - [ ] disk images.
-- [ ] Add `show free percent` / `show used percent`.
-- [ ] Add GB/GiB selection.
-- [ ] Add About:
-  - [ ] name,
-  - [ ] version,
-  - [ ] GitHub link,
-  - [ ] license,
-  - [ ] privacy note.
+- [x] Add a Settings window/panel.
+- [x] Add `Launch at Login`.
+- [x] Add language setting.
+- [x] Add disk-kind visibility settings:
+  - [x] internal,
+  - [x] external,
+  - [x] network,
+  - [x] disk images.
+- [x] Add `show free percent` / `show used percent`.
+- [x] Add GB/GiB selection.
+- [x] Add About:
+  - [x] name,
+  - [x] version,
+  - [x] GitHub link,
+  - [x] license,
+  - [x] privacy note.
 
 Done when:
 
@@ -318,9 +318,10 @@ Done when:
 - [x] GitHub repository `zzzielinski/diskman` exists and has starter documentation.
 - [x] Xcode project skeleton exists with the app, widgets, and `DiskmanCore`.
 - [x] Shared English/Polish localization is wired through `DiskmanCore`.
+- [x] Settings persist display, language, launch, and disk visibility preferences.
 
 ## Nearest Next Step
 
-1. Start Stage 9: Settings and About.
-2. Turn the Settings language row into an interactive picker.
-3. Add `Launch at Login` persistence.
+1. Start Stage 10: Storage Categories.
+2. Define the category scanner scope.
+3. Add `Categories: Off / Basic / Estimated` mode.

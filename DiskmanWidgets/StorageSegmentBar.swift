@@ -58,7 +58,7 @@ struct StorageSegmentBar: View {
     private var accessibilityText: String {
         visibleCategories
             .map { category in
-                "\(localization.categoryName(for: category.id)) \(DiskByteFormatter.decimal.string(fromByteCount: category.bytes))"
+                "\(localization.categoryName(for: category.id)) \(localization.storageUnitMode.formatter.string(fromByteCount: category.bytes))"
             }
             .joined(separator: ", ")
     }

@@ -7,6 +7,8 @@
 "menu.unableToReadDisks" = "Nie można odczytać dysków";
 "menu.noDisksFound" = "Nie znaleziono dysków";
 "menu.status" = "%d %@ - %@: %@ wolne";
+"menu.status.free" = "%d %@ - %@: %@ wolne";
+"menu.status.used" = "%d %@ - %@: %@ użyte";
 "menu.widgetSnapshotUnavailable" = "Snapshot widgetu niedostępny";
 
 "language.system" = "System";
@@ -17,6 +19,7 @@
 "disk.plural" = "dyski";
 "capacity.freeOf" = "%@ wolne z %@";
 "accessibility.diskFree" = "%@, %@ wolne";
+"accessibility.diskUsed" = "%@, %@ użyte";
 
 "widget.noDisks" = "Brak dysków";
 "widget.noData" = "Brak danych";
@@ -32,10 +35,20 @@
 "settings.snapshot" = "Snapshot";
 "settings.widgetShared" = "Udostępniony widgetom";
 "settings.language" = "Język";
+"settings.launchAtLogin" = "Uruchamiaj przy logowaniu";
+"settings.launchAtLoginHelp" = "Uruchamiaj Diskman automatycznie po zalogowaniu.";
+"settings.display" = "Wyświetlanie";
+"settings.diskVisibility" = "Widoczność dysków";
+"settings.storageUnits" = "Jednostki pamięci";
+"settings.percentMode" = "Tryb procentów";
+"settings.launchAtLoginError" = "Nie można zmienić uruchamiania przy logowaniu.";
 
 "about.subtitle" = "Monitor dysków dla macOS inspirowany Liquid Glass.";
 "about.version" = "Wersja 0.1.0";
 "about.openSource" = "Open Source";
+"about.github" = "GitHub";
+"about.license" = "Licencja MIT";
+"about.privacy" = "Diskman czyta tylko lokalne metadane woluminów. Nie wysyła analityki ani danych dysków.";
 
 "category.applications" = "Aplikacje";
 "category.documents" = "Dokumenty";
@@ -46,3 +59,14 @@
 "category.other" = "Inne";
 "category.used" = "Użyte";
 "category.available" = "Dostępne";
+
+"volumeKind.internal" = "Wewnętrzne";
+"volumeKind.external" = "Zewnętrzne";
+"volumeKind.network" = "Sieciowe";
+"volumeKind.diskImage" = "Obrazy dysków";
+
+"usageMode.free" = "Wolne";
+"usageMode.used" = "Użyte";
+
+"storageUnit.decimal" = "GB";
+"storageUnit.binary" = "GiB";
