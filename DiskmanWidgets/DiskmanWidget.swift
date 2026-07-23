@@ -52,7 +52,7 @@ struct DiskmanTimelineProvider: TimelineProvider {
             if let snapshot = try snapshotStore.read() {
                 return DiskmanEntry(
                     date: Date(),
-                    snapshot: snapshot,
+                    snapshot: preparedSnapshot(snapshot),
                     state: .loaded,
                     localization: localization
                 )
@@ -95,16 +95,38 @@ struct DiskmanTimelineProvider: TimelineProvider {
     private func liveSnapshot() -> DiskSnapshot? {
         try? volumeProvider
             .snapshot()
-            .applyingCategoryMode(
-                settingsStore.categoryMode,
+            .preparedForWidget(
+                settingsStore: settingsStore,
                 scanner: categoryScanner,
                 cacheStore: categoryCacheStore
             )
-            .filtered(visibleKinds: settingsStore.visibleVolumeKinds)
+    }
+
+    private func preparedSnapshot(_ snapshot: DiskSnapshot) -> DiskSnapshot {
+        snapshot.preparedForWidget(
+            settingsStore: settingsStore,
+            scanner: categoryScanner,
+            cacheStore: categoryCacheStore
+        )
     }
 
     private var localization: LocalizationProvider {
         LocalizationProvider(settingsStore: settingsStore)
+    }
+}
+
+private extension DiskSnapshot {
+    func preparedForWidget(
+        settingsStore: DiskmanSettingsStore,
+        scanner: StorageCategoryScanning,
+        cacheStore: StorageCategoryCacheStore
+    ) -> DiskSnapshot {
+        applyingCategoryMode(
+            settingsStore.categoryMode,
+            scanner: scanner,
+            cacheStore: cacheStore
+        )
+        .filtered(visibleKinds: settingsStore.visibleVolumeKinds)
     }
 }
 
