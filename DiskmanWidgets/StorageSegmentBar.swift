@@ -9,7 +9,7 @@ struct StorageSegmentBar: View {
         GeometryReader { proxy in
             ZStack(alignment: .leading) {
                 RoundedRectangle(cornerRadius: 5, style: .continuous)
-                    .fill(.secondary.opacity(0.16))
+                    .fill(.secondary.opacity(0.12))
 
                 ForEach(positionedSegments(in: proxy.size.width)) { segment in
                     Rectangle()
@@ -21,7 +21,7 @@ struct StorageSegmentBar: View {
             .clipShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
             .overlay {
                 RoundedRectangle(cornerRadius: 5, style: .continuous)
-                    .strokeBorder(.primary.opacity(0.08), lineWidth: 1)
+                    .strokeBorder(.primary.opacity(0.07), lineWidth: 1)
             }
         }
         .accessibilityElement(children: .ignore)
@@ -128,25 +128,6 @@ private extension StorageCategoryID {
 
 private extension StorageCategorySnapshot {
     var segmentColor: Color {
-        switch id {
-        case .applications:
-            return .red
-        case .documents:
-            return .orange
-        case .developer:
-            return .yellow
-        case .photos:
-            return .green
-        case .messages:
-            return .teal
-        case .systemData:
-            return .gray
-        case .other:
-            return .indigo
-        case .used:
-            return .blue
-        case .available:
-            return .secondary.opacity(0.32)
-        }
+        DiskmanPalette.categoryColor(for: id)
     }
 }

@@ -15,6 +15,7 @@
 		A10000000000000000000006 /* DiskmanWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000033 /* DiskmanWidgetView.swift */; };
 		A1000000000000000000000A /* DiskRingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000003B /* DiskRingView.swift */; };
 		A1000000000000000000000B /* StorageSegmentBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000003C /* StorageSegmentBar.swift */; };
+		A1000000000000000000000C /* DiskmanVisualStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000003D /* DiskmanVisualStyle.swift */; };
 		A10000000000000000000007 /* DiskmanWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A10000000000000000000042 /* DiskmanWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		A10000000000000000000008 /* DiskmanCore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000061 /* DiskmanCore */; };
 		A10000000000000000000009 /* DiskmanCore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000062 /* DiskmanCore */; };
@@ -57,6 +58,7 @@
 		A10000000000000000000033 /* DiskmanWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiskmanWidgetView.swift; sourceTree = "<group>"; };
 		A1000000000000000000003B /* DiskRingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiskRingView.swift; sourceTree = "<group>"; };
 		A1000000000000000000003C /* StorageSegmentBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageSegmentBar.swift; sourceTree = "<group>"; };
+		A1000000000000000000003D /* DiskmanVisualStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiskmanVisualStyle.swift; sourceTree = "<group>"; };
 		A10000000000000000000034 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A10000000000000000000035 /* DiskmanWidgets.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DiskmanWidgets.entitlements; sourceTree = "<group>"; };
 		A10000000000000000000036 /* DiskmanCore */ = {isa = PBXFileReference; lastKnownFileType = folder; path = DiskmanCore; sourceTree = "<group>"; };
@@ -108,6 +110,7 @@
 				A10000000000000000000033 /* DiskmanWidgetView.swift */,
 				A1000000000000000000003B /* DiskRingView.swift */,
 				A1000000000000000000003C /* StorageSegmentBar.swift */,
+				A1000000000000000000003D /* DiskmanVisualStyle.swift */,
 				A10000000000000000000034 /* Info.plist */,
 				A10000000000000000000035 /* DiskmanWidgets.entitlements */,
 			);
@@ -261,6 +264,7 @@
 				A10000000000000000000006 /* DiskmanWidgetView.swift in Sources */,
 				A1000000000000000000000A /* DiskRingView.swift in Sources */,
 				A1000000000000000000000B /* StorageSegmentBar.swift in Sources */,
+				A1000000000000000000000C /* DiskmanVisualStyle.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

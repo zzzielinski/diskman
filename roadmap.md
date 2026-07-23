@@ -174,15 +174,15 @@ Done kiedy:
 
 ## Etap 7 - Liquid Glass i design polish
 
-- [ ] Dodac wrapper/modifier `DiskmanGlass`.
-- [ ] Na macOS 26+ uzyc `glassEffect(_:in:)`.
-- [ ] Na starszych systemach uzyc fallbacku `.ultraThinMaterial`.
+- [x] Dodac wrapper/modifier `DiskmanGlass`.
+- [x] Na macOS 26+ uzyc `glassEffect(_:in:)`.
+- [x] Na starszych systemach uzyc fallbacku `.ultraThinMaterial`.
 - [ ] Dopracowac ksztalty:
-  - [ ] ringi,
-  - [ ] segment bar,
+  - [x] ringi,
+  - [x] segment bar,
   - [ ] menu popover,
   - [ ] about/settings.
-- [ ] Ustalic finalna palete kolorow kategorii.
+- [x] Ustalic finalna palete kolorow kategorii.
 - [ ] Dobrac SF Symbols dla typow dyskow.
 - [ ] Sprawdzic teksty na PL i EN.
 - [ ] Zrobic screenshoty referencyjne.
@@ -320,6 +320,6 @@ Done kiedy:
 
 ## Najblizszy nastepny krok
 
-1. Wizualnie sprawdzic widgety small/medium/large w jasnym i ciemnym trybie.
-2. Zaczac Etap 7: Liquid Glass i design polish.
-3. Wyciagnac wspolny wrapper/modifier `DiskmanGlass`.
+1. Dopracowac Etap 7: menu popover, about/settings i SF Symbols.
+2. Wizualnie sprawdzic widgety small/medium/large w jasnym i ciemnym trybie.
+3. Zrobic screenshoty referencyjne.

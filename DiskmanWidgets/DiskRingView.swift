@@ -46,7 +46,16 @@ struct DiskRingView: View {
     private var ring: some View {
         ZStack {
             Circle()
-                .stroke(.secondary.opacity(0.18), lineWidth: lineWidth)
+                .fill(.clear)
+                .diskmanGlass(
+                    tint: statusColor.opacity(0.10),
+                    in: Circle(),
+                    strokeOpacity: 0.10
+                )
+                .padding(lineWidth / 2)
+
+            Circle()
+                .stroke(.secondary.opacity(0.16), lineWidth: lineWidth)
 
             Circle()
                 .trim(from: 0, to: volume.freeSpaceRatio)
@@ -76,14 +85,7 @@ struct DiskRingView: View {
     }
 
     private var statusColor: Color {
-        switch volume.freeSpaceRatio {
-        case 0.25...:
-            return .green
-        case 0.10..<0.25:
-            return .yellow
-        default:
-            return .red
-        }
+        DiskmanPalette.statusColor(forFreeSpaceRatio: volume.freeSpaceRatio)
     }
 }
 
@@ -95,7 +97,12 @@ struct AdditionalDisksRingView: View {
         VStack(spacing: 4) {
             ZStack {
                 Circle()
-                    .stroke(.secondary.opacity(0.18), lineWidth: lineWidth)
+                    .fill(.clear)
+                    .diskmanGlass(in: Circle(), strokeOpacity: 0.10)
+                    .padding(lineWidth / 2)
+
+                Circle()
+                    .stroke(.secondary.opacity(0.16), lineWidth: lineWidth)
 
                 Circle()
                     .trim(from: 0, to: 0.72)

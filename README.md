@@ -21,7 +21,8 @@ Diskman is currently in early scaffolding. The repository already contains:
 - `StorageSnapshotStore`: the JSON snapshot bridge between the app and WidgetKit extension,
 - `DiskMonitor`: polling plus Disk Arbitration-driven refreshes,
 - small WidgetKit disk rings for connected-volume free space,
-- medium and large WidgetKit storage bars for used and available space.
+- medium and large WidgetKit storage bars for used and available space,
+- `DiskmanGlass`: a SwiftUI visual wrapper for Liquid Glass with material fallback.
 
 See:
 

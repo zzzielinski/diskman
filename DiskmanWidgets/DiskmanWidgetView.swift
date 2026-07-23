@@ -249,12 +249,12 @@ private struct DiskStorageRow: View {
 
 private struct WidgetGlassBackground: View {
     var body: some View {
-        ContainerRelativeShape()
-            .fill(.ultraThinMaterial)
-            .overlay {
-                ContainerRelativeShape()
-                    .strokeBorder(.white.opacity(0.16), lineWidth: 1)
-            }
+        Color.clear
+            .diskmanGlass(
+                tint: .white.opacity(0.04),
+                in: ContainerRelativeShape(),
+                strokeOpacity: 0.14
+            )
     }
 }
 
