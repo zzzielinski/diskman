@@ -1,3 +1,4 @@
+import AppKit
 import ServiceManagement
 import SwiftUI
 import DiskmanCore
@@ -12,6 +13,7 @@ struct SettingsView: View {
     @State private var usageDisplayMode: DiskmanUsageDisplayMode
     @State private var storageUnitMode: DiskmanStorageUnitMode
     @State private var categoryMode: DiskmanCategoryMode
+    @State private var deepCategoryScanEnabled: Bool
     @State private var settingsError: String?
 
     init(
@@ -28,6 +30,7 @@ struct SettingsView: View {
         _usageDisplayMode = State(initialValue: settingsStore.usageDisplayMode)
         _storageUnitMode = State(initialValue: settingsStore.storageUnitMode)
         _categoryMode = State(initialValue: settingsStore.categoryMode)
+        _deepCategoryScanEnabled = State(initialValue: settingsStore.deepCategoryScanEnabled)
     }
 
     private var localization: LocalizationProvider {
@@ -87,11 +90,35 @@ struct SettingsView: View {
                 .pickerStyle(.segmented)
 
                 if categoryMode == .estimated {
-                    Label(localization.string(.settingsCategoryPrivacy), systemImage: "hand.raised")
-                        .font(.system(size: 11, weight: .medium))
-                        .foregroundStyle(.secondary)
-                        .lineLimit(3)
-                        .fixedSize(horizontal: false, vertical: true)
+                    VStack(alignment: .leading, spacing: 10) {
+                        Label(localization.string(.settingsCategoryPrivacy), systemImage: "hand.raised")
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundStyle(.secondary)
+                            .lineLimit(3)
+                            .fixedSize(horizontal: false, vertical: true)
+
+                        Toggle(isOn: $deepCategoryScanEnabled) {
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text(localization.string(.settingsDeepCategoryScan))
+                                    .font(.system(size: 12, weight: .semibold))
+
+                                Text(localization.string(.settingsDeepCategoryScanHelp))
+                                    .font(.system(size: 10, weight: .medium))
+                                    .foregroundStyle(.secondary)
+                                    .lineLimit(2)
+                            }
+                        }
+                        .toggleStyle(.checkbox)
+
+                        Button {
+                            openFullDiskAccessSettings()
+                        } label: {
+                            Label(localization.string(.settingsOpenFullDiskAccess), systemImage: "lock.shield")
+                                .font(.system(size: 11, weight: .semibold))
+                        }
+                        .buttonStyle(.bordered)
+                        .controlSize(.small)
+                    }
                 }
             }
 
@@ -151,7 +178,7 @@ struct SettingsView: View {
             }
         }
         .padding(24)
-        .frame(width: 520, height: 620)
+        .frame(width: 520, height: 660)
         .onChange(of: languageMode) { _, newValue in
             settingsStore.languageMode = newValue
             notifySettingsChanged()
@@ -166,6 +193,10 @@ struct SettingsView: View {
         }
         .onChange(of: categoryMode) { _, newValue in
             settingsStore.categoryMode = newValue
+            notifySettingsChanged()
+        }
+        .onChange(of: deepCategoryScanEnabled) { _, newValue in
+            settingsStore.deepCategoryScanEnabled = newValue
             notifySettingsChanged()
         }
         .onChange(of: launchAtLoginEnabled) { _, newValue in
@@ -231,10 +262,25 @@ struct SettingsView: View {
         usageDisplayMode = settingsStore.usageDisplayMode
         storageUnitMode = settingsStore.storageUnitMode
         categoryMode = settingsStore.categoryMode
+        deepCategoryScanEnabled = settingsStore.deepCategoryScanEnabled
     }
 
     private func notifySettingsChanged() {
         NotificationCenter.default.post(name: .diskmanSettingsDidChange, object: nil)
+    }
+
+    private func openFullDiskAccessSettings() {
+        let settingsURLs = [
+            "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles",
+            "x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension?Privacy_AllFiles"
+        ]
+
+        for settingsURL in settingsURLs {
+            guard let url = URL(string: settingsURL) else { continue }
+            if NSWorkspace.shared.open(url) {
+                return
+            }
+        }
     }
 }
 

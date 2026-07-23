@@ -56,7 +56,32 @@ func resourceSnapshotBuildsVolumeSnapshot() throws {
     #expect(volume.availableBytes == 250)
     #expect(volume.importantAvailableBytes == 200)
     #expect(volume.usedBytes == 750)
+    #expect(volume.displayAvailableBytes == 200)
+    #expect(volume.displayUsedBytes == 800)
     #expect(volume.categories.map(\StorageCategorySnapshot.id) == [StorageCategoryID.used, .available])
+}
+
+@Test
+func volumeDisplayCapacityUsesImportantAvailableCapacityWhenPresent() {
+    let volume = VolumeSnapshot(
+        id: "volume",
+        name: "Volume",
+        localizedName: nil,
+        mountPath: "/",
+        kind: .internalDrive,
+        fileSystemName: "APFS",
+        totalBytes: 1_000,
+        availableBytes: 250,
+        importantAvailableBytes: 400,
+        usedBytes: 750,
+        categories: []
+    )
+
+    #expect(volume.displayAvailableBytes == 400)
+    #expect(volume.displayUsedBytes == 600)
+    #expect(volume.freeSpaceRatio == 0.4)
+    #expect(volume.usedSpaceRatio == 0.6)
+    #expect(volume.basicCategories.map(\.bytes) == [600, 400])
 }
 
 @Test
@@ -203,12 +228,14 @@ func settingsStorePersistsDisplaySettings() throws {
     store.storageUnitMode = .binary
     store.visibleVolumeKinds = []
     store.categoryMode = .estimated
+    store.deepCategoryScanEnabled = true
 
     let restoredStore = DiskmanSettingsStore(userDefaults: userDefaults)
     #expect(restoredStore.usageDisplayMode == .used)
     #expect(restoredStore.storageUnitMode == .binary)
     #expect(restoredStore.visibleVolumeKinds == [])
     #expect(restoredStore.categoryMode == .estimated)
+    #expect(restoredStore.deepCategoryScanEnabled)
 }
 
 @Test
@@ -333,7 +360,8 @@ func estimatedScannerBuildsCategoriesFromArtificialDirectories() throws {
 
     let scanner = EstimatedStorageCategoryScanner(
         homeDirectoryURL: homeURL,
-        applicationDirectoryURLs: [applicationsURL]
+        applicationDirectoryURLs: [applicationsURL],
+        deepCategoryScanEnabled: true
     )
     let cacheStore = StorageCategoryCacheStore(cacheDirectoryURL: cacheURL)
     let volume = VolumeSnapshot(
@@ -360,6 +388,64 @@ func estimatedScannerBuildsCategoriesFromArtificialDirectories() throws {
     #expect(ids.contains(.other))
     #expect(ids.contains(.available))
     #expect(categories.contains { $0.confidence == .estimated })
+}
+
+@Test
+func estimatedScannerAvoidsProtectedHomeFoldersByDefault() throws {
+    let rootURL = FileManager.default.temporaryDirectory
+        .appending(path: "diskman-safe-category-scan-tests")
+        .appending(path: UUID().uuidString)
+    let homeURL = rootURL.appending(path: "Users/Test")
+    let cacheURL = rootURL.appending(path: "Cache")
+    let applicationsURL = rootURL.appending(path: "Applications")
+    let documentsURL = homeURL.appending(path: "Documents")
+    let developerURL = homeURL.appending(path: "Developer")
+
+    try FileManager.default.createDirectory(
+        at: documentsURL,
+        withIntermediateDirectories: true
+    )
+    try FileManager.default.createDirectory(
+        at: developerURL,
+        withIntermediateDirectories: true
+    )
+    try FileManager.default.createDirectory(
+        at: applicationsURL,
+        withIntermediateDirectories: true
+    )
+
+    try Data(repeating: 1, count: 10).write(to: documentsURL.appending(path: "document.bin"))
+    try Data(repeating: 1, count: 20).write(to: developerURL.appending(path: "project.bin"))
+    try Data(repeating: 1, count: 40).write(to: applicationsURL.appending(path: "app.bin"))
+
+    let scanner = EstimatedStorageCategoryScanner(
+        homeDirectoryURL: homeURL,
+        applicationDirectoryURLs: [applicationsURL],
+        deepCategoryScanEnabled: false
+    )
+    let cacheStore = StorageCategoryCacheStore(cacheDirectoryURL: cacheURL)
+    let volume = VolumeSnapshot(
+        id: rootURL.path,
+        name: "Test Volume",
+        localizedName: nil,
+        mountPath: rootURL.path,
+        kind: .internalDrive,
+        fileSystemName: "APFS",
+        totalBytes: 100_000,
+        availableBytes: 10_000,
+        importantAvailableBytes: nil,
+        usedBytes: 90_000,
+        categories: []
+    )
+
+    let categories = scanner.categories(for: volume, cacheStore: cacheStore)
+    let ids = Set(categories.map(\.id))
+
+    #expect(ids.contains(.applications))
+    #expect(ids.contains(.developer))
+    #expect(ids.contains(.documents) == false)
+    #expect(ids.contains(.other))
+    #expect(ids.contains(.available))
 }
 
 @Test

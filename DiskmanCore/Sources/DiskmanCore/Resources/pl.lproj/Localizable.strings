@@ -44,7 +44,10 @@
 "settings.storageUnits" = "Jednostki pamięci";
 "settings.percentMode" = "Tryb procentów";
 "settings.categories" = "Kategorie";
-"settings.categoryPrivacy" = "Kategorie szacunkowe skanują lokalne foldery tylko na tym Macu i są cache'owane, żeby ograniczyć pracę dysku.";
+"settings.categoryPrivacy" = "Kategorie szacunkowe domyślnie używają bezpiecznych folderów lokalnych. Włącz głęboki skan po nadaniu Pełnego dostępu do dysku, aby uzyskać więcej szczegółów.";
+"settings.deepCategoryScan" = "Głęboki skan folderów";
+"settings.deepCategoryScanHelp" = "Skanuje Dokumenty, Zdjęcia, Wiadomości i Pobrane. macOS może wymagać Pełnego dostępu do dysku.";
+"settings.openFullDiskAccess" = "Otwórz Pełny dostęp do dysku";
 "settings.launchAtLoginError" = "Nie można zmienić uruchamiania przy logowaniu.";
 
 "about.subtitle" = "Monitor dysków dla macOS inspirowany Liquid Glass.";

@@ -148,6 +148,7 @@ public struct EstimatedStorageCategoryScanner: StorageCategoryScanning {
     private let fileManager: FileManager
     private let homeDirectoryURL: URL
     private let applicationDirectoryURLs: [URL]
+    private let deepCategoryScanOverride: Bool?
 
     public init(
         fileManager: FileManager = .default,
@@ -155,18 +156,21 @@ public struct EstimatedStorageCategoryScanner: StorageCategoryScanning {
         applicationDirectoryURLs: [URL] = [
             URL(filePath: "/Applications"),
             FileManager.default.homeDirectoryForCurrentUser.appending(path: "Applications")
-        ]
+        ],
+        deepCategoryScanEnabled: Bool? = nil
     ) {
         self.fileManager = fileManager
         self.homeDirectoryURL = homeDirectoryURL
         self.applicationDirectoryURLs = applicationDirectoryURLs
+        self.deepCategoryScanOverride = deepCategoryScanEnabled
     }
 
     public func categories(
         for volume: VolumeSnapshot,
         cacheStore: StorageCategoryCacheStore
     ) -> [StorageCategorySnapshot] {
-        if let cachedResult = try? cacheStore.cachedResult(for: volume.id) {
+        let cacheVolumeID = cacheVolumeID(for: volume)
+        if let cachedResult = try? cacheStore.cachedResult(for: cacheVolumeID) {
             return composeCategories(
                 from: cachedResult.categories,
                 for: volume
@@ -175,7 +179,7 @@ public struct EstimatedStorageCategoryScanner: StorageCategoryScanning {
 
         let estimates = scanEstimatedCategories(for: volume)
         let result = StorageCategoryScanResult(
-            volumeID: volume.id,
+            volumeID: cacheVolumeID,
             generatedAt: Date(),
             categories: estimates
         )
@@ -189,13 +193,18 @@ public struct EstimatedStorageCategoryScanner: StorageCategoryScanning {
             return []
         }
 
-        let categoryRoots: [(StorageCategoryID, [URL])] = [
+        var categoryRoots: [(StorageCategoryID, [URL])] = [
             (.applications, applicationDirectoryURLs),
-            (.developer, developerDirectoryURLs),
-            (.documents, documentDirectoryURLs),
-            (.photos, photoDirectoryURLs),
-            (.messages, messageDirectoryURLs)
+            (.developer, developerDirectoryURLs)
         ]
+
+        if deepCategoryScanEnabled {
+            categoryRoots.append(contentsOf: [
+                (.documents, documentDirectoryURLs),
+                (.photos, photoDirectoryURLs),
+                (.messages, messageDirectoryURLs)
+            ])
+        }
 
         return categoryRoots.compactMap { id, urls in
             let bytes = urls
@@ -222,9 +231,9 @@ public struct EstimatedStorageCategoryScanner: StorageCategoryScanning {
         from estimates: [StorageCategorySnapshot],
         for volume: VolumeSnapshot
     ) -> [StorageCategorySnapshot] {
-        let cappedEstimates = cap(estimates, maxTotalBytes: volume.usedBytes)
+        let cappedEstimates = cap(estimates, maxTotalBytes: volume.displayUsedBytes)
         let estimatedBytes = cappedEstimates.reduce(Int64(0)) { $0 + $1.bytes }
-        let remainderBytes = max(0, volume.usedBytes - estimatedBytes)
+        let remainderBytes = max(0, volume.displayUsedBytes - estimatedBytes)
         let remainderID: StorageCategoryID = volume.mountPath == "/" ? .systemData : .other
 
         var categories = cappedEstimates
@@ -245,7 +254,7 @@ public struct EstimatedStorageCategoryScanner: StorageCategoryScanning {
                 id: .available,
                 localizedName: "Available",
                 colorToken: "available",
-                bytes: volume.availableBytes,
+                bytes: volume.displayAvailableBytes,
                 confidence: .exact
             )
         )
@@ -320,6 +329,15 @@ public struct EstimatedStorageCategoryScanner: StorageCategoryScanning {
         }
 
         return standardizedPath == mountPath || standardizedPath.hasPrefix("\(mountPath)/")
+    }
+
+    private var deepCategoryScanEnabled: Bool {
+        deepCategoryScanOverride ?? DiskmanSettingsStore().deepCategoryScanEnabled
+    }
+
+    private func cacheVolumeID(for volume: VolumeSnapshot) -> String {
+        let scanMode = deepCategoryScanEnabled ? "deep" : "safe"
+        return "\(volume.id)#\(scanMode)"
     }
 
     private func directorySize(at url: URL) -> Int64 {

@@ -75,6 +75,7 @@ public struct DiskmanSettingsStore {
     public static let usageDisplayModeKey = "diskman.usageDisplayMode"
     public static let storageUnitModeKey = "diskman.storageUnitMode"
     public static let categoryModeKey = "diskman.categoryMode"
+    public static let deepCategoryScanKey = "diskman.deepCategoryScan"
 
     private let userDefaults: UserDefaults
 
@@ -154,6 +155,15 @@ public struct DiskmanSettingsStore {
         }
         nonmutating set {
             userDefaults.set(newValue.rawValue, forKey: Self.categoryModeKey)
+        }
+    }
+
+    public var deepCategoryScanEnabled: Bool {
+        get {
+            userDefaults.bool(forKey: Self.deepCategoryScanKey)
+        }
+        nonmutating set {
+            userDefaults.set(newValue, forKey: Self.deepCategoryScanKey)
         }
     }
 
@@ -372,6 +382,9 @@ public enum LocalizationKey: String, CaseIterable, Sendable {
     case settingsPercentMode = "settings.percentMode"
     case settingsCategories = "settings.categories"
     case settingsCategoryPrivacy = "settings.categoryPrivacy"
+    case settingsDeepCategoryScan = "settings.deepCategoryScan"
+    case settingsDeepCategoryScanHelp = "settings.deepCategoryScanHelp"
+    case settingsOpenFullDiskAccess = "settings.openFullDiskAccess"
     case settingsLaunchAtLoginError = "settings.launchAtLoginError"
     case aboutSubtitle = "about.subtitle"
     case aboutVersion = "about.version"
@@ -488,7 +501,13 @@ public enum LocalizationKey: String, CaseIterable, Sendable {
         case .settingsCategories:
             return "Categories"
         case .settingsCategoryPrivacy:
-            return "Estimated categories scan local folders on this Mac only and are cached to avoid frequent disk work."
+            return "Estimated categories use safe local folders by default. Enable deep scan after granting Full Disk Access for more detail."
+        case .settingsDeepCategoryScan:
+            return "Deep Folder Scan"
+        case .settingsDeepCategoryScanHelp:
+            return "Scans Documents, Photos, Messages, and Downloads. macOS may require Full Disk Access."
+        case .settingsOpenFullDiskAccess:
+            return "Open Full Disk Access"
         case .settingsLaunchAtLoginError:
             return "Unable to update Launch at Login."
         case .aboutSubtitle:

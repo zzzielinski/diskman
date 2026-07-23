@@ -169,7 +169,10 @@ extension VolumeSnapshot {
 
         let totalBytes = Int64(totalCapacity)
         let availableBytes = Int64(availableCapacity)
+        let importantAvailableBytes = resource.importantAvailableCapacity
+        let displayAvailableBytes = max(0, min(importantAvailableBytes ?? availableBytes, totalBytes))
         let usedBytes = max(0, totalBytes - availableBytes)
+        let displayUsedBytes = max(0, totalBytes - displayAvailableBytes)
 
         self.init(
             id: resource.url.path,
@@ -180,11 +183,11 @@ extension VolumeSnapshot {
             fileSystemName: resource.localizedFormatDescription,
             totalBytes: totalBytes,
             availableBytes: availableBytes,
-            importantAvailableBytes: resource.importantAvailableCapacity,
+            importantAvailableBytes: importantAvailableBytes,
             usedBytes: usedBytes,
             categories: VolumeSnapshot.basicCategories(
-                usedBytes: usedBytes,
-                availableBytes: availableBytes
+                usedBytes: displayUsedBytes,
+                availableBytes: displayAvailableBytes
             )
         )
     }

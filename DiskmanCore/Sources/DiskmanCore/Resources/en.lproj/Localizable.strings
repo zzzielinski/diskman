@@ -44,7 +44,10 @@
 "settings.storageUnits" = "Storage Units";
 "settings.percentMode" = "Percent Mode";
 "settings.categories" = "Categories";
-"settings.categoryPrivacy" = "Estimated categories scan local folders on this Mac only and are cached to avoid frequent disk work.";
+"settings.categoryPrivacy" = "Estimated categories use safe local folders by default. Enable deep scan after granting Full Disk Access for more detail.";
+"settings.deepCategoryScan" = "Deep Folder Scan";
+"settings.deepCategoryScanHelp" = "Scans Documents, Photos, Messages, and Downloads. macOS may require Full Disk Access.";
+"settings.openFullDiskAccess" = "Open Full Disk Access";
 "settings.launchAtLoginError" = "Unable to update Launch at Login.";
 
 "about.subtitle" = "A Liquid Glass-inspired disk monitor for macOS.";

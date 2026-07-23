@@ -53,14 +53,23 @@ public struct VolumeSnapshot: Codable, Hashable, Identifiable, Sendable {
         localizedName ?? name
     }
 
+    public var displayAvailableBytes: Int64 {
+        let candidate = importantAvailableBytes ?? availableBytes
+        return max(0, min(candidate, totalBytes))
+    }
+
+    public var displayUsedBytes: Int64 {
+        max(0, totalBytes - displayAvailableBytes)
+    }
+
     public var freeSpaceRatio: Double {
         guard totalBytes > 0 else { return 0 }
-        return Self.ratio(availableBytes, totalBytes)
+        return Self.ratio(displayAvailableBytes, totalBytes)
     }
 
     public var usedSpaceRatio: Double {
         guard totalBytes > 0 else { return 0 }
-        return Self.ratio(usedBytes, totalBytes)
+        return Self.ratio(displayUsedBytes, totalBytes)
     }
 
     public var freePercentText: String {
@@ -72,7 +81,7 @@ public struct VolumeSnapshot: Codable, Hashable, Identifiable, Sendable {
     }
 
     public var capacitySummary: String {
-        "\(DiskByteFormatter.decimal.string(fromByteCount: availableBytes)) free of \(DiskByteFormatter.decimal.string(fromByteCount: totalBytes))"
+        "\(DiskByteFormatter.decimal.string(fromByteCount: displayAvailableBytes)) free of \(DiskByteFormatter.decimal.string(fromByteCount: totalBytes))"
     }
 
     public static func ratio(_ value: Int64, _ total: Int64) -> Double {
@@ -98,8 +107,8 @@ public struct VolumeSnapshot: Codable, Hashable, Identifiable, Sendable {
 
     public var basicCategories: [StorageCategorySnapshot] {
         Self.basicCategories(
-            usedBytes: usedBytes,
-            availableBytes: availableBytes
+            usedBytes: displayUsedBytes,
+            availableBytes: displayAvailableBytes
         )
     }
 
