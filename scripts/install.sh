@@ -116,6 +116,7 @@ fi
 echo "Refreshing macOS widget and icon caches..."
 pkill -x chronod >/dev/null 2>&1 || true
 pkill -x iconservicesagent >/dev/null 2>&1 || true
+pkill -x NotificationCenter >/dev/null 2>&1 || true
 
 echo "${APP_NAME} installed at ${APP_PATH}"
 if [[ "${OPEN_AFTER_INSTALL}" == true ]]; then

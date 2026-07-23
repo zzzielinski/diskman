@@ -27,8 +27,6 @@ struct DiskmanTimelineProvider: TimelineProvider {
     private let snapshotStore = StorageSnapshotStore()
     private let settingsStore = DiskmanSettingsStore()
     private let volumeProvider = VolumeProvider()
-    private let categoryScanner = EstimatedStorageCategoryScanner()
-    private let categoryCacheStore = StorageCategoryCacheStore()
 
     func placeholder(in context: Context) -> DiskmanEntry {
         .placeholder
@@ -95,19 +93,11 @@ struct DiskmanTimelineProvider: TimelineProvider {
     private func liveSnapshot() -> DiskSnapshot? {
         try? volumeProvider
             .snapshot()
-            .preparedForWidget(
-                settingsStore: settingsStore,
-                scanner: categoryScanner,
-                cacheStore: categoryCacheStore
-            )
+            .preparedLiveSnapshotForWidget(settingsStore: settingsStore)
     }
 
     private func preparedSnapshot(_ snapshot: DiskSnapshot) -> DiskSnapshot {
-        snapshot.preparedForWidget(
-            settingsStore: settingsStore,
-            scanner: categoryScanner,
-            cacheStore: categoryCacheStore
-        )
+        snapshot.preparedStoredSnapshotForWidget(settingsStore: settingsStore)
     }
 
     private var localization: LocalizationProvider {
@@ -116,18 +106,30 @@ struct DiskmanTimelineProvider: TimelineProvider {
 }
 
 private extension DiskSnapshot {
-    func preparedForWidget(
-        settingsStore: DiskmanSettingsStore,
-        scanner: StorageCategoryScanning,
-        cacheStore: StorageCategoryCacheStore
-    ) -> DiskSnapshot {
-        applyingCategoryMode(
-            settingsStore.categoryMode,
-            scanner: scanner,
-            cacheStore: cacheStore,
-            preservesExistingEstimatedCategories: true
+    func preparedStoredSnapshotForWidget(settingsStore: DiskmanSettingsStore) -> DiskSnapshot {
+        filtered(visibleKinds: settingsStore.visibleVolumeKinds)
+            .applyingStoredCategoryMode(settingsStore.categoryMode)
+    }
+
+    func preparedLiveSnapshotForWidget(settingsStore: DiskmanSettingsStore) -> DiskSnapshot {
+        filtered(visibleKinds: settingsStore.visibleVolumeKinds)
+            .applyingStoredCategoryMode(settingsStore.categoryMode == .off ? .off : .basic)
+    }
+
+    private func applyingStoredCategoryMode(_ mode: DiskmanCategoryMode) -> DiskSnapshot {
+        DiskSnapshot(
+            generatedAt: generatedAt,
+            volumes: volumes.map { volume in
+                switch mode {
+                case .off:
+                    return volume.replacingCategories([])
+                case .basic:
+                    return volume.replacingCategories(volume.basicCategories)
+                case .estimated:
+                    return volume
+                }
+            }
         )
-        .filtered(visibleKinds: settingsStore.visibleVolumeKinds)
     }
 }
 

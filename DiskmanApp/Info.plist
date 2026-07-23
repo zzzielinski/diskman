@@ -6,6 +6,24 @@
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleDisplayName</key>
+	<string>Diskman</string>
+	<key>CFBundleIconFile</key>
+	<string>AppIcon</string>
+	<key>CFBundleIconName</key>
+	<string>AppIcon</string>
+	<key>CFBundleIcons</key>
+	<dict>
+		<key>CFBundlePrimaryIcon</key>
+		<dict>
+			<key>CFBundleIconFiles</key>
+			<array>
+				<string>AppIcon</string>
+			</array>
+			<key>CFBundleIconName</key>
+			<string>AppIcon</string>
+		</dict>
+	</dict>
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -33,5 +51,13 @@
 	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
 	<key>LSUIElement</key>
 	<true/>
+	<key>NSDesktopFolderUsageDescription</key>
+	<string>Diskman scans Desktop only when deep storage categories are enabled.</string>
+	<key>NSDocumentsFolderUsageDescription</key>
+	<string>Diskman scans Documents only when deep storage categories are enabled.</string>
+	<key>NSDownloadsFolderUsageDescription</key>
+	<string>Diskman scans Downloads only when deep storage categories are enabled.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Diskman can request Photos access to estimate local photo storage when deep categories are enabled.</string>
 </dict>
 </plist>

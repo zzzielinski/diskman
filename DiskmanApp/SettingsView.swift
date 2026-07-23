@@ -1,4 +1,5 @@
 import AppKit
+import Photos
 import ServiceManagement
 import SwiftUI
 import DiskmanCore
@@ -16,6 +17,7 @@ struct SettingsView: View {
     @State private var categoryMode: DiskmanCategoryMode
     @State private var deepCategoryScanEnabled: Bool
     @State private var settingsError: String?
+    @State private var didRequestDeepScanAccess = false
 
     init(
         settingsStore: DiskmanSettingsStore = DiskmanSettingsStore(),
@@ -232,16 +234,25 @@ struct SettingsView: View {
         .onChange(of: categoryMode) { _, newValue in
             settingsStore.categoryMode = newValue
             notifySettingsChanged()
+            if newValue == .estimated {
+                requestDeepScanAccessIfNeeded()
+            }
         }
         .onChange(of: deepCategoryScanEnabled) { _, newValue in
             settingsStore.deepCategoryScanEnabled = newValue
             notifySettingsChanged()
+            if newValue {
+                requestDeepScanAccessIfNeeded(force: true)
+            }
         }
         .onChange(of: launchAtLoginEnabled) { _, newValue in
             updateLaunchAtLogin(newValue)
         }
         .onReceive(NotificationCenter.default.publisher(for: .diskmanSettingsDidChange)) { _ in
             reloadStoredSettings()
+        }
+        .onAppear {
+            requestDeepScanAccessIfNeeded()
         }
     }
 
@@ -317,6 +328,62 @@ struct SettingsView: View {
 
     private func notifySettingsChanged() {
         NotificationCenter.default.post(name: .diskmanSettingsDidChange, object: nil)
+    }
+
+    private func requestDeepScanAccessIfNeeded(force: Bool = false) {
+        guard categoryMode == .estimated, deepCategoryScanEnabled else {
+            return
+        }
+        guard force || !didRequestDeepScanAccess else {
+            return
+        }
+
+        didRequestDeepScanAccess = true
+        requestProtectedFolderAccess()
+        requestPhotoLibraryAccess()
+    }
+
+    private func requestProtectedFolderAccess() {
+        let homeURL = FileManager.default.homeDirectoryForCurrentUser
+        let folderPaths = [
+            homeURL.appending(path: "Desktop"),
+            homeURL.appending(path: "Documents"),
+            homeURL.appending(path: "Downloads"),
+            homeURL.appending(path: "Pictures"),
+            homeURL.appending(path: "Library/Messages")
+        ].map(\.path)
+
+        DispatchQueue.global(qos: .userInitiated).async {
+            let fileManager = FileManager.default
+            for folderPath in folderPaths where fileManager.fileExists(atPath: folderPath) {
+                let folderURL = URL(filePath: folderPath)
+                _ = try? fileManager.contentsOfDirectory(
+                    at: folderURL,
+                    includingPropertiesForKeys: [.isRegularFileKey],
+                    options: [.skipsHiddenFiles]
+                )
+            }
+
+            DispatchQueue.main.async {
+                rebuildWidgetData()
+            }
+        }
+    }
+
+    private func requestPhotoLibraryAccess() {
+        if #available(macOS 11.0, *) {
+            PHPhotoLibrary.requestAuthorization(for: .readWrite) { _ in
+                DispatchQueue.main.async {
+                    rebuildWidgetData()
+                }
+            }
+        } else {
+            PHPhotoLibrary.requestAuthorization { _ in
+                DispatchQueue.main.async {
+                    rebuildWidgetData()
+                }
+            }
+        }
     }
 
     private func openFullDiskAccessSettings() {

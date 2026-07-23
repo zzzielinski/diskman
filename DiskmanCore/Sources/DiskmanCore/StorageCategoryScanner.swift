@@ -337,7 +337,7 @@ public struct EstimatedStorageCategoryScanner: StorageCategoryScanning {
 
     private func cacheVolumeID(for volume: VolumeSnapshot) -> String {
         let scanMode = deepCategoryScanEnabled ? "deep" : "safe"
-        return "\(volume.id)#\(scanMode)#v2"
+        return "\(volume.id)#\(scanMode)#v3"
     }
 
     private func directorySize(at url: URL) -> Int64 {
