@@ -4,6 +4,7 @@ import PackageDescription
 
 let package = Package(
     name: "DiskmanCore",
+    defaultLocalization: "en",
     platforms: [
         .macOS("26.0")
     ],
@@ -16,6 +17,9 @@ let package = Package(
     targets: [
         .target(
             name: "DiskmanCore",
+            resources: [
+                .process("Resources")
+            ],
             linkerSettings: [
                 .linkedFramework("DiskArbitration")
             ]

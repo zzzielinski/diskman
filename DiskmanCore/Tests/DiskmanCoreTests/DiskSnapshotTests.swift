@@ -136,3 +136,44 @@ func snapshotStoreReturnsNilWhenSnapshotDoesNotExist() throws {
 
     #expect(savedSnapshot == nil)
 }
+
+@Test
+func localizationProviderUsesForcedLanguageMode() {
+    let english = LocalizationProvider(languageMode: .english)
+    let polish = LocalizationProvider(languageMode: .polish)
+
+    #expect(english.categoryName(for: .available) == "Available")
+    #expect(polish.categoryName(for: .available) == "Dostępne")
+}
+
+@Test
+func localizationProviderResolvesSystemLanguage() {
+    let polish = LocalizationProvider(
+        languageMode: .system,
+        systemLocale: Locale(identifier: "pl_PL")
+    )
+    let english = LocalizationProvider(
+        languageMode: .system,
+        systemLocale: Locale(identifier: "en_US")
+    )
+
+    #expect(polish.language == .polish)
+    #expect(english.language == .english)
+}
+
+@Test
+func settingsStorePersistsLanguageMode() throws {
+    let suiteName = "diskman-tests-\(UUID().uuidString)"
+    let userDefaults = try #require(UserDefaults(suiteName: suiteName))
+    defer {
+        userDefaults.removePersistentDomain(forName: suiteName)
+    }
+
+    let store = DiskmanSettingsStore(userDefaults: userDefaults)
+    #expect(store.languageMode == .system)
+
+    store.languageMode = .polish
+
+    let restoredStore = DiskmanSettingsStore(userDefaults: userDefaults)
+    #expect(restoredStore.languageMode == .polish)
+}

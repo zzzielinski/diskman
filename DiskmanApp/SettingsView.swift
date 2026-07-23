@@ -1,7 +1,14 @@
 import SwiftUI
+import DiskmanCore
 
 struct SettingsView: View {
+    private var localization: LocalizationProvider {
+        LocalizationProvider(settingsStore: DiskmanSettingsStore())
+    }
+
     var body: some View {
+        let localization = localization
+
         VStack(alignment: .leading, spacing: 18) {
             HStack(spacing: 14) {
                 DiskmanAppIconMark()
@@ -11,18 +18,30 @@ struct SettingsView: View {
                     Text("Diskman")
                         .font(.system(size: 22, weight: .bold, design: .rounded))
 
-                    Text("Background disk monitor")
+                    Text(localization.string(.settingsSubtitle))
                         .font(.system(size: 13, weight: .medium))
                         .foregroundStyle(.secondary)
                 }
             }
 
             VStack(spacing: 0) {
-                SettingsInfoRow(title: "Refresh", value: "Automatic", symbolName: "arrow.clockwise")
+                SettingsInfoRow(
+                    title: localization.string(.settingsRefresh),
+                    value: localization.string(.settingsAutomatic),
+                    symbolName: "arrow.clockwise"
+                )
                 Divider().padding(.leading, 34)
-                SettingsInfoRow(title: "Snapshot", value: "Widget shared", symbolName: "widget.small")
+                SettingsInfoRow(
+                    title: localization.string(.settingsSnapshot),
+                    value: localization.string(.settingsWidgetShared),
+                    symbolName: "widget.small"
+                )
                 Divider().padding(.leading, 34)
-                SettingsInfoRow(title: "Language", value: "System", symbolName: "globe")
+                SettingsInfoRow(
+                    title: localization.string(.settingsLanguage),
+                    value: localization.languageDisplayName(for: DiskmanSettingsStore().languageMode),
+                    symbolName: "globe"
+                )
             }
             .padding(12)
             .background(.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 14, style: .continuous))

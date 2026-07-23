@@ -1,6 +1,13 @@
 import SwiftUI
+import DiskmanCore
 
 struct AboutView: View {
+    let localization: LocalizationProvider
+
+    init(localization: LocalizationProvider = LocalizationProvider(settingsStore: DiskmanSettingsStore())) {
+        self.localization = localization
+    }
+
     var body: some View {
         VStack(spacing: 18) {
             DiskmanAppIconMark()
@@ -9,15 +16,15 @@ struct AboutView: View {
                 Text("Diskman")
                     .font(.system(size: 28, weight: .bold, design: .rounded))
 
-                Text("A Liquid Glass-inspired disk monitor for macOS.")
+                Text(localization.string(.aboutSubtitle))
                     .font(.system(size: 13, weight: .medium))
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
             }
 
             HStack(spacing: 8) {
-                AboutBadge(text: "Version 0.1.0")
-                AboutBadge(text: "Open Source")
+                AboutBadge(text: localization.string(.aboutVersion))
+                AboutBadge(text: localization.string(.aboutOpenSource))
             }
         }
         .padding(28)

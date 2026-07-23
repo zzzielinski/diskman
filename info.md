@@ -251,7 +251,7 @@ Priority:
 3. Let the user override language:
    - `System`,
    - `English`,
-   - `Polski`.
+   - `Polish`.
 
 Categories should not be hardcoded as view text. Code should use stable IDs:
 
@@ -340,7 +340,7 @@ macOS menu bar item:
   - `Language`,
     - `System`,
     - `English`,
-    - `Polski`,
+    - `Polish`,
   - `Show Internal Drives`,
   - `Show External Drives`,
   - `Show Network Volumes`,
@@ -476,7 +476,7 @@ Integration/manual tests:
 - App Group snapshot,
 - small widget with rings,
 - large widget with used/free bar,
-- language modes: System / English / Polski,
+- language modes: System / English / Polish,
 - installation through GitHub Release and `install.sh`.
 
 ### 0.2 - Basic Categories
@@ -519,7 +519,7 @@ Main risks:
 2. Build widgets through WidgetKit, while the background collector runs in the main app.
 3. MVP shows real disk data: total, used, free, percent.
 4. Start categories as `Used/Available`, then add an estimated category scanner later.
-5. Language follows the system by default, with `English` / `Polski` override.
+5. Language follows the system by default, with `English` / `Polish` override.
 6. The repo is named `diskman`, with installation through GitHub Releases and `scripts/install.sh`.
 
 ## Technical References

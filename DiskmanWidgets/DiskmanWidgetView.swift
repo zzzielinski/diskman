@@ -25,7 +25,10 @@ struct DiskmanWidgetView: View {
         if entry.snapshot.volumes.isEmpty {
             unavailableView
         } else {
-            SmallDiskRingLayout(volumes: entry.snapshot.volumes)
+            SmallDiskRingLayout(
+                volumes: entry.snapshot.volumes,
+                localization: entry.localization
+            )
         }
     }
 
@@ -36,7 +39,8 @@ struct DiskmanWidgetView: View {
         } else {
             DiskStorageListLayout(
                 volumes: entry.snapshot.volumes,
-                widgetFamily: widgetFamily
+                widgetFamily: widgetFamily,
+                localization: entry.localization
             )
         }
     }
@@ -52,11 +56,11 @@ struct DiskmanWidgetView: View {
     private var unavailableTitle: String {
         switch entry.state {
         case .readError:
-            return "Unable to Load"
+            return entry.localization.string(.widgetUnableToLoad)
         case .missingSnapshot:
-            return "No Data"
+            return entry.localization.string(.widgetNoData)
         default:
-            return "No Disks"
+            return entry.localization.string(.widgetNoDisks)
         }
     }
 
@@ -72,15 +76,16 @@ struct DiskmanWidgetView: View {
     private var unavailableDescription: String {
         switch entry.state {
         case .readError:
-            return "Open Diskman to rebuild widget data."
+            return entry.localization.string(.widgetOpenDiskmanRebuild)
         default:
-            return "Open Diskman to refresh storage data."
+            return entry.localization.string(.widgetOpenDiskmanRefresh)
         }
     }
 }
 
 private struct SmallDiskRingLayout: View {
     let volumes: [VolumeSnapshot]
+    let localization: LocalizationProvider
 
     var body: some View {
         GeometryReader { proxy in
@@ -105,7 +110,8 @@ private struct SmallDiskRingLayout: View {
         DiskRingView(
             volume: volumes[0],
             diameter: 82,
-            labelStyle: .expanded
+            labelStyle: .expanded,
+            localization: localization
         )
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -116,7 +122,8 @@ private struct SmallDiskRingLayout: View {
                 DiskRingView(
                     volume: volume,
                     diameter: 58,
-                    labelStyle: .compact
+                    labelStyle: .compact,
+                    localization: localization
                 )
             }
         }
@@ -135,14 +142,16 @@ private struct SmallDiskRingLayout: View {
                 DiskRingView(
                     volume: volume,
                     diameter: 42,
-                    labelStyle: .compact
+                    labelStyle: .compact,
+                    localization: localization
                 )
             }
 
             if extraDiskCount > 0 {
                 AdditionalDisksRingView(
                     extraCount: extraDiskCount,
-                    diameter: 42
+                    diameter: 42,
+                    localization: localization
                 )
             }
         }
@@ -162,26 +171,34 @@ private struct SmallDiskRingLayout: View {
 private struct DiskStorageListLayout: View {
     let volumes: [VolumeSnapshot]
     let widgetFamily: WidgetFamily
+    let localization: LocalizationProvider
 
     var body: some View {
         VStack(alignment: .leading, spacing: spacing) {
             ForEach(visibleVolumes) { volume in
-                DiskStorageRow(volume: volume, isLarge: isLarge)
+                DiskStorageRow(
+                    volume: volume,
+                    isLarge: isLarge,
+                    localization: localization
+                )
             }
 
             if hiddenVolumeCount > 0 {
-                Text("+\(hiddenVolumeCount) disks")
+                Text(localization.moreDisksLabel(hiddenVolumeCount))
                     .font(.system(size: 11, weight: .semibold, design: .rounded))
                     .foregroundStyle(.secondary)
                     .monospacedDigit()
                     .lineLimit(1)
-                    .accessibilityLabel("\(hiddenVolumeCount) more disks")
+                    .accessibilityLabel(localization.moreDisksLabel(hiddenVolumeCount))
             }
 
             Spacer(minLength: 0)
 
             if let legendCategories {
-                StorageSegmentLegend(categories: legendCategories)
+                StorageSegmentLegend(
+                    categories: legendCategories,
+                    localization: localization
+                )
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
@@ -217,8 +234,11 @@ private struct DiskStorageListLayout: View {
 private struct DiskStorageRow: View {
     let volume: VolumeSnapshot
     let isLarge: Bool
+    let localization: LocalizationProvider
 
     var body: some View {
+        let capacitySummary = localization.capacitySummary(for: volume)
+
         VStack(alignment: .leading, spacing: 7) {
             HStack(spacing: 8) {
                 Label(volume.displayName, systemImage: volume.kind.symbolName)
@@ -228,7 +248,7 @@ private struct DiskStorageRow: View {
 
                 Spacer(minLength: 8)
 
-                Text(volume.capacitySummary)
+                Text(capacitySummary)
                     .font(.system(size: isLarge ? 12 : 11, weight: .medium))
                     .foregroundStyle(.secondary)
                     .monospacedDigit()
@@ -238,12 +258,13 @@ private struct DiskStorageRow: View {
 
             StorageSegmentBar(
                 categories: volume.categories,
-                totalBytes: volume.totalBytes
+                totalBytes: volume.totalBytes,
+                localization: localization
             )
             .frame(height: isLarge ? 14 : 12)
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(volume.displayName), \(volume.capacitySummary)")
+        .accessibilityLabel("\(volume.displayName), \(capacitySummary)")
     }
 }
 

@@ -6,9 +6,14 @@ import WidgetKit
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private let diskMonitor = DiskMonitor()
+    private let settingsStore = DiskmanSettingsStore()
     private var statusItem: NSStatusItem?
     private var statusMenuItem: NSMenuItem?
     private var aboutWindowController: NSWindowController?
+
+    private var localization: LocalizationProvider {
+        LocalizationProvider(settingsStore: settingsStore)
+    }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
@@ -40,38 +45,71 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func makeMenu() -> NSMenu {
         let menu = NSMenu()
 
-        let status = NSMenuItem(title: "Loading disks...", action: nil, keyEquivalent: "")
+        let localization = localization
+        let status = NSMenuItem(title: localization.string(.menuLoadingDisks), action: nil, keyEquivalent: "")
         status.isEnabled = false
         statusMenuItem = status
         menu.addItem(status)
         menu.addItem(.separator())
 
-        menu.addItem(NSMenuItem(
-            title: "Refresh Now",
+        menu.addItem(makeMenuItem(
+            title: localization.string(.menuRefreshNow),
             action: #selector(refreshNow),
             keyEquivalent: "r"
         ))
 
-        menu.addItem(NSMenuItem(
-            title: "Settings...",
+        menu.addItem(makeMenuItem(
+            title: localization.string(.menuSettings),
             action: #selector(showSettings),
             keyEquivalent: ","
         ))
 
         let languageMenu = NSMenu()
-        languageMenu.addItem(NSMenuItem(title: "System", action: #selector(selectSystemLanguage), keyEquivalent: ""))
-        languageMenu.addItem(NSMenuItem(title: "English", action: #selector(selectEnglish), keyEquivalent: ""))
-        languageMenu.addItem(NSMenuItem(title: "Polski", action: #selector(selectPolish), keyEquivalent: ""))
+        languageMenu.addItem(languageMenuItem(for: .system, localization: localization))
+        languageMenu.addItem(languageMenuItem(for: .english, localization: localization))
+        languageMenu.addItem(languageMenuItem(for: .polish, localization: localization))
 
-        let languageItem = NSMenuItem(title: "Language", action: nil, keyEquivalent: "")
+        let languageItem = NSMenuItem(title: localization.string(.menuLanguage), action: nil, keyEquivalent: "")
         menu.setSubmenu(languageMenu, for: languageItem)
         menu.addItem(languageItem)
 
         menu.addItem(.separator())
-        menu.addItem(NSMenuItem(title: "About Diskman", action: #selector(showAbout), keyEquivalent: ""))
-        menu.addItem(NSMenuItem(title: "Quit Diskman", action: #selector(quit), keyEquivalent: "q"))
+        menu.addItem(makeMenuItem(title: localization.string(.menuAboutDiskman), action: #selector(showAbout), keyEquivalent: ""))
+        menu.addItem(makeMenuItem(title: localization.string(.menuQuitDiskman), action: #selector(quit), keyEquivalent: "q"))
 
         return menu
+    }
+
+    private func makeMenuItem(
+        title: String,
+        action: Selector?,
+        keyEquivalent: String
+    ) -> NSMenuItem {
+        let item = NSMenuItem(title: title, action: action, keyEquivalent: keyEquivalent)
+        item.target = self
+        return item
+    }
+
+    private func languageMenuItem(
+        for mode: DiskmanLanguageMode,
+        localization: LocalizationProvider
+    ) -> NSMenuItem {
+        let action: Selector = switch mode {
+        case .system:
+            #selector(selectSystemLanguage)
+        case .english:
+            #selector(selectEnglish)
+        case .polish:
+            #selector(selectPolish)
+        }
+
+        let item = makeMenuItem(
+            title: localization.languageDisplayName(for: mode),
+            action: action,
+            keyEquivalent: ""
+        )
+        item.state = settingsStore.languageMode == mode ? .on : .off
+        return item
     }
 
     @objc private func refreshNow() {
@@ -99,7 +137,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 snapshotWriteError: event.snapshotWriteError
             )
         case .failure:
-            statusMenuItem?.title = "Unable to read disks"
+            statusMenuItem?.title = localization.string(.menuUnableToReadDisks)
         }
 
         WidgetCenter.shared.reloadAllTimelines()
@@ -109,30 +147,46 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         for snapshot: DiskSnapshot,
         snapshotWriteError: Error? = nil
     ) -> String {
+        let localization = localization
+
         guard let primaryVolume = snapshot.volumes.first else {
-            return "No disks found"
+            return localization.string(.menuNoDisksFound)
         }
 
-        let diskLabel = snapshot.volumes.count == 1 ? "disk" : "disks"
-        let title = "\(snapshot.volumes.count) \(diskLabel) - \(primaryVolume.displayName): \(primaryVolume.freePercentText) free"
+        let title = localization.string(
+            .menuStatus,
+            snapshot.volumes.count,
+            localization.diskLabel(count: snapshot.volumes.count),
+            primaryVolume.displayName,
+            primaryVolume.freePercentText
+        )
 
         guard snapshotWriteError != nil else {
             return title
         }
 
-        return "\(title) - Widget snapshot unavailable"
+        return "\(title) - \(localization.string(.menuWidgetSnapshotUnavailable))"
     }
 
     @objc private func selectSystemLanguage() {
-        // Language persistence lands with the localization stage.
+        setLanguageMode(.system)
     }
 
     @objc private func selectEnglish() {
-        // Language persistence lands with the localization stage.
+        setLanguageMode(.english)
     }
 
     @objc private func selectPolish() {
-        // Language persistence lands with the localization stage.
+        setLanguageMode(.polish)
+    }
+
+    private func setLanguageMode(_ mode: DiskmanLanguageMode) {
+        settingsStore.languageMode = mode
+        statusItem?.menu = makeMenu()
+        aboutWindowController?.close()
+        aboutWindowController = nil
+        diskMonitor.refreshNow()
+        WidgetCenter.shared.reloadAllTimelines()
     }
 
     @objc private func showAbout() {
@@ -150,11 +204,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             backing: .buffered,
             defer: false
         )
-        window.title = "About Diskman"
+        window.title = localization.string(.menuAboutDiskman)
         window.titleVisibility = .hidden
         window.titlebarAppearsTransparent = true
         window.isMovableByWindowBackground = true
-        window.contentView = NSHostingView(rootView: AboutView())
+        window.contentView = NSHostingView(rootView: AboutView(localization: localization))
         window.center()
 
         let controller = NSWindowController(window: window)

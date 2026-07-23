@@ -2,19 +2,21 @@ import DiskmanCore
 import SwiftUI
 import WidgetKit
 
-struct DiskmanEntry: TimelineEntry {
+struct DiskmanEntry: TimelineEntry, Sendable {
     let date: Date
     let snapshot: DiskSnapshot
     let state: DiskmanEntryState
+    let localization: LocalizationProvider
 
     static let placeholder = DiskmanEntry(
         date: Date(),
         snapshot: .placeholder,
-        state: .placeholder
+        state: .placeholder,
+        localization: LocalizationProvider()
     )
 }
 
-enum DiskmanEntryState {
+enum DiskmanEntryState: Sendable {
     case placeholder
     case loaded
     case missingSnapshot
@@ -23,6 +25,7 @@ enum DiskmanEntryState {
 
 struct DiskmanTimelineProvider: TimelineProvider {
     private let snapshotStore = StorageSnapshotStore()
+    private let settingsStore = DiskmanSettingsStore()
 
     func placeholder(in context: Context) -> DiskmanEntry {
         .placeholder
@@ -47,22 +50,29 @@ struct DiskmanTimelineProvider: TimelineProvider {
                 return DiskmanEntry(
                     date: Date(),
                     snapshot: snapshot,
-                    state: .loaded
+                    state: .loaded,
+                    localization: localization
                 )
             }
 
             return DiskmanEntry(
                 date: Date(),
                 snapshot: .empty,
-                state: .missingSnapshot
+                state: .missingSnapshot,
+                localization: localization
             )
         } catch {
             return DiskmanEntry(
                 date: Date(),
                 snapshot: .empty,
-                state: .readError
+                state: .readError,
+                localization: localization
             )
         }
+    }
+
+    private var localization: LocalizationProvider {
+        LocalizationProvider(settingsStore: settingsStore)
     }
 }
 

@@ -4,6 +4,7 @@ import SwiftUI
 struct StorageSegmentBar: View {
     let categories: [StorageCategorySnapshot]
     let totalBytes: Int64
+    let localization: LocalizationProvider
 
     var body: some View {
         GeometryReader { proxy in
@@ -57,7 +58,7 @@ struct StorageSegmentBar: View {
     private var accessibilityText: String {
         visibleCategories
             .map { category in
-                "\(category.localizedName) \(DiskByteFormatter.decimal.string(fromByteCount: category.bytes))"
+                "\(localization.categoryName(for: category.id)) \(DiskByteFormatter.decimal.string(fromByteCount: category.bytes))"
             }
             .joined(separator: ", ")
     }
@@ -65,6 +66,7 @@ struct StorageSegmentBar: View {
 
 struct StorageSegmentLegend: View {
     let categories: [StorageCategorySnapshot]
+    let localization: LocalizationProvider
 
     var body: some View {
         HStack(spacing: 10) {
@@ -74,7 +76,7 @@ struct StorageSegmentLegend: View {
                         .fill(category.segmentColor)
                         .frame(width: 7, height: 7)
 
-                    Text(category.localizedName)
+                    Text(localization.categoryName(for: category.id))
                         .font(.system(size: 10, weight: .medium))
                         .foregroundStyle(.secondary)
                         .lineLimit(1)

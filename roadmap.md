@@ -19,7 +19,7 @@ The first working Diskman version should:
 - show a small widget with circular free-space indicators,
 - show a large widget with a `used/free` storage bar,
 - provide a menu with `Refresh`, `Language`, `About`, and `Quit Diskman`,
-- support the system language plus manual `English` / `Polski` selection,
+- support the system language plus manual `English` / `Polish` selection,
 - build locally and install from a GitHub Release through a simple terminal script.
 
 ## Stage 0 - Repository Foundation
@@ -195,22 +195,22 @@ Done when:
 
 ## Stage 8 - Language And Localization
 
-- [ ] Add String Catalog or `Localizable.strings`.
-- [ ] Add languages:
-  - [ ] English
-  - [ ] Polski
-- [ ] Add language mode:
-  - [ ] System
-  - [ ] English
-  - [ ] Polski
-- [ ] Localize the menu bar.
-- [ ] Localize widgets.
-- [ ] Localize MVP categories:
-  - [ ] Used
-  - [ ] Available
-  - [ ] Other
-  - [ ] System Data
-- [ ] Add `LocalizationProvider` so views do not hardcode category text.
+- [x] Add String Catalog or `Localizable.strings`.
+- [x] Add languages:
+  - [x] English
+  - [x] Polish
+- [x] Add language mode:
+  - [x] System
+  - [x] English
+  - [x] Polish
+- [x] Localize the menu bar.
+- [x] Localize widgets.
+- [x] Localize MVP categories:
+  - [x] Used
+  - [x] Available
+  - [x] Other
+  - [x] System Data
+- [x] Add `LocalizationProvider` so views do not hardcode category text.
 
 Done when:
 
@@ -317,9 +317,10 @@ Done when:
 - [x] Local git repository has been initialized.
 - [x] GitHub repository `zzzielinski/diskman` exists and has starter documentation.
 - [x] Xcode project skeleton exists with the app, widgets, and `DiskmanCore`.
+- [x] Shared English/Polish localization is wired through `DiskmanCore`.
 
 ## Nearest Next Step
 
-1. Start Stage 8: localization.
-2. Add shared language settings and `LocalizationProvider`.
-3. Localize app menu, widgets, and MVP storage categories.
+1. Start Stage 9: Settings and About.
+2. Turn the Settings language row into an interactive picker.
+3. Add `Launch at Login` persistence.

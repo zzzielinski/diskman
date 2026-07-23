@@ -5,6 +5,7 @@ struct DiskRingView: View {
     let volume: VolumeSnapshot
     let diameter: CGFloat
     let labelStyle: LabelStyle
+    let localization: LocalizationProvider
 
     enum LabelStyle {
         case compact
@@ -40,7 +41,7 @@ struct DiskRingView: View {
         }
         .frame(width: max(diameter + 10, minimumWidth))
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(volume.displayName), \(volume.freePercentText) free")
+        .accessibilityLabel(localization.freeSpaceAccessibility(for: volume))
     }
 
     private var ring: some View {
@@ -92,6 +93,7 @@ struct DiskRingView: View {
 struct AdditionalDisksRingView: View {
     let extraCount: Int
     let diameter: CGFloat
+    let localization: LocalizationProvider
 
     var body: some View {
         VStack(spacing: 4) {
@@ -120,14 +122,14 @@ struct AdditionalDisksRingView: View {
             }
             .frame(width: diameter, height: diameter)
 
-            Text("more")
+            Text(localization.string(.widgetMore))
                 .font(.system(size: 11, weight: .medium))
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
         }
         .frame(width: max(diameter + 10, 54))
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(extraCount) more disks")
+        .accessibilityLabel(localization.moreDisksLabel(extraCount))
     }
 
     private var lineWidth: CGFloat {

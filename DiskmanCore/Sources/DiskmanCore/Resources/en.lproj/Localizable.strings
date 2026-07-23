@@ -1,0 +1,48 @@
+"menu.loadingDisks" = "Loading disks...";
+"menu.refreshNow" = "Refresh Now";
+"menu.settings" = "Settings...";
+"menu.language" = "Language";
+"menu.aboutDiskman" = "About Diskman";
+"menu.quitDiskman" = "Quit Diskman";
+"menu.unableToReadDisks" = "Unable to read disks";
+"menu.noDisksFound" = "No disks found";
+"menu.status" = "%d %@ - %@: %@ free";
+"menu.widgetSnapshotUnavailable" = "Widget snapshot unavailable";
+
+"language.system" = "System";
+"language.english" = "English";
+"language.polish" = "Polish";
+
+"disk.singular" = "disk";
+"disk.plural" = "disks";
+"capacity.freeOf" = "%@ free of %@";
+"accessibility.diskFree" = "%@, %@ free";
+
+"widget.noDisks" = "No Disks";
+"widget.noData" = "No Data";
+"widget.unableToLoad" = "Unable to Load";
+"widget.openDiskmanRefresh" = "Open Diskman to refresh storage data.";
+"widget.openDiskmanRebuild" = "Open Diskman to rebuild widget data.";
+"widget.more" = "more";
+"widget.moreDisksFormat" = "%d more disks";
+
+"settings.subtitle" = "Background disk monitor";
+"settings.refresh" = "Refresh";
+"settings.automatic" = "Automatic";
+"settings.snapshot" = "Snapshot";
+"settings.widgetShared" = "Widget shared";
+"settings.language" = "Language";
+
+"about.subtitle" = "A Liquid Glass-inspired disk monitor for macOS.";
+"about.version" = "Version 0.1.0";
+"about.openSource" = "Open Source";
+
+"category.applications" = "Applications";
+"category.documents" = "Documents";
+"category.developer" = "Developer";
+"category.photos" = "Photos";
+"category.messages" = "Messages";
+"category.systemData" = "System Data";
+"category.other" = "Other";
+"category.used" = "Used";
+"category.available" = "Available";

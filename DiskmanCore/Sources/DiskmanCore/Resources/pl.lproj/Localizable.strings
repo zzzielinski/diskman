@@ -1,0 +1,48 @@
+"menu.loadingDisks" = "Wczytywanie dysków...";
+"menu.refreshNow" = "Odśwież teraz";
+"menu.settings" = "Ustawienia...";
+"menu.language" = "Język";
+"menu.aboutDiskman" = "O Diskman";
+"menu.quitDiskman" = "Zamknij Diskman";
+"menu.unableToReadDisks" = "Nie można odczytać dysków";
+"menu.noDisksFound" = "Nie znaleziono dysków";
+"menu.status" = "%d %@ - %@: %@ wolne";
+"menu.widgetSnapshotUnavailable" = "Snapshot widgetu niedostępny";
+
+"language.system" = "System";
+"language.english" = "English";
+"language.polish" = "Polski";
+
+"disk.singular" = "dysk";
+"disk.plural" = "dyski";
+"capacity.freeOf" = "%@ wolne z %@";
+"accessibility.diskFree" = "%@, %@ wolne";
+
+"widget.noDisks" = "Brak dysków";
+"widget.noData" = "Brak danych";
+"widget.unableToLoad" = "Nie można wczytać";
+"widget.openDiskmanRefresh" = "Otwórz Diskman, aby odświeżyć dane dysków.";
+"widget.openDiskmanRebuild" = "Otwórz Diskman, aby odbudować dane widgetu.";
+"widget.more" = "więcej";
+"widget.moreDisksFormat" = "%d dysków więcej";
+
+"settings.subtitle" = "Monitor dysków w tle";
+"settings.refresh" = "Odświeżanie";
+"settings.automatic" = "Automatyczne";
+"settings.snapshot" = "Snapshot";
+"settings.widgetShared" = "Udostępniony widgetom";
+"settings.language" = "Język";
+
+"about.subtitle" = "Monitor dysków dla macOS inspirowany Liquid Glass.";
+"about.version" = "Wersja 0.1.0";
+"about.openSource" = "Open Source";
+
+"category.applications" = "Aplikacje";
+"category.documents" = "Dokumenty";
+"category.developer" = "Developer";
+"category.photos" = "Zdjęcia";
+"category.messages" = "Wiadomości";
+"category.systemData" = "Dane systemowe";
+"category.other" = "Inne";
+"category.used" = "Użyte";
+"category.available" = "Dostępne";
