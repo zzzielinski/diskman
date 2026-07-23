@@ -9,6 +9,7 @@ It is useful for people who frequently work with external drives, disk images, n
 - Menu bar app that runs in the background.
 - Small widget with circular disk usage indicators.
 - Medium and large widgets with segmented storage bars.
+- Clickable widget disks that open the selected volume in Finder.
 - Mounted volume detection for internal, external, removable, network, and disk image volumes.
 - Manual refresh plus automatic refresh using polling and Disk Arbitration events.
 - Settings for language, disk visibility, percent mode, units, categories, and launch at login.

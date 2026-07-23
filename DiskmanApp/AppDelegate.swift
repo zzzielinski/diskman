@@ -31,6 +31,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         diskMonitor.stop()
     }
 
+    func application(_ application: NSApplication, open urls: [URL]) {
+        for url in urls {
+            handleDeepLink(url)
+        }
+    }
+
     private func configureStatusItem() {
         let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
 
@@ -239,5 +245,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func quit() {
         NSApp.terminate(nil)
+    }
+
+    private func handleDeepLink(_ url: URL) {
+        guard url.scheme == "diskman",
+              url.host == "open-volume",
+              let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+              let mountPath = components.queryItems?.first(where: { $0.name == "path" })?.value,
+              mountPath.isEmpty == false
+        else {
+            return
+        }
+
+        openVolumeInFinder(at: mountPath)
+    }
+
+    private func openVolumeInFinder(at mountPath: String) {
+        let url = URL(filePath: mountPath)
+        guard FileManager.default.fileExists(atPath: url.path) else {
+            return
+        }
+
+        NSWorkspace.shared.open(url)
     }
 }

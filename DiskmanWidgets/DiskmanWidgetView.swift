@@ -107,24 +107,28 @@ private struct SmallDiskRingLayout: View {
     }
 
     private var singleDiskLayout: some View {
-        DiskRingView(
-            volume: volumes[0],
-            diameter: 82,
-            labelStyle: .expanded,
-            localization: localization
-        )
+        VolumeLink(volume: volumes[0]) {
+            DiskRingView(
+                volume: volumes[0],
+                diameter: 82,
+                labelStyle: .expanded,
+                localization: localization
+            )
+        }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private var twoDiskLayout: some View {
         HStack(spacing: 10) {
             ForEach(volumes.prefix(2)) { volume in
-                DiskRingView(
-                    volume: volume,
-                    diameter: 58,
-                    labelStyle: .compact,
-                    localization: localization
-                )
+                VolumeLink(volume: volume) {
+                    DiskRingView(
+                        volume: volume,
+                        diameter: 58,
+                        labelStyle: .compact,
+                        localization: localization
+                    )
+                }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -139,12 +143,14 @@ private struct SmallDiskRingLayout: View {
             spacing: 8
         ) {
             ForEach(gridVolumes) { volume in
-                DiskRingView(
-                    volume: volume,
-                    diameter: 42,
-                    labelStyle: .compact,
-                    localization: localization
-                )
+                VolumeLink(volume: volume) {
+                    DiskRingView(
+                        volume: volume,
+                        diameter: 42,
+                        labelStyle: .compact,
+                        localization: localization
+                    )
+                }
             }
 
             if extraDiskCount > 0 {
@@ -176,11 +182,13 @@ private struct DiskStorageListLayout: View {
     var body: some View {
         VStack(alignment: .leading, spacing: spacing) {
             ForEach(visibleVolumes) { volume in
-                DiskStorageRow(
-                    volume: volume,
-                    isLarge: isLarge,
-                    localization: localization
-                )
+                VolumeLink(volume: volume) {
+                    DiskStorageRow(
+                        volume: volume,
+                        isLarge: isLarge,
+                        localization: localization
+                    )
+                }
             }
 
             if hiddenVolumeCount > 0 {
@@ -228,6 +236,34 @@ private struct DiskStorageListLayout: View {
 
     private var isLarge: Bool {
         widgetFamily == .systemLarge
+    }
+}
+
+private struct VolumeLink<Content: View>: View {
+    let volume: VolumeSnapshot
+    @ViewBuilder let content: Content
+
+    var body: some View {
+        if let url = volume.openInFinderURL {
+            Link(destination: url) {
+                content
+            }
+            .buttonStyle(.plain)
+        } else {
+            content
+        }
+    }
+}
+
+private extension VolumeSnapshot {
+    var openInFinderURL: URL? {
+        var components = URLComponents()
+        components.scheme = "diskman"
+        components.host = "open-volume"
+        components.queryItems = [
+            URLQueryItem(name: "path", value: mountPath)
+        ]
+        return components.url
     }
 }
 
