@@ -14,7 +14,12 @@ let package = Package(
         )
     ],
     targets: [
-        .target(name: "DiskmanCore"),
+        .target(
+            name: "DiskmanCore",
+            linkerSettings: [
+                .linkedFramework("DiskArbitration")
+            ]
+        ),
         .testTarget(
             name: "DiskmanCoreTests",
             dependencies: ["DiskmanCore"]

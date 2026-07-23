@@ -116,13 +116,13 @@ Done kiedy:
 
 ## Etap 4 - Monitoring w tle
 
-- [ ] Dodac `DiskMonitor`.
-- [ ] Dodac polling co 30-60 sekund dla zmian wolnego miejsca.
-- [ ] Dodac reczny refresh z menu bar.
-- [ ] Dodac Disk Arbitration dla mount/unmount/eject.
-- [ ] Po zdarzeniu dysku odswiezac snapshot.
-- [ ] Dodac debounce, zeby kilka eventow naraz nie robilo wielu refreshy.
-- [ ] Dodac OSLog dla waznych eventow.
+- [x] Dodac `DiskMonitor`.
+- [x] Dodac polling co 30-60 sekund dla zmian wolnego miejsca.
+- [x] Dodac reczny refresh z menu bar.
+- [x] Dodac Disk Arbitration dla mount/unmount/eject.
+- [x] Po zdarzeniu dysku odswiezac snapshot.
+- [x] Dodac debounce, zeby kilka eventow naraz nie robilo wielu refreshy.
+- [x] Dodac OSLog dla waznych eventow.
 
 Done kiedy:
 
@@ -320,6 +320,6 @@ Done kiedy:
 
 ## Najblizszy nastepny krok
 
-1. Zaczac Etap 4: `DiskMonitor`.
-2. Dodac polling co 30-60 sekund.
-3. Dodac Disk Arbitration dla mount/unmount/eject.
+1. Zaczac Etap 5: maly widget.
+2. Wyciagnac `DiskRingView` do osobnego komponentu.
+3. Dopracowac obsluge 1, 2, 3 i 4+ dyskow.

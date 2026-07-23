@@ -4,15 +4,19 @@ import WidgetKit
 
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
-    private let volumeProvider = VolumeProvider()
-    private let snapshotStore = StorageSnapshotStore()
+    private let diskMonitor = DiskMonitor()
     private var statusItem: NSStatusItem?
     private var statusMenuItem: NSMenuItem?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
         configureStatusItem()
-        refreshVolumeStatus()
+        configureDiskMonitor()
+        diskMonitor.start()
+    }
+
+    func applicationWillTerminate(_ notification: Notification) {
+        diskMonitor.stop()
     }
 
     private func configureStatusItem() {
@@ -63,33 +67,47 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc private func refreshNow() {
-        refreshVolumeStatus()
+        diskMonitor.refreshNow()
     }
 
-    private func refreshVolumeStatus() {
-        do {
-            let snapshot = try volumeProvider.snapshot()
-            statusMenuItem?.title = menuStatusTitle(for: snapshot)
-
-            do {
-                try snapshotStore.write(snapshot)
-            } catch {
-                statusMenuItem?.title = "\(menuStatusTitle(for: snapshot)) - Widget snapshot unavailable"
+    private func configureDiskMonitor() {
+        diskMonitor.onRefresh = { [weak self] event in
+            DispatchQueue.main.async {
+                self?.handleRefreshEvent(event)
             }
-        } catch {
+        }
+    }
+
+    private func handleRefreshEvent(_ event: DiskMonitor.RefreshEvent) {
+        switch event.result {
+        case .success(let snapshot):
+            statusMenuItem?.title = menuStatusTitle(
+                for: snapshot,
+                snapshotWriteError: event.snapshotWriteError
+            )
+        case .failure:
             statusMenuItem?.title = "Unable to read disks"
         }
 
         WidgetCenter.shared.reloadAllTimelines()
     }
 
-    private func menuStatusTitle(for snapshot: DiskSnapshot) -> String {
+    private func menuStatusTitle(
+        for snapshot: DiskSnapshot,
+        snapshotWriteError: Error? = nil
+    ) -> String {
         guard let primaryVolume = snapshot.volumes.first else {
             return "No disks found"
         }
 
         let diskLabel = snapshot.volumes.count == 1 ? "disk" : "disks"
-        return "\(snapshot.volumes.count) \(diskLabel) - \(primaryVolume.displayName): \(primaryVolume.freePercentText) free"
+        let title = "\(snapshot.volumes.count) \(diskLabel) - \(primaryVolume.displayName): \(primaryVolume.freePercentText) free"
+
+        guard snapshotWriteError != nil else {
+            return title
+        }
+
+        return "\(title) - Widget snapshot unavailable"
     }
 
     @objc private func selectSystemLanguage() {
