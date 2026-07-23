@@ -11,6 +11,7 @@ It is useful for people who frequently work with external drives, disk images, n
 - Medium and large widgets with segmented storage bars.
 - Clickable widget disks that open the selected volume in Finder.
 - Mounted volume detection for internal, external, removable, network, and disk image volumes.
+- iCloud Drive as a separate local-files widget item.
 - Manual refresh plus automatic refresh using polling and Disk Arbitration events.
 - Settings for language, disk visibility, percent mode, units, categories, and launch at login.
 - English and Polish localization.
@@ -28,7 +29,7 @@ Diskman works 100% offline.
 
 The app does not require an internet connection, does not collect analytics, does not send disk data anywhere, and does not use any network API at runtime. Diskman reads local macOS volume metadata such as name, mount path, total capacity, available capacity, and volume kind.
 
-Estimated storage categories are optional. By default, Diskman scans safe local folders such as Applications and common developer directories. The optional deep folder scan can include Documents, Downloads, local iCloud Drive files, Photos, and Messages after the user grants macOS Full Disk Access. Results are cached locally and labeled as estimates because they are not the same private data shown by macOS System Settings.
+Estimated storage categories are optional. By default, Diskman scans safe local folders such as Applications and common developer directories. The optional deep folder scan can include Documents, Downloads, Photos, and Messages after the user grants macOS Full Disk Access. iCloud Drive is shown separately using local files available on disk, not total iCloud quota. Results are cached locally and labeled as estimates because they are not the same private data shown by macOS System Settings.
 
 ## Open Source
 
@@ -50,6 +51,18 @@ curl -fsSL https://raw.githubusercontent.com/zzzielinski/diskman/main/scripts/in
 The installer downloads `Diskman.app.zip` from the latest release and installs `Diskman.app` into `~/Applications`.
 It also registers the embedded widget extension with macOS after copying the app.
 
+Install and open Diskman:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/zzzielinski/diskman/main/scripts/install.sh | bash -s -- --open
+```
+
+Open Diskman after installing:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/zzzielinski/diskman/main/scripts/open.sh | bash
+```
+
 Use a custom install directory:
 
 ```bash
@@ -59,16 +72,29 @@ curl -fsSL https://raw.githubusercontent.com/zzzielinski/diskman/main/scripts/in
 
 Installing into `/Applications` may require administrator write permissions.
 
-Uninstall Diskman:
+Open Diskman from a custom install directory:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/zzzielinski/diskman/main/scripts/open.sh \
+  | DISKMAN_INSTALL_DIR="/Applications" bash
+```
+
+Uninstall Diskman and remove local settings, widget snapshots, caches, and logs:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/zzzielinski/diskman/main/scripts/uninstall.sh | bash
 ```
 
-Remove local Diskman settings and widget snapshots too:
+Preview what would be removed:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/zzzielinski/diskman/main/scripts/uninstall.sh | bash -s -- --remove-data
+curl -fsSL https://raw.githubusercontent.com/zzzielinski/diskman/main/scripts/uninstall.sh | bash -s -- --dry-run
+```
+
+Uninstall the app but keep local data:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/zzzielinski/diskman/main/scripts/uninstall.sh | bash -s -- --keep-data
 ```
 
 ## Build From Source
@@ -118,6 +144,13 @@ Outputs:
 ```text
 build/release/Diskman.app.zip
 build/release/Diskman.app.zip.sha256
+```
+
+Install and open the local build:
+
+```bash
+./scripts/package-release.sh
+./scripts/install.sh --zip build/release/Diskman.app.zip --open
 ```
 
 Current release builds are ad-hoc signed but not notarized. macOS may show the standard Gatekeeper warning when opening the app for the first time.

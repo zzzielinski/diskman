@@ -24,14 +24,14 @@ struct DiskRingView: View {
                 }
 
             VStack(spacing: 1) {
-                Text(localization.usagePercentText(for: volume))
+                Text(primaryUsageText)
                     .font(.system(size: percentFontSize, weight: .semibold, design: .rounded))
                     .monospacedDigit()
                     .lineLimit(1)
-                    .minimumScaleFactor(0.72)
+                    .minimumScaleFactor(0.62)
 
                 if labelStyle == .expanded {
-                    Text(volume.displayName)
+                    Text(secondaryLabelText)
                         .font(.system(size: 11, weight: .medium))
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
@@ -81,12 +81,32 @@ struct DiskRingView: View {
         labelStyle == .expanded ? 20 : 13
     }
 
+    private var primaryUsageText: String {
+        if volume.kind == .iCloudDrive {
+            return localization.usagePercentText(for: volume)
+        }
+
+        return "\(localization.usagePercentText(for: volume)) \(localization.usageModeAbbreviation(for: localization.usageDisplayMode))"
+    }
+
+    private var secondaryLabelText: String {
+        if volume.kind == .iCloudDrive {
+            return volume.displayName
+        }
+
+        return "\(volume.displayName) - \(localization.usageModeName(for: localization.usageDisplayMode))"
+    }
+
     private var minimumWidth: CGFloat {
         labelStyle == .expanded ? 96 : 54
     }
 
     private var statusColor: Color {
-        DiskmanPalette.statusColor(forFreeSpaceRatio: volume.freeSpaceRatio)
+        if volume.kind == .iCloudDrive {
+            return DiskmanPalette.categoryColor(for: .iCloudDrive)
+        }
+
+        return DiskmanPalette.statusColor(forFreeSpaceRatio: volume.freeSpaceRatio)
     }
 }
 

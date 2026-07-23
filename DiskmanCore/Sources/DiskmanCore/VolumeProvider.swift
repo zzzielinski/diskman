@@ -33,7 +33,23 @@ public struct VolumeProvider: VolumeProviding {
             return VolumeSnapshot(resource: resourceSnapshot)
         }
 
-        return DiskSnapshot(generatedAt: Date(), volumes: volumes.sortedForDisplay())
+        let visibleVolumes = (volumes + optionalICloudDriveVolume()).sortedForDisplay()
+        return DiskSnapshot(generatedAt: Date(), volumes: visibleVolumes)
+    }
+
+    private func optionalICloudDriveVolume() -> [VolumeSnapshot] {
+        let url = fileManager.homeDirectoryForCurrentUser
+            .appending(path: "Library/Mobile Documents/com~apple~CloudDocs")
+        guard fileManager.fileExists(atPath: url.path) else {
+            return []
+        }
+
+        return [
+            .localICloudDrive(
+                url: url,
+                usedBytes: directorySize(at: url, fileManager: fileManager)
+            )
+        ]
     }
 }
 
@@ -195,6 +211,26 @@ extension VolumeSnapshot {
             )
         )
     }
+
+    static func localICloudDrive(url: URL, usedBytes: Int64) -> VolumeSnapshot {
+        let normalizedUsedBytes = max(0, usedBytes)
+        return VolumeSnapshot(
+            id: "icloud-drive-local",
+            name: "iCloud Drive",
+            localizedName: nil,
+            mountPath: url.path,
+            kind: .iCloudDrive,
+            fileSystemName: "Local iCloud Drive",
+            totalBytes: normalizedUsedBytes,
+            availableBytes: 0,
+            importantAvailableBytes: nil,
+            usedBytes: normalizedUsedBytes,
+            categories: VolumeSnapshot.basicCategories(
+                usedBytes: normalizedUsedBytes,
+                availableBytes: 0
+            )
+        )
+    }
 }
 
 private extension Array where Element == VolumeSnapshot {
@@ -230,8 +266,10 @@ private extension VolumeKind {
             return 3
         case .network:
             return 4
-        case .unknown:
+        case .iCloudDrive:
             return 5
+        case .unknown:
+            return 6
         }
     }
 }
@@ -241,4 +279,38 @@ private extension String {
         let trimmed = trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmed.isEmpty ? nil : trimmed
     }
+}
+
+private func directorySize(at url: URL, fileManager: FileManager) -> Int64 {
+    var totalBytes: Int64 = 0
+    let resourceKeys: [URLResourceKey] = [
+        .isRegularFileKey,
+        .fileSizeKey,
+        .totalFileAllocatedSizeKey,
+        .isSymbolicLinkKey
+    ]
+
+    guard let enumerator = fileManager.enumerator(
+        at: url,
+        includingPropertiesForKeys: resourceKeys,
+        options: [.skipsHiddenFiles],
+        errorHandler: { _, _ in true }
+    ) else {
+        return 0
+    }
+
+    for case let fileURL as URL in enumerator {
+        guard let values = try? fileURL.resourceValues(forKeys: Set(resourceKeys)),
+              values.isSymbolicLink != true,
+              values.isRegularFile == true
+        else {
+            continue
+        }
+
+        let allocatedSize = values.totalFileAllocatedSize.map(Int64.init)
+        let fileSize = values.fileSize.map(Int64.init)
+        totalBytes += allocatedSize ?? fileSize ?? 0
+    }
+
+    return totalBytes
 }

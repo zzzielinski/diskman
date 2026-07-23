@@ -24,6 +24,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         NSApp.setActivationPolicy(.accessory)
+        applyAppearance()
         observeSettingsChanges()
         configureStatusItem()
         configureDiskMonitor()
@@ -181,7 +182,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 560, height: 700),
+            contentRect: NSRect(x: 0, y: 0, width: 560, height: 740),
             styleMask: [.titled, .closable, .miniaturizable, .fullSizeContentView],
             backing: .buffered,
             defer: false
@@ -289,12 +290,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func applySettingsChange() {
+        applyAppearance()
         statusItem?.menu = makeMenu()
         settingsWindowController?.window?.title = localization.string(.menuSettings)
         aboutWindowController?.close()
         aboutWindowController = nil
         diskMonitor.refreshNow()
         WidgetCenter.shared.reloadAllTimelines()
+    }
+
+    private func applyAppearance() {
+        switch settingsStore.appearanceMode {
+        case .system:
+            NSApp.appearance = nil
+        case .light:
+            NSApp.appearance = NSAppearance(named: .aqua)
+        case .dark:
+            NSApp.appearance = NSAppearance(named: .darkAqua)
+        }
     }
 
     @objc private func showAbout() {

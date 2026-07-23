@@ -201,7 +201,6 @@ public struct EstimatedStorageCategoryScanner: StorageCategoryScanning {
         if deepCategoryScanEnabled {
             categoryRoots.append(contentsOf: [
                 (.documents, documentDirectoryURLs),
-                (.iCloudDrive, iCloudDriveDirectoryURLs),
                 (.photos, photoDirectoryURLs),
                 (.messages, messageDirectoryURLs)
             ])
@@ -302,13 +301,6 @@ public struct EstimatedStorageCategoryScanner: StorageCategoryScanning {
             homeDirectoryURL.appending(path: "Desktop"),
             homeDirectoryURL.appending(path: "Documents"),
             homeDirectoryURL.appending(path: "Downloads")
-        ]
-    }
-
-    private var iCloudDriveDirectoryURLs: [URL] {
-        [
-            homeDirectoryURL
-                .appending(path: "Library/Mobile Documents/com~apple~CloudDocs")
         ]
     }
 

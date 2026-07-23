@@ -30,6 +30,12 @@ public enum DiskmanLanguage: String, Codable, Sendable {
     }
 }
 
+public enum DiskmanAppearanceMode: String, Codable, CaseIterable, Sendable {
+    case system
+    case light
+    case dark
+}
+
 public enum DiskmanUsageDisplayMode: String, Codable, CaseIterable, Sendable {
     case free
     case used
@@ -60,6 +66,7 @@ public enum DiskmanVisibleVolumeKind: String, Codable, CaseIterable, Sendable {
     case externalDrive
     case network
     case diskImage
+    case iCloudDrive
 
     public func includes(_ kind: VolumeKind) -> Bool {
         switch self {
@@ -71,6 +78,8 @@ public enum DiskmanVisibleVolumeKind: String, Codable, CaseIterable, Sendable {
             return kind == .network
         case .diskImage:
             return kind == .diskImage
+        case .iCloudDrive:
+            return kind == .iCloudDrive
         }
     }
 }
@@ -79,6 +88,7 @@ public struct DiskmanSettingsStore {
     public static let languageModeKey = "diskman.languageMode"
     public static let launchAtLoginKey = "diskman.launchAtLogin"
     public static let visibleVolumeKindsKey = "diskman.visibleVolumeKinds"
+    public static let appearanceModeKey = "diskman.appearanceMode"
     public static let usageDisplayModeKey = "diskman.usageDisplayMode"
     public static let storageUnitModeKey = "diskman.storageUnitMode"
     public static let categoryModeKey = "diskman.categoryMode"
@@ -117,6 +127,21 @@ public struct DiskmanSettingsStore {
         }
         nonmutating set {
             userDefaults.set(newValue, forKey: Self.launchAtLoginKey)
+        }
+    }
+
+    public var appearanceMode: DiskmanAppearanceMode {
+        get {
+            guard let rawValue = userDefaults.string(forKey: Self.appearanceModeKey),
+                  let mode = DiskmanAppearanceMode(rawValue: rawValue)
+            else {
+                return .system
+            }
+
+            return mode
+        }
+        nonmutating set {
+            userDefaults.set(newValue.rawValue, forKey: Self.appearanceModeKey)
         }
     }
 
@@ -263,6 +288,10 @@ public struct LocalizationProvider: Sendable {
         string(mode.localizationKey)
     }
 
+    public func usageModeAbbreviation(for mode: DiskmanUsageDisplayMode) -> String {
+        string(mode.abbreviationLocalizationKey)
+    }
+
     public func storageUnitName(for mode: DiskmanStorageUnitMode) -> String {
         string(mode.localizationKey)
     }
@@ -272,7 +301,14 @@ public struct LocalizationProvider: Sendable {
     }
 
     public func capacitySummary(for volume: VolumeSnapshot) -> String {
-        string(
+        if volume.kind == .iCloudDrive {
+            return string(
+                .capacityLocalFiles,
+                storageUnitMode.formatter.string(fromByteCount: volume.displayUsedBytes)
+            )
+        }
+
+        return string(
             .capacityFreeOf,
             storageUnitMode.formatter.string(fromByteCount: volume.displayAvailableBytes),
             storageUnitMode.formatter.string(fromByteCount: volume.totalBytes)
@@ -294,6 +330,10 @@ public struct LocalizationProvider: Sendable {
     }
 
     public func usagePercentText(for volume: VolumeSnapshot) -> String {
+        if volume.kind == .iCloudDrive {
+            return storageUnitMode.formatter.string(fromByteCount: volume.displayUsedBytes)
+        }
+
         switch usageDisplayMode {
         case .free:
             return volume.freePercentText
@@ -303,6 +343,10 @@ public struct LocalizationProvider: Sendable {
     }
 
     public func usageRatio(for volume: VolumeSnapshot) -> Double {
+        if volume.kind == .iCloudDrive {
+            return volume.displayUsedBytes > 0 ? 1 : 0
+        }
+
         switch usageDisplayMode {
         case .free:
             return volume.freeSpaceRatio
@@ -312,6 +356,10 @@ public struct LocalizationProvider: Sendable {
     }
 
     public func freeSpaceAccessibility(for volume: VolumeSnapshot) -> String {
+        if volume.kind == .iCloudDrive {
+            return "\(volume.displayName), \(capacitySummary(for: volume))"
+        }
+
         switch usageDisplayMode {
         case .free:
             return string(.accessibilityDiskFree, volume.displayName, volume.freePercentText)
@@ -337,6 +385,10 @@ public struct LocalizationProvider: Sendable {
         case .polish:
             return string(.languagePolish)
         }
+    }
+
+    public func appearanceModeName(for mode: DiskmanAppearanceMode) -> String {
+        string(mode.localizationKey)
     }
 
     private var bundle: Bundle {
@@ -367,9 +419,13 @@ public enum LocalizationKey: String, CaseIterable, Sendable {
     case languageSystem = "language.system"
     case languageEnglish = "language.english"
     case languagePolish = "language.polish"
+    case appearanceSystem = "appearance.system"
+    case appearanceLight = "appearance.light"
+    case appearanceDark = "appearance.dark"
     case diskSingular = "disk.singular"
     case diskPlural = "disk.plural"
     case capacityFreeOf = "capacity.freeOf"
+    case capacityLocalFiles = "capacity.localFiles"
     case accessibilityDiskFree = "accessibility.diskFree"
     case accessibilityDiskUsed = "accessibility.diskUsed"
     case widgetNoDisks = "widget.noDisks"
@@ -386,6 +442,7 @@ public enum LocalizationKey: String, CaseIterable, Sendable {
     case settingsWidgetShared = "settings.widgetShared"
     case settingsRebuildWidgetData = "settings.rebuildWidgetData"
     case settingsLanguage = "settings.language"
+    case settingsAppearance = "settings.appearance"
     case settingsLaunchAtLogin = "settings.launchAtLogin"
     case settingsLaunchAtLoginHelp = "settings.launchAtLoginHelp"
     case settingsDisplay = "settings.display"
@@ -419,8 +476,11 @@ public enum LocalizationKey: String, CaseIterable, Sendable {
     case volumeKindExternal = "volumeKind.external"
     case volumeKindNetwork = "volumeKind.network"
     case volumeKindDiskImage = "volumeKind.diskImage"
+    case volumeKindICloudDrive = "volumeKind.iCloudDrive"
     case usageModeFree = "usageMode.free"
     case usageModeUsed = "usageMode.used"
+    case usageModeFreeShort = "usageMode.free.short"
+    case usageModeUsedShort = "usageMode.used.short"
     case storageUnitDecimal = "storageUnit.decimal"
     case storageUnitBinary = "storageUnit.binary"
     case categoryModeOff = "categoryMode.off"
@@ -461,12 +521,20 @@ public enum LocalizationKey: String, CaseIterable, Sendable {
             return "English"
         case .languagePolish:
             return "Polish"
+        case .appearanceSystem:
+            return "System"
+        case .appearanceLight:
+            return "Light"
+        case .appearanceDark:
+            return "Dark"
         case .diskSingular:
             return "disk"
         case .diskPlural:
             return "disks"
         case .capacityFreeOf:
             return "%@ free of %@"
+        case .capacityLocalFiles:
+            return "%@ local files"
         case .accessibilityDiskFree:
             return "%@, %@ free"
         case .accessibilityDiskUsed:
@@ -499,6 +567,8 @@ public enum LocalizationKey: String, CaseIterable, Sendable {
             return "Rebuild Data"
         case .settingsLanguage:
             return "Language"
+        case .settingsAppearance:
+            return "Theme"
         case .settingsLaunchAtLogin:
             return "Launch at Login"
         case .settingsLaunchAtLoginHelp:
@@ -565,10 +635,16 @@ public enum LocalizationKey: String, CaseIterable, Sendable {
             return "Network"
         case .volumeKindDiskImage:
             return "Disk Images"
+        case .volumeKindICloudDrive:
+            return "iCloud Drive"
         case .usageModeFree:
             return "Free"
         case .usageModeUsed:
             return "Used"
+        case .usageModeFreeShort:
+            return "F"
+        case .usageModeUsedShort:
+            return "U"
         case .storageUnitDecimal:
             return "GB"
         case .storageUnitBinary:
@@ -626,6 +702,8 @@ private extension DiskmanVisibleVolumeKind {
             return .volumeKindNetwork
         case .diskImage:
             return .volumeKindDiskImage
+        case .iCloudDrive:
+            return .volumeKindICloudDrive
         }
     }
 }
@@ -637,6 +715,28 @@ private extension DiskmanUsageDisplayMode {
             return .usageModeFree
         case .used:
             return .usageModeUsed
+        }
+    }
+
+    var abbreviationLocalizationKey: LocalizationKey {
+        switch self {
+        case .free:
+            return .usageModeFreeShort
+        case .used:
+            return .usageModeUsedShort
+        }
+    }
+}
+
+private extension DiskmanAppearanceMode {
+    var localizationKey: LocalizationKey {
+        switch self {
+        case .system:
+            return .appearanceSystem
+        case .light:
+            return .appearanceLight
+        case .dark:
+            return .appearanceDark
         }
     }
 }

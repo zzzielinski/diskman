@@ -124,7 +124,8 @@ private extension DiskSnapshot {
         applyingCategoryMode(
             settingsStore.categoryMode,
             scanner: scanner,
-            cacheStore: cacheStore
+            cacheStore: cacheStore,
+            preservesExistingEstimatedCategories: true
         )
         .filtered(visibleKinds: settingsStore.visibleVolumeKinds)
     }

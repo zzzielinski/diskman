@@ -8,6 +8,7 @@ struct SettingsView: View {
     private let rebuildWidgetData: () -> Void
 
     @State private var languageMode: DiskmanLanguageMode
+    @State private var appearanceMode: DiskmanAppearanceMode
     @State private var launchAtLoginEnabled: Bool
     @State private var visibleVolumeKinds: Set<DiskmanVisibleVolumeKind>
     @State private var usageDisplayMode: DiskmanUsageDisplayMode
@@ -25,6 +26,7 @@ struct SettingsView: View {
         self.settingsStore = settingsStore
         self.rebuildWidgetData = rebuildWidgetData
         _languageMode = State(initialValue: settingsStore.languageMode)
+        _appearanceMode = State(initialValue: settingsStore.appearanceMode)
         _launchAtLoginEnabled = State(initialValue: settingsStore.launchAtLoginDesired)
         _visibleVolumeKinds = State(initialValue: settingsStore.visibleVolumeKinds)
         _usageDisplayMode = State(initialValue: settingsStore.usageDisplayMode)
@@ -64,6 +66,13 @@ struct SettingsView: View {
                 Picker(localization.string(.settingsLanguage), selection: $languageMode) {
                     ForEach(DiskmanLanguageMode.allCases, id: \.self) { mode in
                         Text(localization.languageDisplayName(for: mode)).tag(mode)
+                    }
+                }
+                .pickerStyle(.segmented)
+
+                Picker(localization.string(.settingsAppearance), selection: $appearanceMode) {
+                    ForEach(DiskmanAppearanceMode.allCases, id: \.self) { mode in
+                        Text(localization.appearanceModeName(for: mode)).tag(mode)
                     }
                 }
                 .pickerStyle(.segmented)
@@ -180,9 +189,14 @@ struct SettingsView: View {
             }
         }
         .padding(24)
-        .frame(width: 520, height: 660)
+        .frame(width: 520, height: 700)
+        .preferredColorScheme(preferredColorScheme)
         .onChange(of: languageMode) { _, newValue in
             settingsStore.languageMode = newValue
+            notifySettingsChanged()
+        }
+        .onChange(of: appearanceMode) { _, newValue in
+            settingsStore.appearanceMode = newValue
             notifySettingsChanged()
         }
         .onChange(of: usageDisplayMode) { _, newValue in
@@ -214,6 +228,17 @@ struct SettingsView: View {
             GridItem(.flexible(), spacing: 12),
             GridItem(.flexible(), spacing: 12)
         ]
+    }
+
+    private var preferredColorScheme: ColorScheme? {
+        switch appearanceMode {
+        case .system:
+            return nil
+        case .light:
+            return .light
+        case .dark:
+            return .dark
+        }
     }
 
     private func visibilityBinding(for kind: DiskmanVisibleVolumeKind) -> Binding<Bool> {
@@ -259,6 +284,7 @@ struct SettingsView: View {
 
     private func reloadStoredSettings() {
         languageMode = settingsStore.languageMode
+        appearanceMode = settingsStore.appearanceMode
         launchAtLoginEnabled = settingsStore.launchAtLoginDesired
         visibleVolumeKinds = settingsStore.visibleVolumeKinds
         usageDisplayMode = settingsStore.usageDisplayMode

@@ -10,6 +10,14 @@ APP_PRODUCT_PATH="${DERIVED_DATA_PATH}/Build/Products/${CONFIGURATION}/Diskman.a
 WIDGET_PRODUCT_PATH="${APP_PRODUCT_PATH}/Contents/PlugIns/DiskmanWidgets.appex"
 ZIP_PATH="${RELEASE_DIR}/Diskman.app.zip"
 CHECKSUM_PATH="${ZIP_PATH}.sha256"
+STAGING_DIR="$(mktemp -d "${TMPDIR:-/tmp}/diskman-release.XXXXXX")"
+STAGED_APP_PATH="${STAGING_DIR}/Diskman.app"
+STAGED_WIDGET_PATH="${STAGED_APP_PATH}/Contents/PlugIns/DiskmanWidgets.appex"
+
+cleanup() {
+  rm -rf "${STAGING_DIR}"
+}
+trap cleanup EXIT
 
 rm -rf "${RELEASE_DIR}"
 mkdir -p "${RELEASE_DIR}"
@@ -33,8 +41,11 @@ if [[ ! -d "${WIDGET_PRODUCT_PATH}" ]]; then
   exit 1
 fi
 
+echo "Staging clean app bundle..."
+ditto --noextattr --noqtn "${APP_PRODUCT_PATH}" "${STAGED_APP_PATH}"
+
 echo "Cleaning extended attributes..."
-xattr -cr "${APP_PRODUCT_PATH}"
+xattr -cr "${STAGED_APP_PATH}"
 
 echo "Signing widget extension..."
 codesign \
@@ -42,10 +53,10 @@ codesign \
   --sign - \
   --timestamp=none \
   --entitlements DiskmanWidgets/DiskmanWidgets.entitlements \
-  "${WIDGET_PRODUCT_PATH}"
+  "${STAGED_WIDGET_PATH}"
 
 echo "Cleaning app extended attributes..."
-xattr -cr "${APP_PRODUCT_PATH}"
+xattr -cr "${STAGED_APP_PATH}"
 
 echo "Signing app..."
 codesign \
@@ -53,14 +64,14 @@ codesign \
   --sign - \
   --timestamp=none \
   --entitlements DiskmanApp/DiskmanApp.entitlements \
-  "${APP_PRODUCT_PATH}"
+  "${STAGED_APP_PATH}"
 
 echo "Cleaning signed app extended attributes..."
-xattr -cr "${APP_PRODUCT_PATH}"
+xattr -cr "${STAGED_APP_PATH}"
 
-codesign --verify --deep --strict --verbose=2 "${APP_PRODUCT_PATH}"
+codesign --verify --deep --strict --verbose=2 "${STAGED_APP_PATH}"
 
-ditto -c -k --keepParent "${APP_PRODUCT_PATH}" "${ZIP_PATH}"
+ditto -c -k --keepParent "${STAGED_APP_PATH}" "${ZIP_PATH}"
 shasum -a 256 "${ZIP_PATH}" > "${CHECKSUM_PATH}"
 
 echo "Created ${ZIP_PATH}"

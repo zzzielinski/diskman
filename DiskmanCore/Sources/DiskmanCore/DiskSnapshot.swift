@@ -163,6 +163,7 @@ public enum VolumeKind: String, Codable, Hashable, Sendable {
     case removable
     case network
     case diskImage
+    case iCloudDrive
     case unknown
 
     public var symbolName: String {
@@ -177,6 +178,8 @@ public enum VolumeKind: String, Codable, Hashable, Sendable {
             return "network"
         case .diskImage:
             return "opticaldiscdrive.fill"
+        case .iCloudDrive:
+            return "icloud.fill"
         case .unknown:
             return "externaldrive.fill.badge.questionmark"
         }
@@ -239,7 +242,8 @@ public extension DiskSnapshot {
     func applyingCategoryMode(
         _ mode: DiskmanCategoryMode,
         scanner: StorageCategoryScanning,
-        cacheStore: StorageCategoryCacheStore
+        cacheStore: StorageCategoryCacheStore,
+        preservesExistingEstimatedCategories: Bool = false
     ) -> DiskSnapshot {
         DiskSnapshot(
             generatedAt: generatedAt,
@@ -250,6 +254,15 @@ public extension DiskSnapshot {
                 case .basic:
                     return volume.replacingCategories(volume.basicCategories)
                 case .estimated:
+                    if volume.kind == .iCloudDrive {
+                        return volume.replacingCategories(volume.basicCategories)
+                    }
+
+                    if preservesExistingEstimatedCategories,
+                       volume.hasEstimatedCategories {
+                        return volume
+                    }
+
                     let categories = scanner.categories(
                         for: volume,
                         cacheStore: cacheStore
@@ -297,4 +310,10 @@ public extension DiskSnapshot {
             )
         ]
     )
+}
+
+private extension VolumeSnapshot {
+    var hasEstimatedCategories: Bool {
+        categories.contains { $0.confidence == .estimated }
+    }
 }

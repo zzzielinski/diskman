@@ -16,9 +16,14 @@
 "language.english" = "English";
 "language.polish" = "Polski";
 
+"appearance.system" = "System";
+"appearance.light" = "Jasny";
+"appearance.dark" = "Ciemny";
+
 "disk.singular" = "dysk";
 "disk.plural" = "dyski";
 "capacity.freeOf" = "%@ wolne z %@";
+"capacity.localFiles" = "%@ lokalnych plików";
 "accessibility.diskFree" = "%@, %@ wolne";
 "accessibility.diskUsed" = "%@, %@ użyte";
 
@@ -37,6 +42,7 @@
 "settings.widgetShared" = "Udostępniony";
 "settings.rebuildWidgetData" = "Odbuduj dane";
 "settings.language" = "Język";
+"settings.appearance" = "Motyw";
 "settings.launchAtLogin" = "Uruchamiaj przy logowaniu";
 "settings.launchAtLoginHelp" = "Uruchamiaj Diskman automatycznie po zalogowaniu.";
 "settings.display" = "Wyświetlanie";
@@ -46,7 +52,7 @@
 "settings.categories" = "Kategorie";
 "settings.categoryPrivacy" = "Kategorie szacunkowe domyślnie używają bezpiecznych folderów lokalnych. Włącz głęboki skan po nadaniu Pełnego dostępu do dysku, aby uzyskać więcej szczegółów.";
 "settings.deepCategoryScan" = "Głęboki skan folderów";
-"settings.deepCategoryScanHelp" = "Skanuje Dokumenty, lokalne pliki iCloud Drive, Zdjęcia, Wiadomości i Pobrane. macOS może wymagać Pełnego dostępu do dysku.";
+"settings.deepCategoryScanHelp" = "Skanuje Dokumenty, Zdjęcia, Wiadomości i Pobrane. iCloud Drive pojawia się osobno jako lokalne pliki.";
 "settings.openFullDiskAccess" = "Otwórz Pełny dostęp do dysku";
 "settings.launchAtLoginError" = "Nie można zmienić uruchamiania przy logowaniu.";
 
@@ -73,9 +79,12 @@
 "volumeKind.external" = "Zewnętrzne";
 "volumeKind.network" = "Sieciowe";
 "volumeKind.diskImage" = "Obrazy dysków";
+"volumeKind.iCloudDrive" = "iCloud Drive";
 
 "usageMode.free" = "Wolne";
 "usageMode.used" = "Użyte";
+"usageMode.free.short" = "W";
+"usageMode.used.short" = "U";
 
 "storageUnit.decimal" = "GB";
 "storageUnit.binary" = "GiB";

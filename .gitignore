@@ -33,6 +33,7 @@ Package.resolved
 .env.*
 info.md
 roadmap.md
+handoff.md
 
 # Temporary files
 tmp/

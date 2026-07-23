@@ -242,11 +242,13 @@ func settingsStorePersistsDisplaySettings() throws {
     }
 
     let store = DiskmanSettingsStore(userDefaults: userDefaults)
+    #expect(store.appearanceMode == .system)
     #expect(store.usageDisplayMode == .free)
     #expect(store.storageUnitMode == .decimal)
     #expect(store.visibleVolumeKinds == Set(DiskmanVisibleVolumeKind.allCases))
     #expect(store.categoryMode == .basic)
 
+    store.appearanceMode = .light
     store.usageDisplayMode = .used
     store.storageUnitMode = .binary
     store.visibleVolumeKinds = []
@@ -254,6 +256,7 @@ func settingsStorePersistsDisplaySettings() throws {
     store.deepCategoryScanEnabled = true
 
     let restoredStore = DiskmanSettingsStore(userDefaults: userDefaults)
+    #expect(restoredStore.appearanceMode == .light)
     #expect(restoredStore.usageDisplayMode == .used)
     #expect(restoredStore.storageUnitMode == .binary)
     #expect(restoredStore.visibleVolumeKinds == [])
@@ -289,11 +292,20 @@ func snapshotFiltersVolumesByVisibleKinds() {
         usedBytes: 600,
         categories: []
     )
-    let snapshot = DiskSnapshot(generatedAt: Date(), volumes: [internalVolume, networkVolume])
+    let iCloudVolume = VolumeSnapshot.localICloudDrive(
+        url: URL(filePath: "/Users/Test/Library/Mobile Documents/com~apple~CloudDocs"),
+        usedBytes: 200
+    )
+    let snapshot = DiskSnapshot(
+        generatedAt: Date(),
+        volumes: [internalVolume, networkVolume, iCloudVolume]
+    )
 
     let filtered = snapshot.filtered(visibleKinds: [.network])
+    let iCloudFiltered = snapshot.filtered(visibleKinds: [.iCloudDrive])
 
     #expect(filtered.volumes.map(\.id) == ["network"])
+    #expect(iCloudFiltered.volumes.map(\.id) == ["icloud-drive-local"])
 }
 
 @Test
@@ -318,6 +330,8 @@ func localizationProviderUsesUsageAndUnitSettings() {
     )
 
     #expect(localization.usagePercentText(for: volume) == "75%")
+    #expect(localization.usageModeAbbreviation(for: .free) == "F")
+    #expect(localization.usageModeAbbreviation(for: .used) == "U")
     #expect(localization.capacitySummary(for: volume).contains("GiB"))
 }
 
@@ -342,6 +356,26 @@ func localizationCapacitySummaryUsesDisplayAvailableBytes() {
     )
 
     #expect(localization.capacitySummary(for: volume).contains("87"))
+}
+
+@Test
+func localICloudDriveVolumeUsesLocalFileSizeOnly() {
+    let volume = VolumeSnapshot.localICloudDrive(
+        url: URL(filePath: "/Users/Test/Library/Mobile Documents/com~apple~CloudDocs"),
+        usedBytes: 1_000_000_000
+    )
+    let localization = LocalizationProvider(
+        languageMode: .english,
+        usageDisplayMode: .free,
+        storageUnitMode: .decimal
+    )
+
+    #expect(volume.kind == .iCloudDrive)
+    #expect(volume.displayName == "iCloud Drive")
+    #expect(volume.displayUsedBytes == 1_000_000_000)
+    #expect(volume.displayAvailableBytes == 0)
+    #expect(localization.capacitySummary(for: volume).contains("local files"))
+    #expect(localization.usagePercentText(for: volume).contains("GB"))
 }
 
 @Test
@@ -436,7 +470,7 @@ func estimatedScannerBuildsCategoriesFromArtificialDirectories() throws {
     #expect(ids.contains(.applications))
     #expect(ids.contains(.developer))
     #expect(ids.contains(.documents))
-    #expect(ids.contains(.iCloudDrive))
+    #expect(ids.contains(.iCloudDrive) == false)
     #expect(ids.contains(.photos))
     #expect(ids.contains(.other))
     #expect(ids.contains(.available))
@@ -546,6 +580,102 @@ func snapshotAppliesCategoryModes() {
     #expect(off.volumes[0].categories.isEmpty)
     #expect(basic.volumes[0].categories.map(\.id) == [.used, .available])
     #expect(estimated.volumes[0].categories.map(\.id) == [.applications, .available])
+}
+
+@Test
+func estimatedCategoryModeCanPreserveExistingEstimatedCategories() {
+    let existingCategories = [
+        StorageCategorySnapshot(
+            id: .documents,
+            localizedName: "Documents",
+            colorToken: "documents",
+            bytes: 250,
+            confidence: .estimated
+        ),
+        StorageCategorySnapshot(
+            id: .available,
+            localizedName: "Available",
+            colorToken: "available",
+            bytes: 300,
+            confidence: .exact
+        )
+    ]
+    let volume = VolumeSnapshot(
+        id: "volume",
+        name: "Volume",
+        localizedName: nil,
+        mountPath: "/",
+        kind: .internalDrive,
+        fileSystemName: "APFS",
+        totalBytes: 1_000,
+        availableBytes: 300,
+        importantAvailableBytes: nil,
+        usedBytes: 700,
+        categories: existingCategories
+    )
+    let snapshot = DiskSnapshot(generatedAt: Date(), volumes: [volume])
+    let cacheStore = StorageCategoryCacheStore(
+        cacheDirectoryURL: FileManager.default.temporaryDirectory
+            .appending(path: "diskman-preserved-category-mode-tests")
+            .appending(path: UUID().uuidString)
+    )
+    let scanner = StubCategoryScanner(categories: [
+        StorageCategorySnapshot(
+            id: .applications,
+            localizedName: "Applications",
+            colorToken: "applications",
+            bytes: 100,
+            confidence: .estimated
+        ),
+        StorageCategorySnapshot(
+            id: .available,
+            localizedName: "Available",
+            colorToken: "available",
+            bytes: 300,
+            confidence: .exact
+        )
+    ])
+
+    let estimated = snapshot.applyingCategoryMode(
+        .estimated,
+        scanner: scanner,
+        cacheStore: cacheStore,
+        preservesExistingEstimatedCategories: true
+    )
+
+    #expect(estimated.volumes[0].categories == existingCategories)
+}
+
+@Test
+func estimatedCategoryModeKeepsLocalICloudDriveBasic() {
+    let volume = VolumeSnapshot.localICloudDrive(
+        url: URL(filePath: "/Users/Test/Library/Mobile Documents/com~apple~CloudDocs"),
+        usedBytes: 500
+    )
+    let snapshot = DiskSnapshot(generatedAt: Date(), volumes: [volume])
+    let cacheStore = StorageCategoryCacheStore(
+        cacheDirectoryURL: FileManager.default.temporaryDirectory
+            .appending(path: "diskman-icloud-category-mode-tests")
+            .appending(path: UUID().uuidString)
+    )
+    let scanner = StubCategoryScanner(categories: [
+        StorageCategorySnapshot(
+            id: .other,
+            localizedName: "Other",
+            colorToken: "other",
+            bytes: 500,
+            confidence: .estimated
+        )
+    ])
+
+    let estimated = snapshot.applyingCategoryMode(
+        .estimated,
+        scanner: scanner,
+        cacheStore: cacheStore
+    )
+
+    #expect(estimated.volumes[0].categories.map(\.id) == [.used, .available])
+    #expect(estimated.volumes[0].categories.allSatisfy { $0.confidence == .exact })
 }
 
 private struct StubCategoryScanner: StorageCategoryScanning {

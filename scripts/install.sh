@@ -9,10 +9,36 @@ DOWNLOAD_URL="https://github.com/${REPO}/releases/latest/download/${ZIP_NAME}"
 INSTALL_DIR="${DISKMAN_INSTALL_DIR:-${HOME}/Applications}"
 APP_PATH="${INSTALL_DIR}/${APP_NAME}.app"
 WIDGET_PATH="${APP_PATH}/Contents/PlugIns/${APP_NAME}Widgets.appex"
+LOCAL_ZIP_PATH="${DISKMAN_ZIP_PATH:-}"
+OPEN_AFTER_INSTALL=false
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --open)
+      OPEN_AFTER_INSTALL=true
+      shift
+      ;;
+    --zip)
+      if [[ $# -lt 2 ]]; then
+        echo "--zip requires a path to ${ZIP_NAME}." >&2
+        exit 1
+      fi
+      LOCAL_ZIP_PATH="$2"
+      shift 2
+      ;;
+    *)
+      echo "Unknown option: $1" >&2
+      echo "Usage: install.sh [--open] [--zip path/to/${ZIP_NAME}]" >&2
+      exit 1
+      ;;
+  esac
+done
 
 if ! command -v curl >/dev/null 2>&1; then
-  echo "curl is required to install ${APP_NAME}." >&2
-  exit 1
+  if [[ -z "${LOCAL_ZIP_PATH}" ]]; then
+    echo "curl is required to download and install ${APP_NAME}." >&2
+    exit 1
+  fi
 fi
 
 if ! command -v unzip >/dev/null 2>&1; then
@@ -26,8 +52,18 @@ cleanup() {
 }
 trap cleanup EXIT
 
-echo "Downloading ${APP_NAME}..."
-curl -fL "${DOWNLOAD_URL}" -o "${TMP_DIR}/${ZIP_NAME}"
+if [[ -n "${LOCAL_ZIP_PATH}" ]]; then
+  if [[ ! -f "${LOCAL_ZIP_PATH}" ]]; then
+    echo "Local archive does not exist: ${LOCAL_ZIP_PATH}" >&2
+    exit 1
+  fi
+
+  echo "Using local ${APP_NAME} archive: ${LOCAL_ZIP_PATH}"
+  cp "${LOCAL_ZIP_PATH}" "${TMP_DIR}/${ZIP_NAME}"
+else
+  echo "Downloading ${APP_NAME}..."
+  curl -fL "${DOWNLOAD_URL}" -o "${TMP_DIR}/${ZIP_NAME}"
+fi
 
 echo "Extracting ${APP_NAME}..."
 unzip -q "${TMP_DIR}/${ZIP_NAME}" -d "${TMP_DIR}"
@@ -72,4 +108,8 @@ if pgrep -x chronod >/dev/null 2>&1; then
 fi
 
 echo "${APP_NAME} installed at ${APP_PATH}"
-echo "Open it from Finder or run: open '${APP_PATH}'"
+if [[ "${OPEN_AFTER_INSTALL}" == true ]]; then
+  open "${APP_PATH}"
+else
+  echo "Open it from Finder or run: open '${APP_PATH}'"
+fi

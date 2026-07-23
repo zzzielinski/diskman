@@ -16,9 +16,14 @@
 "language.english" = "English";
 "language.polish" = "Polish";
 
+"appearance.system" = "System";
+"appearance.light" = "Light";
+"appearance.dark" = "Dark";
+
 "disk.singular" = "disk";
 "disk.plural" = "disks";
 "capacity.freeOf" = "%@ free of %@";
+"capacity.localFiles" = "%@ local files";
 "accessibility.diskFree" = "%@, %@ free";
 "accessibility.diskUsed" = "%@, %@ used";
 
@@ -37,6 +42,7 @@
 "settings.widgetShared" = "Shared";
 "settings.rebuildWidgetData" = "Rebuild Data";
 "settings.language" = "Language";
+"settings.appearance" = "Theme";
 "settings.launchAtLogin" = "Launch at Login";
 "settings.launchAtLoginHelp" = "Start Diskman automatically when you sign in.";
 "settings.display" = "Display";
@@ -46,7 +52,7 @@
 "settings.categories" = "Categories";
 "settings.categoryPrivacy" = "Estimated categories use safe local folders by default. Enable deep scan after granting Full Disk Access for more detail.";
 "settings.deepCategoryScan" = "Deep Folder Scan";
-"settings.deepCategoryScanHelp" = "Scans Documents, local iCloud Drive files, Photos, Messages, and Downloads. macOS may require Full Disk Access.";
+"settings.deepCategoryScanHelp" = "Scans Documents, Photos, Messages, and Downloads. iCloud Drive appears separately as local files.";
 "settings.openFullDiskAccess" = "Open Full Disk Access";
 "settings.launchAtLoginError" = "Unable to update Launch at Login.";
 
@@ -73,9 +79,12 @@
 "volumeKind.external" = "External";
 "volumeKind.network" = "Network";
 "volumeKind.diskImage" = "Disk Images";
+"volumeKind.iCloudDrive" = "iCloud Drive";
 
 "usageMode.free" = "Free";
 "usageMode.used" = "Used";
+"usageMode.free.short" = "F";
+"usageMode.used.short" = "U";
 
 "storageUnit.decimal" = "GB";
 "storageUnit.binary" = "GiB";
