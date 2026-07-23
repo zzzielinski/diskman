@@ -47,8 +47,8 @@ struct SettingsView: View {
     var body: some View {
         let localization = localization
 
-        VStack(alignment: .leading, spacing: 16) {
-            HStack(spacing: 14) {
+        VStack(alignment: .leading, spacing: 18) {
+            HStack(spacing: 16) {
                 DiskmanAppIconMark()
                     .scaleEffect(0.82)
 
@@ -63,45 +63,60 @@ struct SettingsView: View {
             }
 
             SettingsSection(title: localization.string(.settingsDisplay), symbolName: "slider.horizontal.3") {
-                Picker(localization.string(.settingsLanguage), selection: $languageMode) {
-                    ForEach(DiskmanLanguageMode.allCases, id: \.self) { mode in
-                        Text(localization.languageDisplayName(for: mode)).tag(mode)
+                SettingsPickerRow(title: localization.string(.settingsLanguage)) {
+                    Picker(localization.string(.settingsLanguage), selection: $languageMode) {
+                        ForEach(DiskmanLanguageMode.allCases, id: \.self) { mode in
+                            Text(localization.languageDisplayName(for: mode)).tag(mode)
+                        }
                     }
+                    .labelsHidden()
+                    .pickerStyle(.segmented)
                 }
-                .pickerStyle(.segmented)
 
-                Picker(localization.string(.settingsAppearance), selection: $appearanceMode) {
-                    ForEach(DiskmanAppearanceMode.allCases, id: \.self) { mode in
-                        Text(localization.appearanceModeName(for: mode)).tag(mode)
+                SettingsPickerRow(title: localization.string(.settingsAppearance)) {
+                    Picker(localization.string(.settingsAppearance), selection: $appearanceMode) {
+                        ForEach(DiskmanAppearanceMode.allCases, id: \.self) { mode in
+                            Text(localization.appearanceModeName(for: mode)).tag(mode)
+                        }
                     }
+                    .labelsHidden()
+                    .pickerStyle(.segmented)
                 }
-                .pickerStyle(.segmented)
 
-                Picker(localization.string(.settingsPercentMode), selection: $usageDisplayMode) {
-                    ForEach(DiskmanUsageDisplayMode.allCases, id: \.self) { mode in
-                        Text(localization.usageModeName(for: mode)).tag(mode)
+                SettingsPickerRow(title: localization.string(.settingsPercentMode)) {
+                    Picker(localization.string(.settingsPercentMode), selection: $usageDisplayMode) {
+                        ForEach(DiskmanUsageDisplayMode.allCases, id: \.self) { mode in
+                            Text(localization.usageModeName(for: mode)).tag(mode)
+                        }
                     }
+                    .labelsHidden()
+                    .pickerStyle(.segmented)
                 }
-                .pickerStyle(.segmented)
 
-                Picker(localization.string(.settingsStorageUnits), selection: $storageUnitMode) {
-                    ForEach(DiskmanStorageUnitMode.allCases, id: \.self) { mode in
-                        Text(localization.storageUnitName(for: mode)).tag(mode)
+                SettingsPickerRow(title: localization.string(.settingsStorageUnits)) {
+                    Picker(localization.string(.settingsStorageUnits), selection: $storageUnitMode) {
+                        ForEach(DiskmanStorageUnitMode.allCases, id: \.self) { mode in
+                            Text(localization.storageUnitName(for: mode)).tag(mode)
+                        }
                     }
+                    .labelsHidden()
+                    .pickerStyle(.segmented)
                 }
-                .pickerStyle(.segmented)
 
-                Picker(localization.string(.settingsCategories), selection: $categoryMode) {
-                    ForEach(DiskmanCategoryMode.allCases, id: \.self) { mode in
-                        Text(localization.categoryModeName(for: mode)).tag(mode)
+                SettingsPickerRow(title: localization.string(.settingsCategories)) {
+                    Picker(localization.string(.settingsCategories), selection: $categoryMode) {
+                        ForEach(DiskmanCategoryMode.allCases, id: \.self) { mode in
+                            Text(localization.categoryModeName(for: mode)).tag(mode)
+                        }
                     }
+                    .labelsHidden()
+                    .pickerStyle(.segmented)
                 }
-                .pickerStyle(.segmented)
 
                 if categoryMode == .estimated {
-                    VStack(alignment: .leading, spacing: 10) {
+                    VStack(alignment: .leading, spacing: 12) {
                         Label(localization.string(.settingsCategoryPrivacy), systemImage: "hand.raised")
-                            .font(.system(size: 11, weight: .medium))
+                            .font(.system(size: 12, weight: .medium))
                             .foregroundStyle(.secondary)
                             .lineLimit(3)
                             .fixedSize(horizontal: false, vertical: true)
@@ -112,9 +127,9 @@ struct SettingsView: View {
                                     .font(.system(size: 12, weight: .semibold))
 
                                 Text(localization.string(.settingsDeepCategoryScanHelp))
-                                    .font(.system(size: 10, weight: .medium))
+                                    .font(.system(size: 11, weight: .medium))
                                     .foregroundStyle(.secondary)
-                                    .lineLimit(2)
+                                    .lineLimit(3)
                             }
                         }
                         .toggleStyle(.checkbox)
@@ -145,13 +160,17 @@ struct SettingsView: View {
 
             SettingsSection(title: localization.string(.settingsLaunchAtLogin), symbolName: "power") {
                 Toggle(isOn: $launchAtLoginEnabled) {
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(localization.string(.settingsLaunchAtLogin))
-                            .font(.system(size: 13, weight: .semibold))
+                    HStack(alignment: .center, spacing: 18) {
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text(localization.string(.settingsLaunchAtLogin))
+                                .font(.system(size: 13, weight: .semibold))
 
-                        Text(localization.string(.settingsLaunchAtLoginHelp))
-                            .font(.system(size: 11, weight: .medium))
-                            .foregroundStyle(.secondary)
+                            Text(localization.string(.settingsLaunchAtLoginHelp))
+                                .font(.system(size: 11, weight: .medium))
+                                .foregroundStyle(.secondary)
+                        }
+
+                        Spacer(minLength: 12)
                     }
                 }
                 .toggleStyle(.switch)
@@ -164,7 +183,7 @@ struct SettingsView: View {
                 }
             }
 
-            HStack(spacing: 8) {
+            HStack(spacing: 10) {
                 SettingsStatusPill(
                     title: localization.string(.settingsRefresh),
                     value: localization.string(.settingsAutomatic),
@@ -175,6 +194,8 @@ struct SettingsView: View {
                     value: localization.string(.settingsWidgetShared),
                     symbolName: "widget.small"
                 )
+
+                Spacer(minLength: 8)
 
                 Button {
                     rebuildWidgetData()
@@ -188,8 +209,9 @@ struct SettingsView: View {
                 .buttonStyle(.plain)
             }
         }
-        .padding(24)
-        .frame(width: 520, height: 700)
+        .padding(26)
+        .frame(width: 640)
+        .fixedSize(horizontal: false, vertical: true)
         .preferredColorScheme(preferredColorScheme)
         .onChange(of: languageMode) { _, newValue in
             settingsStore.languageMode = newValue
@@ -225,8 +247,8 @@ struct SettingsView: View {
 
     private var visibilityColumns: [GridItem] {
         [
-            GridItem(.flexible(), spacing: 12),
-            GridItem(.flexible(), spacing: 12)
+            GridItem(.flexible(), spacing: 16),
+            GridItem(.flexible(), spacing: 16)
         ]
     }
 
@@ -312,21 +334,42 @@ struct SettingsView: View {
     }
 }
 
+private struct SettingsPickerRow<Content: View>: View {
+    let title: String
+    @ViewBuilder let content: Content
+
+    var body: some View {
+        HStack(alignment: .center, spacing: 14) {
+            Text(title)
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundStyle(.primary)
+                .frame(width: 118, alignment: .leading)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+
+            content
+                .frame(maxWidth: 360, alignment: .leading)
+
+            Spacer(minLength: 0)
+        }
+    }
+}
+
 private struct SettingsSection<Content: View>: View {
     let title: String
     let symbolName: String
     @ViewBuilder let content: Content
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 11) {
+        VStack(alignment: .leading, spacing: 13) {
             Label(title, systemImage: symbolName)
-                .font(.system(size: 13, weight: .bold, design: .rounded))
+                .font(.system(size: 14, weight: .bold, design: .rounded))
 
             content
         }
-        .padding(13)
-        .background(.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .diskmanAppGlass(in: RoundedRectangle(cornerRadius: 14, style: .continuous), strokeOpacity: 0.10)
+        .padding(16)
+        .background(.secondary.opacity(0.06), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .diskmanAppGlass(in: RoundedRectangle(cornerRadius: 12, style: .continuous), strokeOpacity: 0.10)
     }
 }
 

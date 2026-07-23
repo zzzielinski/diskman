@@ -82,18 +82,10 @@ struct DiskRingView: View {
     }
 
     private var primaryUsageText: String {
-        if volume.kind == .iCloudDrive {
-            return localization.usagePercentText(for: volume)
-        }
-
         return "\(localization.usagePercentText(for: volume)) \(localization.usageModeAbbreviation(for: localization.usageDisplayMode))"
     }
 
     private var secondaryLabelText: String {
-        if volume.kind == .iCloudDrive {
-            return volume.displayName
-        }
-
         return "\(volume.displayName) - \(localization.usageModeName(for: localization.usageDisplayMode))"
     }
 
@@ -102,10 +94,6 @@ struct DiskRingView: View {
     }
 
     private var statusColor: Color {
-        if volume.kind == .iCloudDrive {
-            return DiskmanPalette.categoryColor(for: .iCloudDrive)
-        }
-
         return DiskmanPalette.statusColor(forFreeSpaceRatio: volume.freeSpaceRatio)
     }
 }

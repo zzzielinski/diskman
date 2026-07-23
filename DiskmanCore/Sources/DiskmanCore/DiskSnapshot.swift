@@ -163,7 +163,6 @@ public enum VolumeKind: String, Codable, Hashable, Sendable {
     case removable
     case network
     case diskImage
-    case iCloudDrive
     case unknown
 
     public var symbolName: String {
@@ -178,8 +177,6 @@ public enum VolumeKind: String, Codable, Hashable, Sendable {
             return "network"
         case .diskImage:
             return "opticaldiscdrive.fill"
-        case .iCloudDrive:
-            return "icloud.fill"
         case .unknown:
             return "externaldrive.fill.badge.questionmark"
         }
@@ -214,7 +211,6 @@ public enum StorageCategoryID: String, Codable, Hashable, Sendable {
     case applications
     case documents
     case developer
-    case iCloudDrive
     case photos
     case messages
     case systemData
@@ -254,10 +250,6 @@ public extension DiskSnapshot {
                 case .basic:
                     return volume.replacingCategories(volume.basicCategories)
                 case .estimated:
-                    if volume.kind == .iCloudDrive {
-                        return volume.replacingCategories(volume.basicCategories)
-                    }
-
                     if preservesExistingEstimatedCategories,
                        volume.hasEstimatedCategories {
                         return volume

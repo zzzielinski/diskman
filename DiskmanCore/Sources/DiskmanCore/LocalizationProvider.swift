@@ -66,7 +66,6 @@ public enum DiskmanVisibleVolumeKind: String, Codable, CaseIterable, Sendable {
     case externalDrive
     case network
     case diskImage
-    case iCloudDrive
 
     public func includes(_ kind: VolumeKind) -> Bool {
         switch self {
@@ -78,8 +77,6 @@ public enum DiskmanVisibleVolumeKind: String, Codable, CaseIterable, Sendable {
             return kind == .network
         case .diskImage:
             return kind == .diskImage
-        case .iCloudDrive:
-            return kind == .iCloudDrive
         }
     }
 }
@@ -301,13 +298,6 @@ public struct LocalizationProvider: Sendable {
     }
 
     public func capacitySummary(for volume: VolumeSnapshot) -> String {
-        if volume.kind == .iCloudDrive {
-            return string(
-                .capacityLocalFiles,
-                storageUnitMode.formatter.string(fromByteCount: volume.displayUsedBytes)
-            )
-        }
-
         return string(
             .capacityFreeOf,
             storageUnitMode.formatter.string(fromByteCount: volume.displayAvailableBytes),
@@ -330,10 +320,6 @@ public struct LocalizationProvider: Sendable {
     }
 
     public func usagePercentText(for volume: VolumeSnapshot) -> String {
-        if volume.kind == .iCloudDrive {
-            return storageUnitMode.formatter.string(fromByteCount: volume.displayUsedBytes)
-        }
-
         switch usageDisplayMode {
         case .free:
             return volume.freePercentText
@@ -343,10 +329,6 @@ public struct LocalizationProvider: Sendable {
     }
 
     public func usageRatio(for volume: VolumeSnapshot) -> Double {
-        if volume.kind == .iCloudDrive {
-            return volume.displayUsedBytes > 0 ? 1 : 0
-        }
-
         switch usageDisplayMode {
         case .free:
             return volume.freeSpaceRatio
@@ -356,10 +338,6 @@ public struct LocalizationProvider: Sendable {
     }
 
     public func freeSpaceAccessibility(for volume: VolumeSnapshot) -> String {
-        if volume.kind == .iCloudDrive {
-            return "\(volume.displayName), \(capacitySummary(for: volume))"
-        }
-
         switch usageDisplayMode {
         case .free:
             return string(.accessibilityDiskFree, volume.displayName, volume.freePercentText)
@@ -425,7 +403,6 @@ public enum LocalizationKey: String, CaseIterable, Sendable {
     case diskSingular = "disk.singular"
     case diskPlural = "disk.plural"
     case capacityFreeOf = "capacity.freeOf"
-    case capacityLocalFiles = "capacity.localFiles"
     case accessibilityDiskFree = "accessibility.diskFree"
     case accessibilityDiskUsed = "accessibility.diskUsed"
     case widgetNoDisks = "widget.noDisks"
@@ -464,7 +441,6 @@ public enum LocalizationKey: String, CaseIterable, Sendable {
     case categoryApplications = "category.applications"
     case categoryDocuments = "category.documents"
     case categoryDeveloper = "category.developer"
-    case categoryICloudDrive = "category.iCloudDrive"
     case categoryPhotos = "category.photos"
     case categoryMessages = "category.messages"
     case categorySystemData = "category.systemData"
@@ -476,7 +452,6 @@ public enum LocalizationKey: String, CaseIterable, Sendable {
     case volumeKindExternal = "volumeKind.external"
     case volumeKindNetwork = "volumeKind.network"
     case volumeKindDiskImage = "volumeKind.diskImage"
-    case volumeKindICloudDrive = "volumeKind.iCloudDrive"
     case usageModeFree = "usageMode.free"
     case usageModeUsed = "usageMode.used"
     case usageModeFreeShort = "usageMode.free.short"
@@ -533,8 +508,6 @@ public enum LocalizationKey: String, CaseIterable, Sendable {
             return "disks"
         case .capacityFreeOf:
             return "%@ free of %@"
-        case .capacityLocalFiles:
-            return "%@ local files"
         case .accessibilityDiskFree:
             return "%@, %@ free"
         case .accessibilityDiskUsed:
@@ -588,7 +561,7 @@ public enum LocalizationKey: String, CaseIterable, Sendable {
         case .settingsDeepCategoryScan:
             return "Deep Folder Scan"
         case .settingsDeepCategoryScanHelp:
-            return "Scans Documents, local iCloud Drive files, Photos, Messages, and Downloads. macOS may require Full Disk Access."
+            return "Scans Documents, Photos, Messages, and Downloads. macOS may require Full Disk Access."
         case .settingsOpenFullDiskAccess:
             return "Open Full Disk Access"
         case .settingsLaunchAtLoginError:
@@ -611,8 +584,6 @@ public enum LocalizationKey: String, CaseIterable, Sendable {
             return "Documents"
         case .categoryDeveloper:
             return "Developer"
-        case .categoryICloudDrive:
-            return "iCloud Drive"
         case .categoryPhotos:
             return "Photos"
         case .categoryMessages:
@@ -635,8 +606,6 @@ public enum LocalizationKey: String, CaseIterable, Sendable {
             return "Network"
         case .volumeKindDiskImage:
             return "Disk Images"
-        case .volumeKindICloudDrive:
-            return "iCloud Drive"
         case .usageModeFree:
             return "Free"
         case .usageModeUsed:
@@ -673,8 +642,6 @@ private extension StorageCategoryID {
             return .categoryDocuments
         case .developer:
             return .categoryDeveloper
-        case .iCloudDrive:
-            return .categoryICloudDrive
         case .photos:
             return .categoryPhotos
         case .messages:
@@ -702,8 +669,6 @@ private extension DiskmanVisibleVolumeKind {
             return .volumeKindNetwork
         case .diskImage:
             return .volumeKindDiskImage
-        case .iCloudDrive:
-            return .volumeKindICloudDrive
         }
     }
 }

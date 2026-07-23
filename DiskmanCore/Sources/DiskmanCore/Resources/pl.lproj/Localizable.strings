@@ -23,7 +23,6 @@
 "disk.singular" = "dysk";
 "disk.plural" = "dyski";
 "capacity.freeOf" = "%@ wolne z %@";
-"capacity.localFiles" = "%@ lokalnych plików";
 "accessibility.diskFree" = "%@, %@ wolne";
 "accessibility.diskUsed" = "%@, %@ użyte";
 
@@ -52,7 +51,7 @@
 "settings.categories" = "Kategorie";
 "settings.categoryPrivacy" = "Kategorie szacunkowe domyślnie używają bezpiecznych folderów lokalnych. Włącz głęboki skan po nadaniu Pełnego dostępu do dysku, aby uzyskać więcej szczegółów.";
 "settings.deepCategoryScan" = "Głęboki skan folderów";
-"settings.deepCategoryScanHelp" = "Skanuje Dokumenty, Zdjęcia, Wiadomości i Pobrane. iCloud Drive pojawia się osobno jako lokalne pliki.";
+"settings.deepCategoryScanHelp" = "Skanuje Dokumenty, Zdjęcia, Wiadomości i Pobrane. macOS może wymagać Pełnego dostępu do dysku.";
 "settings.openFullDiskAccess" = "Otwórz Pełny dostęp do dysku";
 "settings.launchAtLoginError" = "Nie można zmienić uruchamiania przy logowaniu.";
 
@@ -66,7 +65,6 @@
 "category.applications" = "Aplikacje";
 "category.documents" = "Dokumenty";
 "category.developer" = "Developer";
-"category.iCloudDrive" = "iCloud Drive";
 "category.photos" = "Zdjęcia";
 "category.messages" = "Wiadomości";
 "category.systemData" = "Dane systemowe";
@@ -79,7 +77,6 @@
 "volumeKind.external" = "Zewnętrzne";
 "volumeKind.network" = "Sieciowe";
 "volumeKind.diskImage" = "Obrazy dysków";
-"volumeKind.iCloudDrive" = "iCloud Drive";
 
 "usageMode.free" = "Wolne";
 "usageMode.used" = "Użyte";

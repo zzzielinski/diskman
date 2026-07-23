@@ -181,9 +181,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             return
         }
 
+        let settingsView = SettingsView(settingsStore: settingsStore) { [weak self] in
+            self?.rebuildWidgetData()
+        }
+        let hostingView = NSHostingView(rootView: settingsView)
+        hostingView.layoutSubtreeIfNeeded()
+
+        let fittingSize = hostingView.fittingSize
+        let contentSize = NSSize(
+            width: max(640, fittingSize.width),
+            height: max(720, fittingSize.height)
+        )
+
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 560, height: 740),
-            styleMask: [.titled, .closable, .miniaturizable, .fullSizeContentView],
+            contentRect: NSRect(origin: .zero, size: contentSize),
+            styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
             backing: .buffered,
             defer: false
         )
@@ -191,11 +203,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         window.titleVisibility = .hidden
         window.titlebarAppearsTransparent = true
         window.isMovableByWindowBackground = true
-        window.contentView = NSHostingView(
-            rootView: SettingsView(settingsStore: settingsStore) { [weak self] in
-                self?.rebuildWidgetData()
-            }
-        )
+        window.minSize = NSSize(width: 640, height: min(720, contentSize.height))
+        window.contentView = hostingView
         window.center()
 
         let controller = NSWindowController(window: window)

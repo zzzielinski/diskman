@@ -129,20 +129,18 @@ private extension StorageCategoryID {
             return 1
         case .developer:
             return 2
-        case .iCloudDrive:
-            return 3
         case .photos:
-            return 4
+            return 3
         case .messages:
-            return 5
+            return 4
         case .systemData:
-            return 6
+            return 5
         case .other:
-            return 7
+            return 6
         case .used:
-            return 8
+            return 7
         case .available:
-            return 9
+            return 8
         }
     }
 }

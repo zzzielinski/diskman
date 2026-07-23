@@ -292,20 +292,14 @@ func snapshotFiltersVolumesByVisibleKinds() {
         usedBytes: 600,
         categories: []
     )
-    let iCloudVolume = VolumeSnapshot.localICloudDrive(
-        url: URL(filePath: "/Users/Test/Library/Mobile Documents/com~apple~CloudDocs"),
-        usedBytes: 200
-    )
     let snapshot = DiskSnapshot(
         generatedAt: Date(),
-        volumes: [internalVolume, networkVolume, iCloudVolume]
+        volumes: [internalVolume, networkVolume]
     )
 
     let filtered = snapshot.filtered(visibleKinds: [.network])
-    let iCloudFiltered = snapshot.filtered(visibleKinds: [.iCloudDrive])
 
     #expect(filtered.volumes.map(\.id) == ["network"])
-    #expect(iCloudFiltered.volumes.map(\.id) == ["icloud-drive-local"])
 }
 
 @Test
@@ -359,26 +353,6 @@ func localizationCapacitySummaryUsesDisplayAvailableBytes() {
 }
 
 @Test
-func localICloudDriveVolumeUsesLocalFileSizeOnly() {
-    let volume = VolumeSnapshot.localICloudDrive(
-        url: URL(filePath: "/Users/Test/Library/Mobile Documents/com~apple~CloudDocs"),
-        usedBytes: 1_000_000_000
-    )
-    let localization = LocalizationProvider(
-        languageMode: .english,
-        usageDisplayMode: .free,
-        storageUnitMode: .decimal
-    )
-
-    #expect(volume.kind == .iCloudDrive)
-    #expect(volume.displayName == "iCloud Drive")
-    #expect(volume.displayUsedBytes == 1_000_000_000)
-    #expect(volume.displayAvailableBytes == 0)
-    #expect(localization.capacitySummary(for: volume).contains("local files"))
-    #expect(localization.usagePercentText(for: volume).contains("GB"))
-}
-
-@Test
 func categoryCacheStorePersistsFreshResults() throws {
     let cacheDirectoryURL = FileManager.default.temporaryDirectory
         .appending(path: "diskman-category-cache-tests")
@@ -414,7 +388,6 @@ func estimatedScannerBuildsCategoriesFromArtificialDirectories() throws {
     let applicationsURL = rootURL.appending(path: "Applications")
     let documentsURL = homeURL.appending(path: "Documents")
     let developerURL = homeURL.appending(path: "Developer")
-    let iCloudDriveURL = homeURL.appending(path: "Library/Mobile Documents/com~apple~CloudDocs")
     let photosURL = homeURL.appending(path: "Pictures")
 
     try FileManager.default.createDirectory(
@@ -430,17 +403,12 @@ func estimatedScannerBuildsCategoriesFromArtificialDirectories() throws {
         withIntermediateDirectories: true
     )
     try FileManager.default.createDirectory(
-        at: iCloudDriveURL,
-        withIntermediateDirectories: true
-    )
-    try FileManager.default.createDirectory(
         at: applicationsURL,
         withIntermediateDirectories: true
     )
 
     try Data(repeating: 1, count: 10).write(to: documentsURL.appending(path: "document.bin"))
     try Data(repeating: 1, count: 20).write(to: developerURL.appending(path: "project.bin"))
-    try Data(repeating: 1, count: 25).write(to: iCloudDriveURL.appending(path: "icloud.bin"))
     try Data(repeating: 1, count: 30).write(to: photosURL.appending(path: "photo.bin"))
     try Data(repeating: 1, count: 40).write(to: applicationsURL.appending(path: "app.bin"))
 
@@ -470,7 +438,6 @@ func estimatedScannerBuildsCategoriesFromArtificialDirectories() throws {
     #expect(ids.contains(.applications))
     #expect(ids.contains(.developer))
     #expect(ids.contains(.documents))
-    #expect(ids.contains(.iCloudDrive) == false)
     #expect(ids.contains(.photos))
     #expect(ids.contains(.other))
     #expect(ids.contains(.available))
@@ -644,38 +611,6 @@ func estimatedCategoryModeCanPreserveExistingEstimatedCategories() {
     )
 
     #expect(estimated.volumes[0].categories == existingCategories)
-}
-
-@Test
-func estimatedCategoryModeKeepsLocalICloudDriveBasic() {
-    let volume = VolumeSnapshot.localICloudDrive(
-        url: URL(filePath: "/Users/Test/Library/Mobile Documents/com~apple~CloudDocs"),
-        usedBytes: 500
-    )
-    let snapshot = DiskSnapshot(generatedAt: Date(), volumes: [volume])
-    let cacheStore = StorageCategoryCacheStore(
-        cacheDirectoryURL: FileManager.default.temporaryDirectory
-            .appending(path: "diskman-icloud-category-mode-tests")
-            .appending(path: UUID().uuidString)
-    )
-    let scanner = StubCategoryScanner(categories: [
-        StorageCategorySnapshot(
-            id: .other,
-            localizedName: "Other",
-            colorToken: "other",
-            bytes: 500,
-            confidence: .estimated
-        )
-    ])
-
-    let estimated = snapshot.applyingCategoryMode(
-        .estimated,
-        scanner: scanner,
-        cacheStore: cacheStore
-    )
-
-    #expect(estimated.volumes[0].categories.map(\.id) == [.used, .available])
-    #expect(estimated.volumes[0].categories.allSatisfy { $0.confidence == .exact })
 }
 
 private struct StubCategoryScanner: StorageCategoryScanning {
