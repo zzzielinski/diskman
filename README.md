@@ -1,226 +1,226 @@
 # Diskman
 
-Diskman to open source aplikacja na macOS działająca w pasku menu oraz jako rozszerzenie WidgetKit. Pokazuje podłączone dyski, wolne lub użyte miejsce, paski zajętości i opcjonalne szacunkowe kategorie danych bez otwierania Ustawień systemowych.
+Diskman is an open source macOS app that runs in the menu bar and provides WidgetKit widgets. It shows connected disks, free or used space, storage bars, and optional estimated storage categories without opening System Settings.
 
-Pomysł urodził się z irytacji, że macOS nie ma prostego, ładnego widgetu pokazującego stan dysków na pulpicie. Diskman jest właśnie tym brakującym kawałkiem: ma siedzieć w tle, odświeżać snapshot danych i podawać widgetom aktualny stan nośników.
+The idea was born from irritation that macOS does not include a simple, good-looking desktop widget for disk space. Diskman is meant to be that missing piece: it sits in the background, refreshes a local data snapshot, and gives widgets an up-to-date view of your mounted volumes.
 
-## Co Robi
+## What It Does
 
-- Pokazuje dyski wewnętrzne, zewnętrzne, sieciowe i obrazy dysków.
-- Udostępnia mały, średni i duży widget macOS.
-- Pozwala kliknąć dysk w widżecie i otworzyć go w Finderze.
-- Pokazuje procent wolnego albo użytego miejsca.
-- Obsługuje jednostki GB i GiB.
-- Ma opcjonalne kategorie danych: wyłączone, podstawowe albo szacunkowe.
-- Działa offline i zapisuje snapshot lokalnie w App Group, żeby widgety miały z czego czytać.
-- Ma polski i angielski interfejs.
-- Może startować automatycznie po zalogowaniu.
+- Shows internal disks, external disks, network volumes, and disk images.
+- Provides small, medium, and large macOS widgets.
+- Lets you click a disk in the widget to open it in Finder.
+- Shows either free-space percentage or used-space percentage.
+- Supports GB and GiB units.
+- Includes optional storage categories: off, basic, or estimated.
+- Works offline and stores a local App Group snapshot for widgets to read.
+- Includes English and Polish UI.
+- Can launch automatically when you sign in.
 
-## Zrzuty Ekranu
+## Screenshots
 
-Zrzuty ekranu zostaną dodane po finalnym sprawdzeniu wyglądu aplikacji i widgetów.
+Screenshots will be added after the final visual pass for the app and widgets.
 
-## Instalacja
+## Installation
 
-Najprostsza instalacja pobiera najnowszy GitHub Release i kopiuje `Diskman.app` do `~/Applications`:
+The simplest install downloads the latest GitHub Release and copies `Diskman.app` to `~/Applications`:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/zzzielinski/diskman/main/scripts/install.sh | bash
 ```
 
-Instalacja i od razu uruchomienie aplikacji:
+Install and open Diskman immediately:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/zzzielinski/diskman/main/scripts/install.sh | bash -s -- --open
 ```
 
-Instalator:
+The installer:
 
-- pobiera `Diskman.app.zip` z najnowszego release,
-- zamyka uruchomionego Diskmana, jeśli działa,
-- usuwa starą rejestrację widgetu,
-- kopiuje aplikację do wybranego folderu,
-- rejestruje aplikację i rozszerzenie widgetu w macOS,
-- odświeża cache widgetów i ikon.
+- downloads `Diskman.app.zip` from the latest release,
+- quits Diskman if it is already running,
+- unregisters the old widget extension,
+- copies the app to the selected install folder,
+- registers the app and widget extension with macOS,
+- refreshes widget and icon caches.
 
-## Instalacja W Customowym Folderze
+## Custom Install Folder
 
-Domyślne miejsce instalacji to `~/Applications`. Możesz wskazać własny folder przez `DISKMAN_INSTALL_DIR`.
+The default install location is `~/Applications`. You can choose another folder with `DISKMAN_INSTALL_DIR`.
 
-Przykład instalacji do `/Applications`:
+Install to `/Applications`:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/zzzielinski/diskman/main/scripts/install.sh \
   | DISKMAN_INSTALL_DIR="/Applications" bash
 ```
 
-Instalacja do własnego folderu:
+Install to a custom folder:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/zzzielinski/diskman/main/scripts/install.sh \
   | DISKMAN_INSTALL_DIR="$HOME/Tools" bash
 ```
 
-Instalacja do customowego folderu i od razu uruchomienie:
+Install to a custom folder and open immediately:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/zzzielinski/diskman/main/scripts/install.sh \
   | DISKMAN_INSTALL_DIR="$HOME/Tools" bash -s -- --open
 ```
 
-Instalacja do `/Applications` może wymagać uprawnień administratora, jeśli konto nie ma tam prawa zapisu.
+Installing to `/Applications` may require administrator permission if your account cannot write there.
 
-## Otwieranie Aplikacji
+## Opening The App
 
-Jeśli Diskman jest zainstalowany w domyślnym miejscu:
+If Diskman is installed in the default location:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/zzzielinski/diskman/main/scripts/open.sh | bash
 ```
 
-To samo bez skryptu:
+The same without the helper script:
 
 ```bash
 open "$HOME/Applications/Diskman.app"
 ```
 
-Jeśli Diskman jest zainstalowany w customowym folderze:
+If Diskman is installed in a custom folder:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/zzzielinski/diskman/main/scripts/open.sh \
   | DISKMAN_INSTALL_DIR="$HOME/Tools" bash
 ```
 
-To samo bez skryptu:
+The same without the helper script:
 
 ```bash
 open "$HOME/Tools/Diskman.app"
 ```
 
-## Po Instalacji
+## After Installation
 
-Po uruchomieniu Diskman pojawia się w pasku menu. Z menu możesz wymusić odświeżenie, odbudować dane dla widgetów, wejść w ustawienia albo zamknąć aplikację.
+After launch, Diskman appears in the menu bar. From the menu you can refresh now, rebuild widget data, open settings, open the about window, or quit the app.
 
-Widget dodajesz standardowo z galerii widgetów macOS. Jeśli po aktualizacji macOS dalej pokazuje starą ikonę albo starą wersję widgetu, uruchom ponownie instalator. Skrypt odświeża rejestrację WidgetKit oraz cache ikon.
+Add the widget from the standard macOS widget gallery. If macOS still shows an old icon or an old widget version after an update, run the installer again. The installer refreshes WidgetKit registration and icon caches.
 
-## Ustawienia
+## Settings
 
-### Język
+### Language
 
-`System` używa języka macOS. `English` i `Polski` wymuszają konkretny język tylko dla Diskmana.
+`System` follows the macOS language. `English` and `Polish` force a specific language for Diskman only.
 
-### Motyw
+### Theme
 
-`System` dopasowuje wygląd do macOS. `Jasny` i `Ciemny` wymuszają tryb aplikacji niezależnie od systemu.
+`System` follows macOS appearance. `Light` and `Dark` force the app appearance independently of the system.
 
-### Tryb Procentów
+### Percent Mode
 
-`Wolne` pokazuje procent wolnego miejsca. `Użyte` pokazuje procent zajętego miejsca.
+`Free` shows the percentage of free space. `Used` shows the percentage of used space.
 
-Ten wybór wpływa na widgety, w tym mały widget z okręgami. Przykład: jeśli dysk ma 70% zajęte i 30% wolne, tryb `Wolne` pokaże 30%, a tryb `Użyte` pokaże 70%.
+This setting affects widgets, including the small ring widget. For example, if a disk is 70% used and 30% free, `Free` shows 30%, while `Used` shows 70%.
 
-### Jednostki Pamięci
+### Storage Units
 
-`GB` używa jednostek dziesiętnych, czyli 1 GB = 1 000 000 000 bajtów.
+`GB` uses decimal units, where 1 GB = 1,000,000,000 bytes.
 
-`GiB` używa jednostek binarnych, czyli 1 GiB = 1 073 741 824 bajty.
+`GiB` uses binary units, where 1 GiB = 1,073,741,824 bytes.
 
-### Kategorie
+### Categories
 
-`Wyłączone` pokazuje tylko podstawowe informacje o dysku, bez segmentów kategorii.
+`Off` shows basic disk information without category segments.
 
-`Podstawowe` pokazuje prosty podział na użyte i dostępne miejsce. To najpewniejszy tryb, bo opiera się na danych z macOS o pojemności wolumenu.
+`Basic` shows a simple split between used and available space. This is the most reliable mode because it is based on macOS volume capacity data.
 
-`Szacunkowe` próbuje rozbić użyte miejsce na kategorie, takie jak aplikacje, dokumenty, developer, zdjęcia, wiadomości, dane systemowe i inne. To są szacunki, nie identyczne dane jak w Ustawieniach systemowych macOS.
+`Estimated` tries to break used space into categories such as applications, documents, developer files, photos, messages, system data, and other. These are estimates, not the exact private categories shown by macOS System Settings.
 
-### Głęboki Skan Folderów
+### Deep Folder Scan
 
-Głęboki skan sprawdza dodatkowe foldery użytkownika, między innymi Dokumenty, Zdjęcia, Wiadomości i Pobrane. macOS może wymagać Pełnego dostępu do dysku, żeby Diskman mógł odczytać część tych lokalizacji.
+Deep folder scan checks additional user folders, including Documents, Photos, Messages, and Downloads. macOS may require Full Disk Access before Diskman can read some of these local folders.
 
-Przycisk `Otwórz Pełny dostęp do dysku` prowadzi do ustawień prywatności macOS. Po nadaniu dostępu warto użyć `Odbuduj dane`.
+The `Open Full Disk Access` button opens the macOS privacy settings. After granting access, use `Rebuild Data`.
 
-### Widoczność Dysków
+### Disk Visibility
 
-W tej sekcji wybierasz, jakie typy wolumenów mają pojawiać się w aplikacji i widgetach:
+This section controls which volume types appear in the app and widgets:
 
-- `Wewnętrzne`: wbudowany dysk Maca.
-- `Zewnętrzne`: podłączone nośniki USB, Thunderbolt i podobne.
-- `Sieciowe`: zamontowane udziały sieciowe.
-- `Obrazy dysków`: zamontowane pliki `.dmg` i podobne obrazy.
+- `Internal`: the built-in Mac disk.
+- `External`: USB, Thunderbolt, and similar attached storage.
+- `Network`: mounted network shares.
+- `Disk Images`: mounted `.dmg` files and similar disk images.
 
-### Uruchamiaj Przy Logowaniu
+### Launch At Login
 
-Włącza automatyczne uruchamianie Diskmana po zalogowaniu do macOS. Aplikacja działa wtedy w tle i aktualizuje dane dla widgetów.
+Starts Diskman automatically after you sign in to macOS. The app then runs in the background and keeps widget data up to date.
 
-### Odświeżanie, Snapshot I Odbudowa Danych
+### Refresh, Snapshot, And Rebuild Data
 
-`Odświeżanie Automatyczne` oznacza, że Diskman cyklicznie sprawdza wolumeny oraz reaguje na zdarzenia Disk Arbitration, na przykład podłączenie albo odłączenie dysku.
+`Refresh Automatic` means Diskman periodically checks volumes and also reacts to Disk Arbitration events, such as connecting or disconnecting a disk.
 
-`Snapshot Udostępniony` oznacza, że aplikacja zapisuje lokalny snapshot w App Group, z którego czytają widgety.
+`Snapshot Shared` means the app writes a local snapshot in the App Group container, and widgets read from that snapshot.
 
-`Odbuduj dane` wymusza świeży odczyt i zapis snapshotu. Użyj tego po zmianie ustawień, nadaniu Pełnego dostępu do dysku albo gdy widget jeszcze pokazuje starsze dane.
+`Rebuild Data` forces a fresh read and writes a new widget snapshot. Use it after changing settings, granting Full Disk Access, or when a widget still shows older data.
 
-## Jakich Danych Używa Diskman
+## What Data Diskman Uses
 
-Diskman działa lokalnie i offline. Nie wysyła danych do żadnego API, nie zbiera analityki i nie wymaga internetu do działania.
+Diskman works locally and offline. It does not send data to any API, does not collect analytics, and does not need the internet to run.
 
-Aplikacja czyta lokalne dane macOS:
+The app reads local macOS volume data:
 
-- nazwę wolumenu,
-- ścieżkę montowania,
-- typ wolumenu,
-- całkowitą pojemność,
-- dostępne miejsce,
-- ważne dostępne miejsce zgłaszane przez macOS,
-- użyte miejsce wyliczone z pojemności i dostępnego miejsca.
+- volume name,
+- mount path,
+- volume type,
+- total capacity,
+- available capacity,
+- important available capacity reported by macOS,
+- used space calculated from capacity and available capacity.
 
-Przy kategoriach szacunkowych Diskman może skanować wybrane lokalne foldery, żeby policzyć rozmiary plików. Wyniki są zapisywane lokalnie w cache i opisane jako szacunkowe, bo macOS nie udostępnia aplikacjom dokładnie tych samych prywatnych kategorii, które pokazuje w Ustawieniach systemowych.
+When estimated categories are enabled, Diskman may scan selected local folders to calculate file sizes. Results are stored locally in a cache and marked as estimated because macOS does not expose the exact same private storage categories that it shows in System Settings.
 
-## Odinstalowanie
+## Uninstall
 
-Odinstalowanie aplikacji, ustawień, snapshotów widgetów, cache i logów:
+Remove the app, settings, widget snapshots, caches, and logs:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/zzzielinski/diskman/main/scripts/uninstall.sh | bash
 ```
 
-Podgląd tego, co zostanie usunięte:
+Preview what would be removed:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/zzzielinski/diskman/main/scripts/uninstall.sh | bash -s -- --dry-run
 ```
 
-Usunięcie aplikacji z zachowaniem lokalnych danych:
+Remove the app but keep local data:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/zzzielinski/diskman/main/scripts/uninstall.sh | bash -s -- --keep-data
 ```
 
-Odinstalowanie Diskmana z customowego folderu:
+Uninstall Diskman from a custom folder:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/zzzielinski/diskman/main/scripts/uninstall.sh \
   | bash -s -- --app "$HOME/Tools/Diskman.app"
 ```
 
-Skrypt odinstalowania celowo pomija lokalny folder roboczy projektu.
+The uninstall script intentionally preserves the local project workspace.
 
-## Build Ze Źródeł
+## Build From Source
 
-Sklonuj repozytorium:
+Clone the repository:
 
 ```bash
 git clone https://github.com/zzzielinski/diskman.git
 cd diskman
 ```
 
-Lista schematów Xcode:
+List Xcode schemes:
 
 ```bash
 xcodebuild -list -project Diskman.xcodeproj
 ```
 
-Build aplikacji i widgetu bez code signing:
+Build the app and widget without code signing:
 
 ```bash
 xcodebuild \
@@ -232,7 +232,7 @@ xcodebuild \
   build
 ```
 
-Testy core:
+Run core tests:
 
 ```bash
 cd DiskmanCore
@@ -241,37 +241,37 @@ swift test
 
 ## Release Build
 
-Utworzenie paczki `.zip` i checksumy SHA-256:
+Create a `.zip` package and SHA-256 checksum:
 
 ```bash
 ./scripts/package-release.sh
 ```
 
-Wyniki:
+Outputs:
 
 ```text
 build/release/Diskman.app.zip
 build/release/Diskman.app.zip.sha256
 ```
 
-Instalacja i uruchomienie lokalnego builda:
+Install and open a local build:
 
 ```bash
 ./scripts/package-release.sh
 ./scripts/install.sh --zip build/release/Diskman.app.zip --open
 ```
 
-Aktualne buildy release są podpisane ad-hoc, ale nie są notarized. macOS może pokazać standardowe ostrzeżenie Gatekeeper przy pierwszym uruchomieniu.
+Current release builds are signed ad-hoc but are not notarized. macOS may show the standard Gatekeeper warning on first launch.
 
-## Struktura Projektu
+## Project Structure
 
 ```text
-DiskmanApp/       aplikacja macOS, menu, ustawienia i okno informacji
-DiskmanWidgets/   rozszerzenie WidgetKit
-DiskmanCore/      wspólne modele, monitoring dysków, cache, lokalizacja i skan kategorii
-scripts/          instalacja, odinstalowanie i pakowanie release
+DiskmanApp/       macOS app, menu, settings, and about window
+DiskmanWidgets/   WidgetKit extension
+DiskmanCore/      shared models, disk monitoring, cache, localization, and category scanning
+scripts/          install, uninstall, open, and release packaging scripts
 ```
 
-## Licencja
+## License
 
-Diskman jest udostępniony na licencji MIT. Szczegóły są w pliku [LICENSE](LICENSE).
+Diskman is released under the MIT License. See [LICENSE](LICENSE) for details.
