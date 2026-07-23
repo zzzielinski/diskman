@@ -50,6 +50,8 @@ public final class DiskMonitor {
     private let volumeProvider: VolumeProviding
     private let snapshotStore: StorageSnapshotStore
     private let settingsStore: DiskmanSettingsStore
+    private let categoryScanner: StorageCategoryScanning
+    private let categoryCacheStore: StorageCategoryCacheStore
     private let configuration: Configuration
     private let logger = Logger(subsystem: "com.zzzielinski.diskman", category: "DiskMonitor")
 
@@ -62,11 +64,15 @@ public final class DiskMonitor {
         volumeProvider: VolumeProviding = VolumeProvider(),
         snapshotStore: StorageSnapshotStore = StorageSnapshotStore(),
         settingsStore: DiskmanSettingsStore = DiskmanSettingsStore(),
+        categoryScanner: StorageCategoryScanning = EstimatedStorageCategoryScanner(),
+        categoryCacheStore: StorageCategoryCacheStore = StorageCategoryCacheStore(),
         configuration: Configuration = Configuration()
     ) {
         self.volumeProvider = volumeProvider
         self.snapshotStore = snapshotStore
         self.settingsStore = settingsStore
+        self.categoryScanner = categoryScanner
+        self.categoryCacheStore = categoryCacheStore
         self.configuration = configuration
     }
 
@@ -169,6 +175,11 @@ public final class DiskMonitor {
         do {
             let snapshot = try volumeProvider
                 .snapshot()
+                .applyingCategoryMode(
+                    settingsStore.categoryMode,
+                    scanner: categoryScanner,
+                    cacheStore: categoryCacheStore
+                )
                 .filtered(visibleKinds: settingsStore.visibleVolumeKinds)
             var writeError: Swift.Error?
 

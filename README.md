@@ -24,7 +24,8 @@ Diskman is currently in early scaffolding. The repository already contains:
 - medium and large WidgetKit storage bars for used and available space,
 - `DiskmanGlass`: a SwiftUI visual wrapper for Liquid Glass with material fallback,
 - polished menu actions, interactive Settings surface, and open-source-ready About window,
-- shared English/Polish localization through `LocalizationProvider`.
+- shared English/Polish localization through `LocalizationProvider`,
+- optional estimated storage categories with App Group cache.
 
 See:
 
@@ -77,7 +78,7 @@ swift test
 
 Diskman is designed to work locally. The app should not send analytics or disk data anywhere. The MVP will only read mounted volume metadata such as name, mount path, total capacity, and available capacity.
 
-Future category scanning will be opt-in and documented separately.
+Estimated category scanning is opt-in. When enabled, Diskman scans local folders such as Applications, Documents, Developer, Photos, and Messages where macOS permissions allow it. Results are cached to avoid frequent disk work, and the app labels these categories as estimates because they are not the same private data shown by System Settings.
 
 ## Installation
 

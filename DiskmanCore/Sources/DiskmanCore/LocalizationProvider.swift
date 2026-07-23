@@ -42,6 +42,12 @@ public enum DiskmanStorageUnitMode: String, Codable, CaseIterable, Sendable {
     }
 }
 
+public enum DiskmanCategoryMode: String, Codable, CaseIterable, Sendable {
+    case off
+    case basic
+    case estimated
+}
+
 public enum DiskmanVisibleVolumeKind: String, Codable, CaseIterable, Sendable {
     case internalDrive
     case externalDrive
@@ -68,6 +74,7 @@ public struct DiskmanSettingsStore {
     public static let visibleVolumeKindsKey = "diskman.visibleVolumeKinds"
     public static let usageDisplayModeKey = "diskman.usageDisplayMode"
     public static let storageUnitModeKey = "diskman.storageUnitMode"
+    public static let categoryModeKey = "diskman.categoryMode"
 
     private let userDefaults: UserDefaults
 
@@ -135,6 +142,21 @@ public struct DiskmanSettingsStore {
         }
     }
 
+    public var categoryMode: DiskmanCategoryMode {
+        get {
+            guard let rawValue = userDefaults.string(forKey: Self.categoryModeKey),
+                  let mode = DiskmanCategoryMode(rawValue: rawValue)
+            else {
+                return .basic
+            }
+
+            return mode
+        }
+        nonmutating set {
+            userDefaults.set(newValue.rawValue, forKey: Self.categoryModeKey)
+        }
+    }
+
     public var visibleVolumeKinds: Set<DiskmanVisibleVolumeKind> {
         get {
             guard let rawValues = userDefaults.array(forKey: Self.visibleVolumeKindsKey) as? [String] else {
@@ -167,23 +189,27 @@ public struct LocalizationProvider: Sendable {
     public let language: DiskmanLanguage
     public let usageDisplayMode: DiskmanUsageDisplayMode
     public let storageUnitMode: DiskmanStorageUnitMode
+    public let categoryMode: DiskmanCategoryMode
 
     public init(
         languageMode: DiskmanLanguageMode = .system,
         systemLocale: Locale = .current,
         usageDisplayMode: DiskmanUsageDisplayMode = .free,
-        storageUnitMode: DiskmanStorageUnitMode = .decimal
+        storageUnitMode: DiskmanStorageUnitMode = .decimal,
+        categoryMode: DiskmanCategoryMode = .basic
     ) {
         self.language = DiskmanLanguage(mode: languageMode, systemLocale: systemLocale)
         self.usageDisplayMode = usageDisplayMode
         self.storageUnitMode = storageUnitMode
+        self.categoryMode = categoryMode
     }
 
     public init(settingsStore: DiskmanSettingsStore) {
         self.init(
             languageMode: settingsStore.languageMode,
             usageDisplayMode: settingsStore.usageDisplayMode,
-            storageUnitMode: settingsStore.storageUnitMode
+            storageUnitMode: settingsStore.storageUnitMode,
+            categoryMode: settingsStore.categoryMode
         )
     }
 
@@ -216,6 +242,10 @@ public struct LocalizationProvider: Sendable {
     }
 
     public func storageUnitName(for mode: DiskmanStorageUnitMode) -> String {
+        string(mode.localizationKey)
+    }
+
+    public func categoryModeName(for mode: DiskmanCategoryMode) -> String {
         string(mode.localizationKey)
     }
 
@@ -338,6 +368,8 @@ public enum LocalizationKey: String, CaseIterable, Sendable {
     case settingsDiskVisibility = "settings.diskVisibility"
     case settingsStorageUnits = "settings.storageUnits"
     case settingsPercentMode = "settings.percentMode"
+    case settingsCategories = "settings.categories"
+    case settingsCategoryPrivacy = "settings.categoryPrivacy"
     case settingsLaunchAtLoginError = "settings.launchAtLoginError"
     case aboutSubtitle = "about.subtitle"
     case aboutVersion = "about.version"
@@ -354,6 +386,7 @@ public enum LocalizationKey: String, CaseIterable, Sendable {
     case categoryOther = "category.other"
     case categoryUsed = "category.used"
     case categoryAvailable = "category.available"
+    case categoryConfidenceEstimated = "categoryConfidence.estimated"
     case volumeKindInternal = "volumeKind.internal"
     case volumeKindExternal = "volumeKind.external"
     case volumeKindNetwork = "volumeKind.network"
@@ -362,6 +395,9 @@ public enum LocalizationKey: String, CaseIterable, Sendable {
     case usageModeUsed = "usageMode.used"
     case storageUnitDecimal = "storageUnit.decimal"
     case storageUnitBinary = "storageUnit.binary"
+    case categoryModeOff = "categoryMode.off"
+    case categoryModeBasic = "categoryMode.basic"
+    case categoryModeEstimated = "categoryMode.estimated"
 
     public var fallbackValue: String {
         switch self {
@@ -443,6 +479,10 @@ public enum LocalizationKey: String, CaseIterable, Sendable {
             return "Storage Units"
         case .settingsPercentMode:
             return "Percent Mode"
+        case .settingsCategories:
+            return "Categories"
+        case .settingsCategoryPrivacy:
+            return "Estimated categories scan local folders on this Mac only and are cached to avoid frequent disk work."
         case .settingsLaunchAtLoginError:
             return "Unable to update Launch at Login."
         case .aboutSubtitle:
@@ -475,6 +515,8 @@ public enum LocalizationKey: String, CaseIterable, Sendable {
             return "Used"
         case .categoryAvailable:
             return "Available"
+        case .categoryConfidenceEstimated:
+            return "Estimated"
         case .volumeKindInternal:
             return "Internal"
         case .volumeKindExternal:
@@ -491,6 +533,12 @@ public enum LocalizationKey: String, CaseIterable, Sendable {
             return "GB"
         case .storageUnitBinary:
             return "GiB"
+        case .categoryModeOff:
+            return "Off"
+        case .categoryModeBasic:
+            return "Basic"
+        case .categoryModeEstimated:
+            return "Estimated"
         }
     }
 }
@@ -557,6 +605,19 @@ private extension DiskmanStorageUnitMode {
             return .storageUnitDecimal
         case .binary:
             return .storageUnitBinary
+        }
+    }
+}
+
+private extension DiskmanCategoryMode {
+    var localizationKey: LocalizationKey {
+        switch self {
+        case .off:
+            return .categoryModeOff
+        case .basic:
+            return .categoryModeBasic
+        case .estimated:
+            return .categoryModeEstimated
         }
     }
 }

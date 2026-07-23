@@ -197,15 +197,18 @@ func settingsStorePersistsDisplaySettings() throws {
     #expect(store.usageDisplayMode == .free)
     #expect(store.storageUnitMode == .decimal)
     #expect(store.visibleVolumeKinds == Set(DiskmanVisibleVolumeKind.allCases))
+    #expect(store.categoryMode == .basic)
 
     store.usageDisplayMode = .used
     store.storageUnitMode = .binary
     store.visibleVolumeKinds = []
+    store.categoryMode = .estimated
 
     let restoredStore = DiskmanSettingsStore(userDefaults: userDefaults)
     #expect(restoredStore.usageDisplayMode == .used)
     #expect(restoredStore.storageUnitMode == .binary)
     #expect(restoredStore.visibleVolumeKinds == [])
+    #expect(restoredStore.categoryMode == .estimated)
 }
 
 @Test
@@ -266,4 +269,153 @@ func localizationProviderUsesUsageAndUnitSettings() {
 
     #expect(localization.usagePercentText(for: volume) == "75%")
     #expect(localization.capacitySummary(for: volume).contains("GiB"))
+}
+
+@Test
+func categoryCacheStorePersistsFreshResults() throws {
+    let cacheDirectoryURL = FileManager.default.temporaryDirectory
+        .appending(path: "diskman-category-cache-tests")
+        .appending(path: UUID().uuidString)
+    let store = StorageCategoryCacheStore(cacheDirectoryURL: cacheDirectoryURL)
+    let result = StorageCategoryScanResult(
+        volumeID: "volume",
+        generatedAt: Date(),
+        categories: [
+            StorageCategorySnapshot(
+                id: .documents,
+                localizedName: "Documents",
+                colorToken: "documents",
+                bytes: 42,
+                confidence: .estimated
+            )
+        ]
+    )
+
+    try store.write(result)
+
+    let restoredResult = try #require(try store.cachedResult(for: "volume"))
+    #expect(restoredResult.categories.map(\.id) == [.documents])
+}
+
+@Test
+func estimatedScannerBuildsCategoriesFromArtificialDirectories() throws {
+    let rootURL = FileManager.default.temporaryDirectory
+        .appending(path: "diskman-category-scan-tests")
+        .appending(path: UUID().uuidString)
+    let homeURL = rootURL.appending(path: "Users/Test")
+    let cacheURL = rootURL.appending(path: "Cache")
+    let applicationsURL = rootURL.appending(path: "Applications")
+    let documentsURL = homeURL.appending(path: "Documents")
+    let developerURL = homeURL.appending(path: "Developer")
+    let photosURL = homeURL.appending(path: "Pictures")
+
+    try FileManager.default.createDirectory(
+        at: documentsURL,
+        withIntermediateDirectories: true
+    )
+    try FileManager.default.createDirectory(
+        at: developerURL,
+        withIntermediateDirectories: true
+    )
+    try FileManager.default.createDirectory(
+        at: photosURL,
+        withIntermediateDirectories: true
+    )
+    try FileManager.default.createDirectory(
+        at: applicationsURL,
+        withIntermediateDirectories: true
+    )
+
+    try Data(repeating: 1, count: 10).write(to: documentsURL.appending(path: "document.bin"))
+    try Data(repeating: 1, count: 20).write(to: developerURL.appending(path: "project.bin"))
+    try Data(repeating: 1, count: 30).write(to: photosURL.appending(path: "photo.bin"))
+    try Data(repeating: 1, count: 40).write(to: applicationsURL.appending(path: "app.bin"))
+
+    let scanner = EstimatedStorageCategoryScanner(
+        homeDirectoryURL: homeURL,
+        applicationDirectoryURLs: [applicationsURL]
+    )
+    let cacheStore = StorageCategoryCacheStore(cacheDirectoryURL: cacheURL)
+    let volume = VolumeSnapshot(
+        id: rootURL.path,
+        name: "Test Volume",
+        localizedName: nil,
+        mountPath: rootURL.path,
+        kind: .internalDrive,
+        fileSystemName: "APFS",
+        totalBytes: 100_000,
+        availableBytes: 10_000,
+        importantAvailableBytes: nil,
+        usedBytes: 90_000,
+        categories: []
+    )
+
+    let categories = scanner.categories(for: volume, cacheStore: cacheStore)
+    let ids = Set(categories.map(\.id))
+
+    #expect(ids.contains(.applications))
+    #expect(ids.contains(.developer))
+    #expect(ids.contains(.documents))
+    #expect(ids.contains(.photos))
+    #expect(ids.contains(.other))
+    #expect(ids.contains(.available))
+    #expect(categories.contains { $0.confidence == .estimated })
+}
+
+@Test
+func snapshotAppliesCategoryModes() {
+    let volume = VolumeSnapshot(
+        id: "volume",
+        name: "Volume",
+        localizedName: nil,
+        mountPath: "/",
+        kind: .internalDrive,
+        fileSystemName: "APFS",
+        totalBytes: 1_000,
+        availableBytes: 300,
+        importantAvailableBytes: nil,
+        usedBytes: 700,
+        categories: []
+    )
+    let snapshot = DiskSnapshot(generatedAt: Date(), volumes: [volume])
+    let cacheStore = StorageCategoryCacheStore(
+        cacheDirectoryURL: FileManager.default.temporaryDirectory
+            .appending(path: "diskman-category-mode-tests")
+            .appending(path: UUID().uuidString)
+    )
+    let scanner = StubCategoryScanner(categories: [
+        StorageCategorySnapshot(
+            id: .applications,
+            localizedName: "Applications",
+            colorToken: "applications",
+            bytes: 100,
+            confidence: .estimated
+        ),
+        StorageCategorySnapshot(
+            id: .available,
+            localizedName: "Available",
+            colorToken: "available",
+            bytes: 300,
+            confidence: .exact
+        )
+    ])
+
+    let off = snapshot.applyingCategoryMode(.off, scanner: scanner, cacheStore: cacheStore)
+    let basic = snapshot.applyingCategoryMode(.basic, scanner: scanner, cacheStore: cacheStore)
+    let estimated = snapshot.applyingCategoryMode(.estimated, scanner: scanner, cacheStore: cacheStore)
+
+    #expect(off.volumes[0].categories.isEmpty)
+    #expect(basic.volumes[0].categories.map(\.id) == [.used, .available])
+    #expect(estimated.volumes[0].categories.map(\.id) == [.applications, .available])
+}
+
+private struct StubCategoryScanner: StorageCategoryScanning {
+    let categories: [StorageCategorySnapshot]
+
+    func categories(
+        for volume: VolumeSnapshot,
+        cacheStore: StorageCategoryCacheStore
+    ) -> [StorageCategorySnapshot] {
+        categories
+    }
 }

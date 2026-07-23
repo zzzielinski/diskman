@@ -41,6 +41,8 @@
 "settings.diskVisibility" = "Widoczność dysków";
 "settings.storageUnits" = "Jednostki pamięci";
 "settings.percentMode" = "Tryb procentów";
+"settings.categories" = "Kategorie";
+"settings.categoryPrivacy" = "Kategorie szacunkowe skanują lokalne foldery tylko na tym Macu i są cache'owane, żeby ograniczyć pracę dysku.";
 "settings.launchAtLoginError" = "Nie można zmienić uruchamiania przy logowaniu.";
 
 "about.subtitle" = "Monitor dysków dla macOS inspirowany Liquid Glass.";
@@ -59,6 +61,7 @@
 "category.other" = "Inne";
 "category.used" = "Użyte";
 "category.available" = "Dostępne";
+"categoryConfidence.estimated" = "Szacunkowe";
 
 "volumeKind.internal" = "Wewnętrzne";
 "volumeKind.external" = "Zewnętrzne";
@@ -70,3 +73,7 @@
 
 "storageUnit.decimal" = "GB";
 "storageUnit.binary" = "GiB";
+
+"categoryMode.off" = "Wyłączone";
+"categoryMode.basic" = "Podstawowe";
+"categoryMode.estimated" = "Szacunkowe";

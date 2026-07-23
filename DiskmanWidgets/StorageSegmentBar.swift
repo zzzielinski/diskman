@@ -70,21 +70,38 @@ struct StorageSegmentLegend: View {
 
     var body: some View {
         HStack(spacing: 10) {
-            ForEach(categories.sortedForStorageBar()) { category in
-                HStack(spacing: 4) {
-                    Circle()
-                        .fill(category.segmentColor)
-                        .frame(width: 7, height: 7)
+            HStack(spacing: 10) {
+                ForEach(categories.sortedForStorageBar()) { category in
+                    HStack(spacing: 4) {
+                        Circle()
+                            .fill(category.segmentColor)
+                            .frame(width: 7, height: 7)
 
-                    Text(localization.categoryName(for: category.id))
-                        .font(.system(size: 10, weight: .medium))
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.75)
+                        Text(localization.categoryName(for: category.id))
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.75)
+                    }
                 }
+            }
+            .layoutPriority(1)
+
+            if containsEstimatedCategories {
+                Text(localization.string(.categoryConfidenceEstimated))
+                    .font(.system(size: 9, weight: .semibold, design: .rounded))
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 3)
+                    .background(.secondary.opacity(0.10), in: Capsule())
+                    .lineLimit(1)
             }
         }
         .accessibilityElement(children: .combine)
+    }
+
+    private var containsEstimatedCategories: Bool {
+        categories.contains { $0.confidence == .estimated }
     }
 }
 

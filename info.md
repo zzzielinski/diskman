@@ -204,9 +204,9 @@ This is the hardest part of the project.
 
 macOS Settings shows categories such as Applications, Documents, Developer, Photos, Messages, and System Data. Apple does not expose a stable public API that lets third-party apps read exactly the same categories and localized names used by the Storage settings panel. The MVP should not pretend it can clone System Settings 1:1.
 
-Recommended approach:
+Current approach:
 
-### MVP
+### Basic Mode
 
 Show these values for each disk:
 
@@ -221,7 +221,7 @@ The large widget should use a bar with:
 - `Available`,
 - optionally `Purgeable` / `Available for opportunistic usage` when values are meaningful.
 
-### Version 0.2
+### Estimated Mode
 
 Add a careful opt-in category scanner:
 
@@ -234,10 +234,10 @@ Add a careful opt-in category scanner:
 
 The scanner must be:
 
-- opt-in,
-- throttled,
-- cached,
+- opt-in through `Categories: Estimated`,
+- cached in the App Group container,
 - resilient to permission denied,
+- clearly labelled as estimated in the widget legend.
 - labeled with confidence, for example `Estimated`.
 
 Diskman should not aggressively scan the whole disk without user consent. That would be slow, energy-hungry, and bad for privacy.
@@ -367,9 +367,8 @@ Initial scope:
 
 Second scope:
 
-- scanner cache,
 - reset cache,
-- privacy screen explaining what is scanned,
+- deeper privacy screen explaining what is scanned,
 - diagnostics export without personal data.
 
 ## Privacy And Permissions
@@ -479,12 +478,12 @@ Integration/manual tests:
 - language modes: System / English / Polish,
 - installation through GitHub Release and `install.sh`.
 
-### 0.2 - Basic Categories
+### 0.2 - Category Refinement
 
-- basic category scanner,
-- result cache,
-- estimated legend in the large widget,
-- privacy settings.
+- reset scanner cache,
+- refine scanner scopes,
+- add confidence details,
+- improve privacy settings.
 
 ### 0.3 - UX Polish
 
@@ -518,7 +517,7 @@ Main risks:
 1. Build a native macOS app using SwiftUI plus an AppKit menu bar item.
 2. Build widgets through WidgetKit, while the background collector runs in the main app.
 3. MVP shows real disk data: total, used, free, percent.
-4. Start categories as `Used/Available`, then add an estimated category scanner later.
+4. Start categories as `Used/Available`, with an opt-in estimated category scanner.
 5. Language follows the system by default, with `English` / `Polish` override.
 6. The repo is named `diskman`, with installation through GitHub Releases and `scripts/install.sh`.
 

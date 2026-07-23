@@ -247,18 +247,18 @@ Done when:
 
 This stage does not block the MVP. Build it only after `used/free` is stable.
 
-- [ ] Define the category scanner scope.
-- [ ] Add `Categories: Off / Basic / Estimated` mode.
-- [ ] Add scan-result cache.
-- [ ] Add `Applications` scanner.
-- [ ] Add `Developer` scanner.
-- [ ] Add `Documents` scanner.
-- [ ] Add `Photos` scanner.
-- [ ] Add `Messages` scanner only if permissions allow it.
-- [ ] Add `System Data` / `Other` as the remainder.
-- [ ] Add confidence label: `Estimated`.
-- [ ] Add a privacy screen explaining scanning.
-- [ ] Add tests against artificial directories.
+- [x] Define the category scanner scope.
+- [x] Add `Categories: Off / Basic / Estimated` mode.
+- [x] Add scan-result cache.
+- [x] Add `Applications` scanner.
+- [x] Add `Developer` scanner.
+- [x] Add `Documents` scanner.
+- [x] Add `Photos` scanner.
+- [x] Add `Messages` scanner only if permissions allow it.
+- [x] Add `System Data` / `Other` as the remainder.
+- [x] Add confidence label: `Estimated`.
+- [x] Add a privacy screen explaining scanning.
+- [x] Add tests against artificial directories.
 
 Done when:
 
@@ -319,9 +319,10 @@ Done when:
 - [x] Xcode project skeleton exists with the app, widgets, and `DiskmanCore`.
 - [x] Shared English/Polish localization is wired through `DiskmanCore`.
 - [x] Settings persist display, language, launch, and disk visibility preferences.
+- [x] Optional estimated storage categories are cached and labelled as estimates.
 
 ## Nearest Next Step
 
-1. Start Stage 10: Storage Categories.
-2. Define the category scanner scope.
-3. Add `Categories: Off / Basic / Estimated` mode.
+1. Start Stage 11: Installation and Release.
+2. Add `scripts/install.sh`.
+3. Add `scripts/uninstall.sh`.

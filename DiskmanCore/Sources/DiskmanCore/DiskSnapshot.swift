@@ -79,6 +79,51 @@ public struct VolumeSnapshot: Codable, Hashable, Identifiable, Sendable {
         guard total > 0 else { return 0 }
         return max(0, min(Double(value) / Double(total), 1))
     }
+
+    public func replacingCategories(_ categories: [StorageCategorySnapshot]) -> VolumeSnapshot {
+        VolumeSnapshot(
+            id: id,
+            name: name,
+            localizedName: localizedName,
+            mountPath: mountPath,
+            kind: kind,
+            fileSystemName: fileSystemName,
+            totalBytes: totalBytes,
+            availableBytes: availableBytes,
+            importantAvailableBytes: importantAvailableBytes,
+            usedBytes: usedBytes,
+            categories: categories
+        )
+    }
+
+    public var basicCategories: [StorageCategorySnapshot] {
+        Self.basicCategories(
+            usedBytes: usedBytes,
+            availableBytes: availableBytes
+        )
+    }
+
+    public static func basicCategories(
+        usedBytes: Int64,
+        availableBytes: Int64
+    ) -> [StorageCategorySnapshot] {
+        [
+            StorageCategorySnapshot(
+                id: .used,
+                localizedName: "Used",
+                colorToken: "used",
+                bytes: usedBytes,
+                confidence: .exact
+            ),
+            StorageCategorySnapshot(
+                id: .available,
+                localizedName: "Available",
+                colorToken: "available",
+                bytes: availableBytes,
+                confidence: .exact
+            )
+        ]
+    }
 }
 
 public enum VolumeKind: String, Codable, Hashable, Sendable {
@@ -155,6 +200,30 @@ public extension DiskSnapshot {
                 visibleKinds.contains(where: { visibleKind in
                     visibleKind.includes(volume.kind)
                 })
+            }
+        )
+    }
+
+    func applyingCategoryMode(
+        _ mode: DiskmanCategoryMode,
+        scanner: StorageCategoryScanning,
+        cacheStore: StorageCategoryCacheStore
+    ) -> DiskSnapshot {
+        DiskSnapshot(
+            generatedAt: generatedAt,
+            volumes: volumes.map { volume in
+                switch mode {
+                case .off:
+                    return volume.replacingCategories([])
+                case .basic:
+                    return volume.replacingCategories(volume.basicCategories)
+                case .estimated:
+                    let categories = scanner.categories(
+                        for: volume,
+                        cacheStore: cacheStore
+                    )
+                    return volume.replacingCategories(categories)
+                }
             }
         )
     }

@@ -10,6 +10,7 @@ struct SettingsView: View {
     @State private var visibleVolumeKinds: Set<DiskmanVisibleVolumeKind>
     @State private var usageDisplayMode: DiskmanUsageDisplayMode
     @State private var storageUnitMode: DiskmanStorageUnitMode
+    @State private var categoryMode: DiskmanCategoryMode
     @State private var settingsError: String?
 
     init(settingsStore: DiskmanSettingsStore = DiskmanSettingsStore()) {
@@ -19,13 +20,15 @@ struct SettingsView: View {
         _visibleVolumeKinds = State(initialValue: settingsStore.visibleVolumeKinds)
         _usageDisplayMode = State(initialValue: settingsStore.usageDisplayMode)
         _storageUnitMode = State(initialValue: settingsStore.storageUnitMode)
+        _categoryMode = State(initialValue: settingsStore.categoryMode)
     }
 
     private var localization: LocalizationProvider {
         LocalizationProvider(
             languageMode: languageMode,
             usageDisplayMode: usageDisplayMode,
-            storageUnitMode: storageUnitMode
+            storageUnitMode: storageUnitMode,
+            categoryMode: categoryMode
         )
     }
 
@@ -68,6 +71,21 @@ struct SettingsView: View {
                     }
                 }
                 .pickerStyle(.segmented)
+
+                Picker(localization.string(.settingsCategories), selection: $categoryMode) {
+                    ForEach(DiskmanCategoryMode.allCases, id: \.self) { mode in
+                        Text(localization.categoryModeName(for: mode)).tag(mode)
+                    }
+                }
+                .pickerStyle(.segmented)
+
+                if categoryMode == .estimated {
+                    Label(localization.string(.settingsCategoryPrivacy), systemImage: "hand.raised")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(.secondary)
+                        .lineLimit(3)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
             }
 
             SettingsSection(title: localization.string(.settingsDiskVisibility), symbolName: "externaldrive.connected.to.line.below") {
@@ -117,7 +135,7 @@ struct SettingsView: View {
             }
         }
         .padding(24)
-        .frame(width: 520, height: 560)
+        .frame(width: 520, height: 620)
         .onChange(of: languageMode) { _, newValue in
             settingsStore.languageMode = newValue
             notifySettingsChanged()
@@ -128,6 +146,10 @@ struct SettingsView: View {
         }
         .onChange(of: storageUnitMode) { _, newValue in
             settingsStore.storageUnitMode = newValue
+            notifySettingsChanged()
+        }
+        .onChange(of: categoryMode) { _, newValue in
+            settingsStore.categoryMode = newValue
             notifySettingsChanged()
         }
         .onChange(of: launchAtLoginEnabled) { _, newValue in
@@ -192,6 +214,7 @@ struct SettingsView: View {
         visibleVolumeKinds = settingsStore.visibleVolumeKinds
         usageDisplayMode = settingsStore.usageDisplayMode
         storageUnitMode = settingsStore.storageUnitMode
+        categoryMode = settingsStore.categoryMode
     }
 
     private func notifySettingsChanged() {

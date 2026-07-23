@@ -41,6 +41,8 @@
 "settings.diskVisibility" = "Disk Visibility";
 "settings.storageUnits" = "Storage Units";
 "settings.percentMode" = "Percent Mode";
+"settings.categories" = "Categories";
+"settings.categoryPrivacy" = "Estimated categories scan local folders on this Mac only and are cached to avoid frequent disk work.";
 "settings.launchAtLoginError" = "Unable to update Launch at Login.";
 
 "about.subtitle" = "A Liquid Glass-inspired disk monitor for macOS.";
@@ -59,6 +61,7 @@
 "category.other" = "Other";
 "category.used" = "Used";
 "category.available" = "Available";
+"categoryConfidence.estimated" = "Estimated";
 
 "volumeKind.internal" = "Internal";
 "volumeKind.external" = "External";
@@ -70,3 +73,7 @@
 
 "storageUnit.decimal" = "GB";
 "storageUnit.binary" = "GiB";
+
+"categoryMode.off" = "Off";
+"categoryMode.basic" = "Basic";
+"categoryMode.estimated" = "Estimated";

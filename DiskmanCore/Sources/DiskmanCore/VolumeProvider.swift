@@ -182,22 +182,10 @@ extension VolumeSnapshot {
             availableBytes: availableBytes,
             importantAvailableBytes: resource.importantAvailableCapacity,
             usedBytes: usedBytes,
-            categories: [
-                StorageCategorySnapshot(
-                    id: .used,
-                    localizedName: "Used",
-                    colorToken: "used",
-                    bytes: usedBytes,
-                    confidence: .exact
-                ),
-                StorageCategorySnapshot(
-                    id: .available,
-                    localizedName: "Available",
-                    colorToken: "available",
-                    bytes: availableBytes,
-                    confidence: .exact
-                )
-            ]
+            categories: VolumeSnapshot.basicCategories(
+                usedBytes: usedBytes,
+                availableBytes: availableBytes
+            )
         )
     }
 }
