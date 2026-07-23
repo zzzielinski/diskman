@@ -200,6 +200,7 @@ struct SettingsView: View {
                 Spacer(minLength: 8)
 
                 Button {
+                    persistCurrentSettings()
                     rebuildWidgetData()
                 } label: {
                     SettingsFooterPillContent(
@@ -330,6 +331,18 @@ struct SettingsView: View {
         NotificationCenter.default.post(name: .diskmanSettingsDidChange, object: nil)
     }
 
+    private func persistCurrentSettings() {
+        settingsStore.languageMode = languageMode
+        settingsStore.appearanceMode = appearanceMode
+        settingsStore.launchAtLoginDesired = launchAtLoginEnabled
+        settingsStore.visibleVolumeKinds = visibleVolumeKinds
+        settingsStore.usageDisplayMode = usageDisplayMode
+        settingsStore.storageUnitMode = storageUnitMode
+        settingsStore.categoryMode = categoryMode
+        settingsStore.deepCategoryScanEnabled = deepCategoryScanEnabled
+        settingsStore.persistCurrentSettings()
+    }
+
     private func requestDeepScanAccessIfNeeded(force: Bool = false) {
         guard categoryMode == .estimated, deepCategoryScanEnabled else {
             return
@@ -365,6 +378,7 @@ struct SettingsView: View {
             }
 
             DispatchQueue.main.async {
+                persistCurrentSettings()
                 rebuildWidgetData()
             }
         }
@@ -374,12 +388,14 @@ struct SettingsView: View {
         if #available(macOS 11.0, *) {
             PHPhotoLibrary.requestAuthorization(for: .readWrite) { _ in
                 DispatchQueue.main.async {
+                    persistCurrentSettings()
                     rebuildWidgetData()
                 }
             }
         } else {
             PHPhotoLibrary.requestAuthorization { _ in
                 DispatchQueue.main.async {
+                    persistCurrentSettings()
                     rebuildWidgetData()
                 }
             }

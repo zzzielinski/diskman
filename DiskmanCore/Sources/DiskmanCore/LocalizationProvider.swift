@@ -90,122 +90,274 @@ public struct DiskmanSettingsStore {
     public static let storageUnitModeKey = "diskman.storageUnitMode"
     public static let categoryModeKey = "diskman.categoryMode"
     public static let deepCategoryScanKey = "diskman.deepCategoryScan"
+    public static let settingsUpdatedAtKey = "diskman.settingsUpdatedAt"
+    public static let defaultSettingsFileName = "diskman-settings.json"
 
     private let userDefaults: UserDefaults
+    private let fileStore: DiskmanSettingsFileStore?
 
     public init(
-        appGroupIdentifier: String = StorageSnapshotStore.defaultAppGroupIdentifier
+        appGroupIdentifier: String = StorageSnapshotStore.defaultAppGroupIdentifier,
+        fileManager: FileManager = .default
     ) {
         self.userDefaults = UserDefaults(suiteName: appGroupIdentifier) ?? .standard
+        self.fileStore = try? DiskmanSettingsFileStore(
+            settingsURL: StorageSnapshotStore
+                .sharedContainerURL(
+                    appGroupIdentifier: appGroupIdentifier,
+                    fileManager: fileManager
+                )
+                .appending(path: Self.defaultSettingsFileName),
+            fileManager: fileManager
+        )
     }
 
     public init(userDefaults: UserDefaults) {
         self.userDefaults = userDefaults
+        self.fileStore = nil
+    }
+
+    public init(
+        userDefaults: UserDefaults,
+        settingsDirectoryURL: URL,
+        fileManager: FileManager = .default
+    ) {
+        self.userDefaults = userDefaults
+        self.fileStore = DiskmanSettingsFileStore(
+            settingsURL: settingsDirectoryURL.appending(path: Self.defaultSettingsFileName),
+            fileManager: fileManager
+        )
+    }
+
+    public init(settingsDirectoryURL: URL, fileManager: FileManager = .default) {
+        self.userDefaults = .standard
+        self.fileStore = DiskmanSettingsFileStore(
+            settingsURL: settingsDirectoryURL.appending(path: Self.defaultSettingsFileName),
+            fileManager: fileManager
+        )
     }
 
     public var languageMode: DiskmanLanguageMode {
         get {
-            guard let rawValue = userDefaults.string(forKey: Self.languageModeKey),
-                  let mode = DiskmanLanguageMode(rawValue: rawValue)
-            else {
-                return .system
+            let settings = fileStore?.read()
+            if shouldPreferLegacyDefaults(over: settings),
+               let languageMode = legacyLanguageModeIfStored {
+                return languageMode
             }
 
-            return mode
+            if let languageMode = settings?.languageMode {
+                return languageMode
+            }
+
+            if let languageMode = legacyLanguageModeIfStored {
+                return languageMode
+            }
+
+            return .system
         }
         nonmutating set {
+            let updatedAt = Date()
             userDefaults.set(newValue.rawValue, forKey: Self.languageModeKey)
+            markLegacyDefaultsUpdated(at: updatedAt)
+            synchronizeLegacyDefaults()
+            writeSettings(updatedAt: updatedAt) { settings in
+                settings.languageMode = newValue
+            }
         }
     }
 
     public var launchAtLoginDesired: Bool {
         get {
-            userDefaults.bool(forKey: Self.launchAtLoginKey)
+            let settings = fileStore?.read()
+            if shouldPreferLegacyDefaults(over: settings),
+               let launchAtLoginDesired = legacyBool(forKey: Self.launchAtLoginKey) {
+                return launchAtLoginDesired
+            }
+
+            if let launchAtLoginDesired = settings?.launchAtLoginDesired {
+                return launchAtLoginDesired
+            }
+
+            return legacyBool(forKey: Self.launchAtLoginKey) ?? false
         }
         nonmutating set {
+            let updatedAt = Date()
             userDefaults.set(newValue, forKey: Self.launchAtLoginKey)
+            markLegacyDefaultsUpdated(at: updatedAt)
+            synchronizeLegacyDefaults()
+            writeSettings(updatedAt: updatedAt) { settings in
+                settings.launchAtLoginDesired = newValue
+            }
         }
     }
 
     public var appearanceMode: DiskmanAppearanceMode {
         get {
-            guard let rawValue = userDefaults.string(forKey: Self.appearanceModeKey),
-                  let mode = DiskmanAppearanceMode(rawValue: rawValue)
-            else {
-                return .system
+            let settings = fileStore?.read()
+            if shouldPreferLegacyDefaults(over: settings),
+               let appearanceMode = legacyAppearanceModeIfStored {
+                return appearanceMode
             }
 
-            return mode
+            if let appearanceMode = settings?.appearanceMode {
+                return appearanceMode
+            }
+
+            if let appearanceMode = legacyAppearanceModeIfStored {
+                return appearanceMode
+            }
+
+            return .system
         }
         nonmutating set {
+            let updatedAt = Date()
             userDefaults.set(newValue.rawValue, forKey: Self.appearanceModeKey)
+            markLegacyDefaultsUpdated(at: updatedAt)
+            synchronizeLegacyDefaults()
+            writeSettings(updatedAt: updatedAt) { settings in
+                settings.appearanceMode = newValue
+            }
         }
     }
 
     public var usageDisplayMode: DiskmanUsageDisplayMode {
         get {
-            guard let rawValue = userDefaults.string(forKey: Self.usageDisplayModeKey),
-                  let mode = DiskmanUsageDisplayMode(rawValue: rawValue)
-            else {
-                return .free
+            let settings = fileStore?.read()
+            if shouldPreferLegacyDefaults(over: settings),
+               let usageDisplayMode = legacyUsageDisplayModeIfStored {
+                return usageDisplayMode
             }
 
-            return mode
+            if let usageDisplayMode = settings?.usageDisplayMode {
+                return usageDisplayMode
+            }
+
+            if let usageDisplayMode = legacyUsageDisplayModeIfStored {
+                return usageDisplayMode
+            }
+
+            return .free
         }
         nonmutating set {
+            let updatedAt = Date()
             userDefaults.set(newValue.rawValue, forKey: Self.usageDisplayModeKey)
+            markLegacyDefaultsUpdated(at: updatedAt)
+            synchronizeLegacyDefaults()
+            writeSettings(updatedAt: updatedAt) { settings in
+                settings.usageDisplayMode = newValue
+            }
         }
     }
 
     public var storageUnitMode: DiskmanStorageUnitMode {
         get {
-            guard let rawValue = userDefaults.string(forKey: Self.storageUnitModeKey),
-                  let mode = DiskmanStorageUnitMode(rawValue: rawValue)
-            else {
-                return .decimal
+            let settings = fileStore?.read()
+            if shouldPreferLegacyDefaults(over: settings),
+               let storageUnitMode = legacyStorageUnitModeIfStored {
+                return storageUnitMode
             }
 
-            return mode
+            if let storageUnitMode = settings?.storageUnitMode {
+                return storageUnitMode
+            }
+
+            if let storageUnitMode = legacyStorageUnitModeIfStored {
+                return storageUnitMode
+            }
+
+            return .decimal
         }
         nonmutating set {
+            let updatedAt = Date()
             userDefaults.set(newValue.rawValue, forKey: Self.storageUnitModeKey)
+            markLegacyDefaultsUpdated(at: updatedAt)
+            synchronizeLegacyDefaults()
+            writeSettings(updatedAt: updatedAt) { settings in
+                settings.storageUnitMode = newValue
+            }
         }
     }
 
     public var categoryMode: DiskmanCategoryMode {
         get {
-            guard let rawValue = userDefaults.string(forKey: Self.categoryModeKey),
-                  let mode = DiskmanCategoryMode(rawValue: rawValue)
-            else {
-                return .basic
+            let settings = fileStore?.read()
+            if shouldPreferLegacyDefaults(over: settings),
+               let categoryMode = legacyCategoryModeIfStored {
+                return categoryMode
             }
 
-            return mode
+            if let categoryMode = settings?.categoryMode {
+                return categoryMode
+            }
+
+            if let categoryMode = legacyCategoryModeIfStored {
+                return categoryMode
+            }
+
+            return .basic
         }
         nonmutating set {
+            let updatedAt = Date()
             userDefaults.set(newValue.rawValue, forKey: Self.categoryModeKey)
+            markLegacyDefaultsUpdated(at: updatedAt)
+            synchronizeLegacyDefaults()
+            writeSettings(updatedAt: updatedAt) { settings in
+                settings.categoryMode = newValue
+            }
         }
     }
 
     public var deepCategoryScanEnabled: Bool {
         get {
-            userDefaults.bool(forKey: Self.deepCategoryScanKey)
+            let settings = fileStore?.read()
+            if shouldPreferLegacyDefaults(over: settings),
+               let deepCategoryScanEnabled = legacyBool(forKey: Self.deepCategoryScanKey) {
+                return deepCategoryScanEnabled
+            }
+
+            if let deepCategoryScanEnabled = settings?.deepCategoryScanEnabled {
+                return deepCategoryScanEnabled
+            }
+
+            return legacyBool(forKey: Self.deepCategoryScanKey) ?? false
         }
         nonmutating set {
+            let updatedAt = Date()
             userDefaults.set(newValue, forKey: Self.deepCategoryScanKey)
+            markLegacyDefaultsUpdated(at: updatedAt)
+            synchronizeLegacyDefaults()
+            writeSettings(updatedAt: updatedAt) { settings in
+                settings.deepCategoryScanEnabled = newValue
+            }
         }
     }
 
     public var visibleVolumeKinds: Set<DiskmanVisibleVolumeKind> {
         get {
-            guard let rawValues = userDefaults.array(forKey: Self.visibleVolumeKindsKey) as? [String] else {
-                return Set(DiskmanVisibleVolumeKind.allCases)
+            let settings = fileStore?.read()
+            if shouldPreferLegacyDefaults(over: settings),
+               let visibleVolumeKinds = legacyVisibleVolumeKindsIfStored {
+                return visibleVolumeKinds
             }
 
-            return Set(rawValues.compactMap(DiskmanVisibleVolumeKind.init(rawValue:)))
+            if let visibleVolumeKinds = settings?.visibleVolumeKinds {
+                return Set(visibleVolumeKinds)
+            }
+
+            if let visibleVolumeKinds = legacyVisibleVolumeKindsIfStored {
+                return visibleVolumeKinds
+            }
+
+            return Set(DiskmanVisibleVolumeKind.allCases)
         }
         nonmutating set {
+            let updatedAt = Date()
             userDefaults.set(newValue.map(\.rawValue), forKey: Self.visibleVolumeKindsKey)
+            markLegacyDefaultsUpdated(at: updatedAt)
+            synchronizeLegacyDefaults()
+            writeSettings(updatedAt: updatedAt) { settings in
+                settings.visibleVolumeKinds = newValue.sorted { $0.rawValue < $1.rawValue }
+            }
         }
     }
 
@@ -222,6 +374,206 @@ public struct DiskmanSettingsStore {
         }
         visibleVolumeKinds = visibleKinds
     }
+
+    public func persistCurrentSettings() {
+        let updatedAt = Date()
+        markLegacyDefaultsUpdated(at: updatedAt)
+        writeSettings(updatedAt: updatedAt) { settings in
+            settings.languageMode = languageMode
+            settings.launchAtLoginDesired = launchAtLoginDesired
+            settings.appearanceMode = appearanceMode
+            settings.usageDisplayMode = usageDisplayMode
+            settings.storageUnitMode = storageUnitMode
+            settings.categoryMode = categoryMode
+            settings.deepCategoryScanEnabled = deepCategoryScanEnabled
+            settings.visibleVolumeKinds = visibleVolumeKinds.sorted { $0.rawValue < $1.rawValue }
+        }
+        synchronizeLegacyDefaults()
+    }
+
+    private func writeSettings(
+        updatedAt: Date,
+        _ update: (inout DiskmanSettingsSnapshot) -> Void
+    ) {
+        guard let fileStore else {
+            return
+        }
+
+        var settings = fileStore.read()
+        if settings.isEmpty {
+            settings = legacySettingsSnapshot()
+        }
+        update(&settings)
+        settings.updatedAt = updatedAt
+        try? fileStore.write(settings)
+    }
+
+    private func legacySettingsSnapshot() -> DiskmanSettingsSnapshot {
+        var settings = DiskmanSettingsSnapshot()
+        settings.languageMode = legacyLanguageModeIfStored ?? .system
+        settings.launchAtLoginDesired = legacyBool(forKey: Self.launchAtLoginKey) ?? false
+        settings.appearanceMode = legacyAppearanceModeIfStored ?? .system
+        settings.usageDisplayMode = legacyUsageDisplayModeIfStored ?? .free
+        settings.storageUnitMode = legacyStorageUnitModeIfStored ?? .decimal
+        settings.categoryMode = legacyCategoryModeIfStored ?? .basic
+        settings.deepCategoryScanEnabled = legacyBool(forKey: Self.deepCategoryScanKey) ?? false
+        settings.visibleVolumeKinds = (legacyVisibleVolumeKindsIfStored ?? Set(DiskmanVisibleVolumeKind.allCases))
+            .sorted { $0.rawValue < $1.rawValue }
+        if let updatedAt = legacySettingsUpdatedAt {
+            settings.updatedAt = updatedAt
+        }
+        return settings
+    }
+
+    private var legacyLanguageModeIfStored: DiskmanLanguageMode? {
+        guard let rawValue = userDefaults.string(forKey: Self.languageModeKey),
+              let mode = DiskmanLanguageMode(rawValue: rawValue)
+        else {
+            return nil
+        }
+        return mode
+    }
+
+    private var legacyAppearanceModeIfStored: DiskmanAppearanceMode? {
+        guard let rawValue = userDefaults.string(forKey: Self.appearanceModeKey),
+              let mode = DiskmanAppearanceMode(rawValue: rawValue)
+        else {
+            return nil
+        }
+        return mode
+    }
+
+    private var legacyUsageDisplayModeIfStored: DiskmanUsageDisplayMode? {
+        guard let rawValue = userDefaults.string(forKey: Self.usageDisplayModeKey),
+              let mode = DiskmanUsageDisplayMode(rawValue: rawValue)
+        else {
+            return nil
+        }
+        return mode
+    }
+
+    private var legacyStorageUnitModeIfStored: DiskmanStorageUnitMode? {
+        guard let rawValue = userDefaults.string(forKey: Self.storageUnitModeKey),
+              let mode = DiskmanStorageUnitMode(rawValue: rawValue)
+        else {
+            return nil
+        }
+        return mode
+    }
+
+    private var legacyCategoryModeIfStored: DiskmanCategoryMode? {
+        guard let rawValue = userDefaults.string(forKey: Self.categoryModeKey),
+              let mode = DiskmanCategoryMode(rawValue: rawValue)
+        else {
+            return nil
+        }
+        return mode
+    }
+
+    private var legacyVisibleVolumeKindsIfStored: Set<DiskmanVisibleVolumeKind>? {
+        guard let rawValues = userDefaults.array(forKey: Self.visibleVolumeKindsKey) as? [String] else {
+            return nil
+        }
+        return Set(rawValues.compactMap(DiskmanVisibleVolumeKind.init(rawValue:)))
+    }
+
+    private var legacySettingsUpdatedAt: Date? {
+        guard userDefaults.object(forKey: Self.settingsUpdatedAtKey) != nil else {
+            return nil
+        }
+
+        return Date(timeIntervalSince1970: userDefaults.double(forKey: Self.settingsUpdatedAtKey))
+    }
+
+    private func legacyBool(forKey key: String) -> Bool? {
+        guard userDefaults.object(forKey: key) != nil else {
+            return nil
+        }
+
+        return userDefaults.bool(forKey: key)
+    }
+
+    private func markLegacyDefaultsUpdated(at date: Date) {
+        userDefaults.set(date.timeIntervalSince1970, forKey: Self.settingsUpdatedAtKey)
+    }
+
+    private func shouldPreferLegacyDefaults(over settings: DiskmanSettingsSnapshot?) -> Bool {
+        guard let legacySettingsUpdatedAt else {
+            return false
+        }
+
+        guard let fileUpdatedAt = settings?.updatedAt else {
+            return true
+        }
+
+        return legacySettingsUpdatedAt >= fileUpdatedAt
+    }
+
+    private func synchronizeLegacyDefaults() {
+        userDefaults.synchronize()
+    }
+}
+
+private struct DiskmanSettingsSnapshot: Codable, Hashable, Sendable {
+    var updatedAt: Date?
+    var languageMode: DiskmanLanguageMode?
+    var launchAtLoginDesired: Bool?
+    var appearanceMode: DiskmanAppearanceMode?
+    var usageDisplayMode: DiskmanUsageDisplayMode?
+    var storageUnitMode: DiskmanStorageUnitMode?
+    var categoryMode: DiskmanCategoryMode?
+    var deepCategoryScanEnabled: Bool?
+    var visibleVolumeKinds: [DiskmanVisibleVolumeKind]?
+
+    var isEmpty: Bool {
+        updatedAt == nil &&
+            languageMode == nil &&
+            launchAtLoginDesired == nil &&
+            appearanceMode == nil &&
+            usageDisplayMode == nil &&
+            storageUnitMode == nil &&
+            categoryMode == nil &&
+            deepCategoryScanEnabled == nil &&
+            visibleVolumeKinds == nil
+    }
+}
+
+private struct DiskmanSettingsFileStore {
+    let settingsURL: URL
+    let fileManager: FileManager
+
+    func read() -> DiskmanSettingsSnapshot {
+        guard fileManager.fileExists(atPath: settingsURL.path),
+              let data = try? Data(contentsOf: settingsURL),
+              let settings = try? Self.decoder.decode(DiskmanSettingsSnapshot.self, from: data)
+        else {
+            return DiskmanSettingsSnapshot()
+        }
+
+        return settings
+    }
+
+    func write(_ settings: DiskmanSettingsSnapshot) throws {
+        try fileManager.createDirectory(
+            at: settingsURL.deletingLastPathComponent(),
+            withIntermediateDirectories: true
+        )
+        let data = try Self.encoder.encode(settings)
+        try data.write(to: settingsURL, options: [.atomic])
+    }
+
+    private static let encoder: JSONEncoder = {
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        return encoder
+    }()
+
+    private static let decoder: JSONDecoder = {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        return decoder
+    }()
 }
 
 public struct LocalizationProvider: Sendable {

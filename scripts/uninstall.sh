@@ -176,6 +176,11 @@ data_paths=(
   "${HOME}/Library/Preferences/${WIDGET_BUNDLE_ID}.plist"
   "${HOME}/Library/Saved Application State/${APP_BUNDLE_ID}.savedState"
   "${HOME}/Library/Logs/${APP_NAME}"
+  "${HOME}/Library/Containers/${WIDGET_BUNDLE_ID}/Data/SystemData/com.apple.chrono/placeholders/DiskmanWidget"
+  "${HOME}/Library/Containers/${WIDGET_BUNDLE_ID}/Data/SystemData/com.apple.chrono/snapshots/DiskmanWidget"
+  "${HOME}/Library/Containers/${WIDGET_BUNDLE_ID}/Data/SystemData/com.apple.chrono/timelines/DiskmanWidget"
+  "${HOME}/Library/Containers/${WIDGET_BUNDLE_ID}/Data/SystemData/com.apple.chrono/budgetedReloads/DiskmanWidget"
+  "${HOME}/Library/Containers/${WIDGET_BUNDLE_ID}/Data/SystemData/com.apple.chrono/reloads/DiskmanWidget"
 )
 
 echo "Diskman uninstall started."

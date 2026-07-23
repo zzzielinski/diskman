@@ -113,6 +113,18 @@ if [[ -d "${WIDGET_PATH}" ]] && command -v pluginkit >/dev/null 2>&1; then
   pluginkit -a "${WIDGET_PATH}" >/dev/null 2>&1 || true
 fi
 
+CHRONO_WIDGET_CACHE_ROOT="${HOME}/Library/Containers/${WIDGET_BUNDLE_ID}/Data/SystemData/com.apple.chrono"
+if [[ -d "${CHRONO_WIDGET_CACHE_ROOT}" ]]; then
+  echo "Removing stale ${APP_NAME} widget timelines..."
+  rm -rf \
+    "${CHRONO_WIDGET_CACHE_ROOT}/placeholders/DiskmanWidget" \
+    "${CHRONO_WIDGET_CACHE_ROOT}/snapshots/DiskmanWidget" \
+    "${CHRONO_WIDGET_CACHE_ROOT}/timelines/DiskmanWidget" \
+    "${CHRONO_WIDGET_CACHE_ROOT}/budgetedReloads/DiskmanWidget" \
+    "${CHRONO_WIDGET_CACHE_ROOT}/reloads/DiskmanWidget" \
+    >/dev/null 2>&1 || true
+fi
+
 echo "Refreshing macOS widget and icon caches..."
 pkill -x chronod >/dev/null 2>&1 || true
 pkill -x iconservicesagent >/dev/null 2>&1 || true

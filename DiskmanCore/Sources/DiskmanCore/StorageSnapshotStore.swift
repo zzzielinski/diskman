@@ -110,21 +110,9 @@ public struct StorageSnapshotStore {
             return containerURL
         }
 
-        let groupContainerURL = fileManager.homeDirectoryForCurrentUser
+        return fileManager.homeDirectoryForCurrentUser
             .appending(path: "Library")
             .appending(path: "Group Containers")
             .appending(path: appGroupIdentifier)
-        if fileManager.fileExists(atPath: groupContainerURL.path) {
-            return groupContainerURL
-        }
-
-        if let applicationSupportURL = fileManager.urls(
-            for: .applicationSupportDirectory,
-            in: .userDomainMask
-        ).first {
-            return applicationSupportURL.appending(path: fallbackApplicationSupportDirectoryName)
-        }
-
-        throw Error.appGroupContainerUnavailable(appGroupIdentifier)
     }
 }

@@ -71,7 +71,7 @@ xattr -cr "${STAGED_APP_PATH}"
 
 codesign --verify --deep --strict --verbose=2 "${STAGED_APP_PATH}"
 
-ditto -c -k --keepParent "${STAGED_APP_PATH}" "${ZIP_PATH}"
+COPYFILE_DISABLE=1 ditto --norsrc -c -k --keepParent "${STAGED_APP_PATH}" "${ZIP_PATH}"
 shasum -a 256 "${ZIP_PATH}" > "${CHECKSUM_PATH}"
 
 echo "Created ${ZIP_PATH}"

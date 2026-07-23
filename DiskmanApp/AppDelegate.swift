@@ -24,6 +24,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         NSApp.setActivationPolicy(.accessory)
+        settingsStore.persistCurrentSettings()
         applyAppearance()
         observeSettingsChanges()
         configureStatusItem()
@@ -168,6 +169,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc private func rebuildWidgetData() {
+        settingsStore.persistCurrentSettings()
         diskMonitor.refreshNow()
         WidgetCenter.shared.reloadAllTimelines()
     }
@@ -273,6 +275,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func setLanguageMode(_ mode: DiskmanLanguageMode) {
         settingsStore.languageMode = mode
+        settingsStore.persistCurrentSettings()
         NotificationCenter.default.post(name: .diskmanSettingsDidChange, object: nil)
     }
 
@@ -299,6 +302,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func applySettingsChange() {
+        settingsStore.persistCurrentSettings()
         applyAppearance()
         statusItem?.menu = makeMenu()
         settingsWindowController?.window?.title = localization.string(.menuSettings)

@@ -265,6 +265,90 @@ func settingsStorePersistsDisplaySettings() throws {
 }
 
 @Test
+func settingsStorePersistsSharedSettingsFile() throws {
+    let directoryURL = FileManager.default.temporaryDirectory
+        .appending(path: "diskman-settings-tests")
+        .appending(path: UUID().uuidString)
+    defer {
+        try? FileManager.default.removeItem(at: directoryURL)
+    }
+
+    let store = DiskmanSettingsStore(settingsDirectoryURL: directoryURL)
+    store.languageMode = .english
+    store.appearanceMode = .dark
+    store.usageDisplayMode = .used
+    store.storageUnitMode = .binary
+    store.visibleVolumeKinds = [.internalDrive, .network]
+    store.categoryMode = .estimated
+    store.deepCategoryScanEnabled = true
+
+    let settingsURL = directoryURL.appending(path: DiskmanSettingsStore.defaultSettingsFileName)
+    #expect(FileManager.default.fileExists(atPath: settingsURL.path))
+
+    let restoredStore = DiskmanSettingsStore(settingsDirectoryURL: directoryURL)
+    #expect(restoredStore.languageMode == .english)
+    #expect(restoredStore.appearanceMode == .dark)
+    #expect(restoredStore.usageDisplayMode == .used)
+    #expect(restoredStore.storageUnitMode == .binary)
+    #expect(restoredStore.visibleVolumeKinds == [.internalDrive, .network])
+    #expect(restoredStore.categoryMode == .estimated)
+    #expect(restoredStore.deepCategoryScanEnabled)
+}
+
+@Test
+func settingsStorePrefersFreshDefaultsOverStaleSettingsFile() throws {
+    let suiteName = "diskman-tests-\(UUID().uuidString)"
+    let userDefaults = try #require(UserDefaults(suiteName: suiteName))
+    let directoryURL = FileManager.default.temporaryDirectory
+        .appending(path: "diskman-stale-settings-tests")
+        .appending(path: UUID().uuidString)
+    defer {
+        userDefaults.removePersistentDomain(forName: suiteName)
+        try? FileManager.default.removeItem(at: directoryURL)
+    }
+
+    try FileManager.default.createDirectory(at: directoryURL, withIntermediateDirectories: true)
+    let settingsURL = directoryURL.appending(path: DiskmanSettingsStore.defaultSettingsFileName)
+    try """
+    {
+      "languageMode": "system",
+      "categoryMode": "basic",
+      "deepCategoryScanEnabled": false
+    }
+    """.data(using: .utf8)?.write(to: settingsURL)
+
+    userDefaults.set(DiskmanLanguageMode.english.rawValue, forKey: DiskmanSettingsStore.languageModeKey)
+    userDefaults.set(DiskmanCategoryMode.estimated.rawValue, forKey: DiskmanSettingsStore.categoryModeKey)
+    userDefaults.set(true, forKey: DiskmanSettingsStore.deepCategoryScanKey)
+    userDefaults.set(Date().timeIntervalSince1970, forKey: DiskmanSettingsStore.settingsUpdatedAtKey)
+
+    let store = DiskmanSettingsStore(
+        userDefaults: userDefaults,
+        settingsDirectoryURL: directoryURL
+    )
+
+    #expect(store.languageMode == .english)
+    #expect(store.categoryMode == .estimated)
+    #expect(store.deepCategoryScanEnabled)
+}
+
+@Test
+func snapshotStoreCreatesMissingSharedDirectory() throws {
+    let directoryURL = FileManager.default.temporaryDirectory
+        .appending(path: "diskman-snapshot-tests")
+        .appending(path: UUID().uuidString)
+    defer {
+        try? FileManager.default.removeItem(at: directoryURL)
+    }
+
+    let store = StorageSnapshotStore(snapshotDirectoryURL: directoryURL)
+    try store.write(.empty)
+
+    #expect(FileManager.default.fileExists(atPath: directoryURL.path))
+    #expect(try store.read()?.volumes == [])
+}
+
+@Test
 func snapshotFiltersVolumesByVisibleKinds() {
     let internalVolume = VolumeSnapshot(
         id: "internal",
