@@ -407,6 +407,7 @@ public enum LocalizationKey: String, CaseIterable, Sendable {
     case categoryApplications = "category.applications"
     case categoryDocuments = "category.documents"
     case categoryDeveloper = "category.developer"
+    case categoryICloudDrive = "category.iCloudDrive"
     case categoryPhotos = "category.photos"
     case categoryMessages = "category.messages"
     case categorySystemData = "category.systemData"
@@ -517,7 +518,7 @@ public enum LocalizationKey: String, CaseIterable, Sendable {
         case .settingsDeepCategoryScan:
             return "Deep Folder Scan"
         case .settingsDeepCategoryScanHelp:
-            return "Scans Documents, Photos, Messages, and Downloads. macOS may require Full Disk Access."
+            return "Scans Documents, local iCloud Drive files, Photos, Messages, and Downloads. macOS may require Full Disk Access."
         case .settingsOpenFullDiskAccess:
             return "Open Full Disk Access"
         case .settingsLaunchAtLoginError:
@@ -540,6 +541,8 @@ public enum LocalizationKey: String, CaseIterable, Sendable {
             return "Documents"
         case .categoryDeveloper:
             return "Developer"
+        case .categoryICloudDrive:
+            return "iCloud Drive"
         case .categoryPhotos:
             return "Photos"
         case .categoryMessages:
@@ -594,6 +597,8 @@ private extension StorageCategoryID {
             return .categoryDocuments
         case .developer:
             return .categoryDeveloper
+        case .iCloudDrive:
+            return .categoryICloudDrive
         case .photos:
             return .categoryPhotos
         case .messages:

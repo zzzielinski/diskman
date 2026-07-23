@@ -28,7 +28,7 @@ Diskman works 100% offline.
 
 The app does not require an internet connection, does not collect analytics, does not send disk data anywhere, and does not use any network API at runtime. Diskman reads local macOS volume metadata such as name, mount path, total capacity, available capacity, and volume kind.
 
-Estimated storage categories are optional. By default, Diskman scans safe local folders such as Applications and common developer directories. The optional deep folder scan can include Documents, Downloads, Photos, and Messages after the user grants macOS Full Disk Access. Results are cached locally and labeled as estimates because they are not the same private data shown by macOS System Settings.
+Estimated storage categories are optional. By default, Diskman scans safe local folders such as Applications and common developer directories. The optional deep folder scan can include Documents, Downloads, local iCloud Drive files, Photos, and Messages after the user grants macOS Full Disk Access. Results are cached locally and labeled as estimates because they are not the same private data shown by macOS System Settings.
 
 ## Open Source
 

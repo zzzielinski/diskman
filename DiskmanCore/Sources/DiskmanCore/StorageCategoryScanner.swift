@@ -201,6 +201,7 @@ public struct EstimatedStorageCategoryScanner: StorageCategoryScanning {
         if deepCategoryScanEnabled {
             categoryRoots.append(contentsOf: [
                 (.documents, documentDirectoryURLs),
+                (.iCloudDrive, iCloudDriveDirectoryURLs),
                 (.photos, photoDirectoryURLs),
                 (.messages, messageDirectoryURLs)
             ])
@@ -304,6 +305,13 @@ public struct EstimatedStorageCategoryScanner: StorageCategoryScanning {
         ]
     }
 
+    private var iCloudDriveDirectoryURLs: [URL] {
+        [
+            homeDirectoryURL
+                .appending(path: "Library/Mobile Documents/com~apple~CloudDocs")
+        ]
+    }
+
     private var photoDirectoryURLs: [URL] {
         [
             homeDirectoryURL.appending(path: "Pictures")
@@ -337,7 +345,7 @@ public struct EstimatedStorageCategoryScanner: StorageCategoryScanning {
 
     private func cacheVolumeID(for volume: VolumeSnapshot) -> String {
         let scanMode = deepCategoryScanEnabled ? "deep" : "safe"
-        return "\(volume.id)#\(scanMode)"
+        return "\(volume.id)#\(scanMode)#v2"
     }
 
     private func directorySize(at url: URL) -> Int64 {

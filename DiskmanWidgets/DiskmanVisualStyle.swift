@@ -65,6 +65,8 @@ enum DiskmanPalette {
             return .orange
         case .developer:
             return .yellow
+        case .iCloudDrive:
+            return .cyan
         case .photos:
             return .green
         case .messages:

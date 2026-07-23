@@ -380,6 +380,7 @@ func estimatedScannerBuildsCategoriesFromArtificialDirectories() throws {
     let applicationsURL = rootURL.appending(path: "Applications")
     let documentsURL = homeURL.appending(path: "Documents")
     let developerURL = homeURL.appending(path: "Developer")
+    let iCloudDriveURL = homeURL.appending(path: "Library/Mobile Documents/com~apple~CloudDocs")
     let photosURL = homeURL.appending(path: "Pictures")
 
     try FileManager.default.createDirectory(
@@ -395,12 +396,17 @@ func estimatedScannerBuildsCategoriesFromArtificialDirectories() throws {
         withIntermediateDirectories: true
     )
     try FileManager.default.createDirectory(
+        at: iCloudDriveURL,
+        withIntermediateDirectories: true
+    )
+    try FileManager.default.createDirectory(
         at: applicationsURL,
         withIntermediateDirectories: true
     )
 
     try Data(repeating: 1, count: 10).write(to: documentsURL.appending(path: "document.bin"))
     try Data(repeating: 1, count: 20).write(to: developerURL.appending(path: "project.bin"))
+    try Data(repeating: 1, count: 25).write(to: iCloudDriveURL.appending(path: "icloud.bin"))
     try Data(repeating: 1, count: 30).write(to: photosURL.appending(path: "photo.bin"))
     try Data(repeating: 1, count: 40).write(to: applicationsURL.appending(path: "app.bin"))
 
@@ -430,6 +436,7 @@ func estimatedScannerBuildsCategoriesFromArtificialDirectories() throws {
     #expect(ids.contains(.applications))
     #expect(ids.contains(.developer))
     #expect(ids.contains(.documents))
+    #expect(ids.contains(.iCloudDrive))
     #expect(ids.contains(.photos))
     #expect(ids.contains(.other))
     #expect(ids.contains(.available))

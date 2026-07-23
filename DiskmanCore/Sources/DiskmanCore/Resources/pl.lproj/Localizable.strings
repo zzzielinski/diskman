@@ -46,7 +46,7 @@
 "settings.categories" = "Kategorie";
 "settings.categoryPrivacy" = "Kategorie szacunkowe domyślnie używają bezpiecznych folderów lokalnych. Włącz głęboki skan po nadaniu Pełnego dostępu do dysku, aby uzyskać więcej szczegółów.";
 "settings.deepCategoryScan" = "Głęboki skan folderów";
-"settings.deepCategoryScanHelp" = "Skanuje Dokumenty, Zdjęcia, Wiadomości i Pobrane. macOS może wymagać Pełnego dostępu do dysku.";
+"settings.deepCategoryScanHelp" = "Skanuje Dokumenty, lokalne pliki iCloud Drive, Zdjęcia, Wiadomości i Pobrane. macOS może wymagać Pełnego dostępu do dysku.";
 "settings.openFullDiskAccess" = "Otwórz Pełny dostęp do dysku";
 "settings.launchAtLoginError" = "Nie można zmienić uruchamiania przy logowaniu.";
 
@@ -60,6 +60,7 @@
 "category.applications" = "Aplikacje";
 "category.documents" = "Dokumenty";
 "category.developer" = "Developer";
+"category.iCloudDrive" = "iCloud Drive";
 "category.photos" = "Zdjęcia";
 "category.messages" = "Wiadomości";
 "category.systemData" = "Dane systemowe";

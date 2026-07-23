@@ -211,6 +211,7 @@ public enum StorageCategoryID: String, Codable, Hashable, Sendable {
     case applications
     case documents
     case developer
+    case iCloudDrive
     case photos
     case messages
     case systemData
