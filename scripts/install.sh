@@ -45,6 +45,11 @@ if pgrep -x "${APP_NAME}" >/dev/null 2>&1; then
   sleep 1
 fi
 
+if [[ -d "${WIDGET_PATH}" ]] && command -v pluginkit >/dev/null 2>&1; then
+  echo "Unregistering old widget extension..."
+  pluginkit -r "${WIDGET_PATH}" >/dev/null 2>&1 || true
+fi
+
 if [[ -d "${APP_PATH}" ]]; then
   echo "Replacing existing ${APP_PATH}..."
   rm -rf "${APP_PATH}"
@@ -59,6 +64,11 @@ fi
 
 if [[ -d "${WIDGET_PATH}" ]] && command -v pluginkit >/dev/null 2>&1; then
   pluginkit -a "${WIDGET_PATH}" >/dev/null 2>&1 || true
+fi
+
+if pgrep -x chronod >/dev/null 2>&1; then
+  echo "Refreshing macOS widget cache..."
+  pkill -x chronod >/dev/null 2>&1 || true
 fi
 
 echo "${APP_NAME} installed at ${APP_PATH}"

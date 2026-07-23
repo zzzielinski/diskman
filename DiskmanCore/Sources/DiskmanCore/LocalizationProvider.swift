@@ -10,14 +10,21 @@ public enum DiskmanLanguage: String, Codable, Sendable {
     case english = "en"
     case polish = "pl"
 
-    init(mode: DiskmanLanguageMode, systemLocale: Locale = .current) {
+    init(
+        mode: DiskmanLanguageMode,
+        systemLocale: Locale = .current,
+        preferredLanguages: [String] = Locale.preferredLanguages
+    ) {
         switch mode {
         case .english:
             self = .english
         case .polish:
             self = .polish
         case .system:
-            let languageCode = systemLocale.language.languageCode?.identifier
+            let languageCode = preferredLanguages
+                .lazy
+                .compactMap { Locale(identifier: $0).language.languageCode?.identifier }
+                .first ?? systemLocale.language.languageCode?.identifier
             self = languageCode == DiskmanLanguage.polish.rawValue ? .polish : .english
         }
     }
@@ -204,11 +211,16 @@ public struct LocalizationProvider: Sendable {
     public init(
         languageMode: DiskmanLanguageMode = .system,
         systemLocale: Locale = .current,
+        preferredLanguages: [String] = Locale.preferredLanguages,
         usageDisplayMode: DiskmanUsageDisplayMode = .free,
         storageUnitMode: DiskmanStorageUnitMode = .decimal,
         categoryMode: DiskmanCategoryMode = .basic
     ) {
-        self.language = DiskmanLanguage(mode: languageMode, systemLocale: systemLocale)
+        self.language = DiskmanLanguage(
+            mode: languageMode,
+            systemLocale: systemLocale,
+            preferredLanguages: preferredLanguages
+        )
         self.usageDisplayMode = usageDisplayMode
         self.storageUnitMode = storageUnitMode
         self.categoryMode = categoryMode
@@ -262,7 +274,7 @@ public struct LocalizationProvider: Sendable {
     public func capacitySummary(for volume: VolumeSnapshot) -> String {
         string(
             .capacityFreeOf,
-            storageUnitMode.formatter.string(fromByteCount: volume.availableBytes),
+            storageUnitMode.formatter.string(fromByteCount: volume.displayAvailableBytes),
             storageUnitMode.formatter.string(fromByteCount: volume.totalBytes)
         )
     }

@@ -56,8 +56,8 @@ func resourceSnapshotBuildsVolumeSnapshot() throws {
     #expect(volume.availableBytes == 250)
     #expect(volume.importantAvailableBytes == 200)
     #expect(volume.usedBytes == 750)
-    #expect(volume.displayAvailableBytes == 200)
-    #expect(volume.displayUsedBytes == 800)
+    #expect(volume.displayAvailableBytes == 250)
+    #expect(volume.displayUsedBytes == 750)
     #expect(volume.categories.map(\StorageCategorySnapshot.id) == [StorageCategoryID.used, .available])
 }
 
@@ -82,6 +82,27 @@ func volumeDisplayCapacityUsesImportantAvailableCapacityWhenPresent() {
     #expect(volume.freeSpaceRatio == 0.4)
     #expect(volume.usedSpaceRatio == 0.6)
     #expect(volume.basicCategories.map(\.bytes) == [600, 400])
+}
+
+@Test
+func volumeDisplayCapacityIgnoresZeroImportantAvailableCapacity() {
+    let volume = VolumeSnapshot(
+        id: "volume",
+        name: "Volume",
+        localizedName: nil,
+        mountPath: "/Volumes/External",
+        kind: .externalDrive,
+        fileSystemName: "ExFAT",
+        totalBytes: 1_000,
+        availableBytes: 900,
+        importantAvailableBytes: 0,
+        usedBytes: 100,
+        categories: []
+    )
+
+    #expect(volume.displayAvailableBytes == 900)
+    #expect(volume.displayUsedBytes == 100)
+    #expect(volume.basicCategories.map(\.bytes) == [100, 900])
 }
 
 @Test
@@ -182,11 +203,13 @@ func localizationProviderUsesForcedLanguageMode() {
 func localizationProviderResolvesSystemLanguage() {
     let polish = LocalizationProvider(
         languageMode: .system,
-        systemLocale: Locale(identifier: "pl_PL")
+        systemLocale: Locale(identifier: "en_US"),
+        preferredLanguages: ["pl-PL", "en-US"]
     )
     let english = LocalizationProvider(
         languageMode: .system,
-        systemLocale: Locale(identifier: "en_US")
+        systemLocale: Locale(identifier: "pl_PL"),
+        preferredLanguages: ["en-US", "pl-PL"]
     )
 
     #expect(polish.language == .polish)
@@ -296,6 +319,29 @@ func localizationProviderUsesUsageAndUnitSettings() {
 
     #expect(localization.usagePercentText(for: volume) == "75%")
     #expect(localization.capacitySummary(for: volume).contains("GiB"))
+}
+
+@Test
+func localizationCapacitySummaryUsesDisplayAvailableBytes() {
+    let volume = VolumeSnapshot(
+        id: "volume",
+        name: "Volume",
+        localizedName: nil,
+        mountPath: "/",
+        kind: .internalDrive,
+        fileSystemName: "APFS",
+        totalBytes: 245_000_000_000,
+        availableBytes: 68_000_000_000,
+        importantAvailableBytes: 87_000_000_000,
+        usedBytes: 177_000_000_000,
+        categories: []
+    )
+    let localization = LocalizationProvider(
+        languageMode: .english,
+        storageUnitMode: .decimal
+    )
+
+    #expect(localization.capacitySummary(for: volume).contains("87"))
 }
 
 @Test

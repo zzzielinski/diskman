@@ -170,7 +170,11 @@ extension VolumeSnapshot {
         let totalBytes = Int64(totalCapacity)
         let availableBytes = Int64(availableCapacity)
         let importantAvailableBytes = resource.importantAvailableCapacity
-        let displayAvailableBytes = max(0, min(importantAvailableBytes ?? availableBytes, totalBytes))
+        let displayAvailableBytes = VolumeSnapshot.displayAvailableBytes(
+            totalBytes: totalBytes,
+            availableBytes: availableBytes,
+            importantAvailableBytes: importantAvailableBytes
+        )
         let usedBytes = max(0, totalBytes - availableBytes)
         let displayUsedBytes = max(0, totalBytes - displayAvailableBytes)
 

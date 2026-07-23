@@ -54,8 +54,11 @@ public struct VolumeSnapshot: Codable, Hashable, Identifiable, Sendable {
     }
 
     public var displayAvailableBytes: Int64 {
-        let candidate = importantAvailableBytes ?? availableBytes
-        return max(0, min(candidate, totalBytes))
+        Self.displayAvailableBytes(
+            totalBytes: totalBytes,
+            availableBytes: availableBytes,
+            importantAvailableBytes: importantAvailableBytes
+        )
     }
 
     public var displayUsedBytes: Int64 {
@@ -87,6 +90,25 @@ public struct VolumeSnapshot: Codable, Hashable, Identifiable, Sendable {
     public static func ratio(_ value: Int64, _ total: Int64) -> Double {
         guard total > 0 else { return 0 }
         return max(0, min(Double(value) / Double(total), 1))
+    }
+
+    public static func displayAvailableBytes(
+        totalBytes: Int64,
+        availableBytes: Int64,
+        importantAvailableBytes: Int64?
+    ) -> Int64 {
+        let normalizedAvailableBytes = max(0, min(availableBytes, totalBytes))
+
+        guard let importantAvailableBytes else {
+            return normalizedAvailableBytes
+        }
+
+        let normalizedImportantAvailableBytes = max(0, min(importantAvailableBytes, totalBytes))
+        guard normalizedImportantAvailableBytes > normalizedAvailableBytes else {
+            return normalizedAvailableBytes
+        }
+
+        return normalizedImportantAvailableBytes
     }
 
     public func replacingCategories(_ categories: [StorageCategorySnapshot]) -> VolumeSnapshot {

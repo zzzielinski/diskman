@@ -55,6 +55,9 @@ codesign \
   --entitlements DiskmanApp/DiskmanApp.entitlements \
   "${APP_PRODUCT_PATH}"
 
+echo "Cleaning signed app extended attributes..."
+xattr -cr "${APP_PRODUCT_PATH}"
+
 codesign --verify --deep --strict --verbose=2 "${APP_PRODUCT_PATH}"
 
 ditto -c -k --keepParent "${APP_PRODUCT_PATH}" "${ZIP_PATH}"
