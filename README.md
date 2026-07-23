@@ -20,7 +20,7 @@ It is useful for people who frequently work with external drives, disk images, n
 
 ## Screenshots
 
-Screenshots will be added before the first public release.
+Screenshots will be added after device testing.
 
 ## Privacy
 
@@ -69,8 +69,6 @@ Remove local Diskman settings and widget snapshots too:
 ```bash
 curl -fsSL https://raw.githubusercontent.com/zzzielinski/diskman/main/scripts/uninstall.sh | bash -s -- --remove-data
 ```
-
-The first public release has not been published yet. Until `Diskman.app.zip` exists on GitHub Releases, build from source.
 
 ## Build From Source
 
