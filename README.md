@@ -38,6 +38,39 @@ Diskman is open source under the MIT License. You can fork it, change it, improv
 - macOS with Xcode 26+
 - Swift 6
 
+## Installation
+
+Install the latest GitHub Release:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/zzzielinski/diskman/main/scripts/install.sh | bash
+```
+
+The installer downloads `Diskman.app.zip` from the latest release and installs `Diskman.app` into `~/Applications`.
+
+Use a custom install directory:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/zzzielinski/diskman/main/scripts/install.sh \
+  | DISKMAN_INSTALL_DIR="/Applications" bash
+```
+
+Installing into `/Applications` may require administrator write permissions.
+
+Uninstall Diskman:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/zzzielinski/diskman/main/scripts/uninstall.sh | bash
+```
+
+Remove local Diskman settings and widget snapshots too:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/zzzielinski/diskman/main/scripts/uninstall.sh | bash -s -- --remove-data
+```
+
+The first public release has not been published yet. Until `Diskman.app.zip` exists on GitHub Releases, build from source.
+
 ## Build From Source
 
 Clone the repository:
@@ -72,9 +105,22 @@ cd DiskmanCore
 swift test
 ```
 
-## Installation
+## Release Build
 
-Packaged installation is not available yet. For now, build the project from source in Xcode.
+Create a distributable zip and SHA-256 checksum:
+
+```bash
+./scripts/package-release.sh
+```
+
+Outputs:
+
+```text
+build/release/Diskman.app.zip
+build/release/Diskman.app.zip.sha256
+```
+
+Current release builds are unsigned. macOS may show the standard Gatekeeper warning when opening the app for the first time.
 
 ## Project Structure
 
@@ -82,6 +128,7 @@ Packaged installation is not available yet. For now, build the project from sour
 DiskmanApp/       macOS menu bar app, settings, and about window
 DiskmanWidgets/   WidgetKit extension
 DiskmanCore/      shared models, disk monitoring, persistence, localization, and category scanning
+scripts/          install, uninstall, and release packaging scripts
 ```
 
 ## License

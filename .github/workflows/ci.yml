@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    name: Test DiskmanCore
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run tests
+        working-directory: DiskmanCore
+        run: swift test
+
+  build:
+    name: Build app
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build
+        run: |
+          xcodebuild \
+            -project Diskman.xcodeproj \
+            -scheme DiskmanApp \
+            -configuration Debug \
+            -destination platform=macOS \
+            CODE_SIGNING_ALLOWED=NO \
+            build
