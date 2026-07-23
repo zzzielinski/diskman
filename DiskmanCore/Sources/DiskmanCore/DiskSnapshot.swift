@@ -88,17 +88,17 @@ public enum VolumeKind: String, Codable, Hashable, Sendable {
     public var symbolName: String {
         switch self {
         case .internalDrive:
-            return "internaldrive"
+            return "internaldrive.fill"
         case .externalDrive:
-            return "externaldrive"
+            return "externaldrive.fill"
         case .removable:
-            return "mediastick"
+            return "sdcard.fill"
         case .network:
             return "network"
         case .diskImage:
-            return "opticaldiscdrive"
+            return "opticaldiscdrive.fill"
         case .unknown:
-            return "externaldrive.badge.questionmark"
+            return "externaldrive.fill.badge.questionmark"
         }
     }
 }

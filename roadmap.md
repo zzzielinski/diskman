@@ -180,10 +180,10 @@ Done kiedy:
 - [ ] Dopracowac ksztalty:
   - [x] ringi,
   - [x] segment bar,
-  - [ ] menu popover,
-  - [ ] about/settings.
+  - [x] menu popover,
+  - [x] about/settings.
 - [x] Ustalic finalna palete kolorow kategorii.
-- [ ] Dobrac SF Symbols dla typow dyskow.
+- [x] Dobrac SF Symbols dla typow dyskow.
 - [ ] Sprawdzic teksty na PL i EN.
 - [ ] Zrobic screenshoty referencyjne.
 
@@ -320,6 +320,6 @@ Done kiedy:
 
 ## Najblizszy nastepny krok
 
-1. Dopracowac Etap 7: menu popover, about/settings i SF Symbols.
-2. Wizualnie sprawdzic widgety small/medium/large w jasnym i ciemnym trybie.
+1. Wizualnie sprawdzic widgety small/medium/large oraz About/Settings w jasnym i ciemnym trybie.
+2. Sprawdzic teksty na PL i EN.
 3. Zrobic screenshoty referencyjne.

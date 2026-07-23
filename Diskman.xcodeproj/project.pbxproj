@@ -10,6 +10,8 @@
 		A10000000000000000000001 /* DiskmanApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000021 /* DiskmanApp.swift */; };
 		A10000000000000000000002 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000022 /* AppDelegate.swift */; };
 		A10000000000000000000003 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000023 /* SettingsView.swift */; };
+		A1000000000000000000000D /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000026 /* AboutView.swift */; };
+		A1000000000000000000000E /* DiskmanAppVisualStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000027 /* DiskmanAppVisualStyle.swift */; };
 		A10000000000000000000004 /* DiskmanWidgetsBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000031 /* DiskmanWidgetsBundle.swift */; };
 		A10000000000000000000005 /* DiskmanWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000032 /* DiskmanWidget.swift */; };
 		A10000000000000000000006 /* DiskmanWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000033 /* DiskmanWidgetView.swift */; };
@@ -52,6 +54,8 @@
 		A10000000000000000000023 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		A10000000000000000000024 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A10000000000000000000025 /* DiskmanApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DiskmanApp.entitlements; sourceTree = "<group>"; };
+		A10000000000000000000026 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
+		A10000000000000000000027 /* DiskmanAppVisualStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiskmanAppVisualStyle.swift; sourceTree = "<group>"; };
 		A10000000000000000000030 /* DiskmanWidgets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = DiskmanWidgets; sourceTree = "<group>"; };
 		A10000000000000000000031 /* DiskmanWidgetsBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiskmanWidgetsBundle.swift; sourceTree = "<group>"; };
 		A10000000000000000000032 /* DiskmanWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiskmanWidget.swift; sourceTree = "<group>"; };
@@ -96,6 +100,8 @@
 				A10000000000000000000021 /* DiskmanApp.swift */,
 				A10000000000000000000022 /* AppDelegate.swift */,
 				A10000000000000000000023 /* SettingsView.swift */,
+				A10000000000000000000026 /* AboutView.swift */,
+				A10000000000000000000027 /* DiskmanAppVisualStyle.swift */,
 				A10000000000000000000024 /* Info.plist */,
 				A10000000000000000000025 /* DiskmanApp.entitlements */,
 			);
@@ -250,7 +256,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				A10000000000000000000002 /* AppDelegate.swift in Sources */,
+				A1000000000000000000000D /* AboutView.swift in Sources */,
 				A10000000000000000000001 /* DiskmanApp.swift in Sources */,
+				A1000000000000000000000E /* DiskmanAppVisualStyle.swift in Sources */,
 				A10000000000000000000003 /* SettingsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

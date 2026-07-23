@@ -22,7 +22,8 @@ Diskman is currently in early scaffolding. The repository already contains:
 - `DiskMonitor`: polling plus Disk Arbitration-driven refreshes,
 - small WidgetKit disk rings for connected-volume free space,
 - medium and large WidgetKit storage bars for used and available space,
-- `DiskmanGlass`: a SwiftUI visual wrapper for Liquid Glass with material fallback.
+- `DiskmanGlass`: a SwiftUI visual wrapper for Liquid Glass with material fallback,
+- polished menu actions, Settings surface, and About window.
 
 See:
 

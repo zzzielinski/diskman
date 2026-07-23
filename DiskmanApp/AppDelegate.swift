@@ -1,5 +1,6 @@
 import AppKit
 import DiskmanCore
+import SwiftUI
 import WidgetKit
 
 @MainActor
@@ -7,6 +8,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let diskMonitor = DiskMonitor()
     private var statusItem: NSStatusItem?
     private var statusMenuItem: NSMenuItem?
+    private var aboutWindowController: NSWindowController?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
@@ -50,6 +52,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             keyEquivalent: "r"
         ))
 
+        menu.addItem(NSMenuItem(
+            title: "Settings...",
+            action: #selector(showSettings),
+            keyEquivalent: ","
+        ))
+
         let languageMenu = NSMenu()
         languageMenu.addItem(NSMenuItem(title: "System", action: #selector(selectSystemLanguage), keyEquivalent: ""))
         languageMenu.addItem(NSMenuItem(title: "English", action: #selector(selectEnglish), keyEquivalent: ""))
@@ -68,6 +76,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func refreshNow() {
         diskMonitor.refreshNow()
+    }
+
+    @objc private func showSettings() {
+        NSApp.activate(ignoringOtherApps: true)
+        NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
     }
 
     private func configureDiskMonitor() {
@@ -125,11 +138,28 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     @objc private func showAbout() {
         NSApp.activate(ignoringOtherApps: true)
 
-        let alert = NSAlert()
-        alert.messageText = "Diskman"
-        alert.informativeText = "A Liquid Glass-inspired disk monitor for macOS.\n\nVersion 0.1.0"
-        alert.addButton(withTitle: "OK")
-        alert.runModal()
+        if let aboutWindowController {
+            aboutWindowController.showWindow(nil)
+            aboutWindowController.window?.makeKeyAndOrderFront(nil)
+            return
+        }
+
+        let window = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 360, height: 250),
+            styleMask: [.titled, .closable, .fullSizeContentView],
+            backing: .buffered,
+            defer: false
+        )
+        window.title = "About Diskman"
+        window.titleVisibility = .hidden
+        window.titlebarAppearsTransparent = true
+        window.isMovableByWindowBackground = true
+        window.contentView = NSHostingView(rootView: AboutView())
+        window.center()
+
+        let controller = NSWindowController(window: window)
+        aboutWindowController = controller
+        controller.showWindow(nil)
     }
 
     @objc private func quit() {
