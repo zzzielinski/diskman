@@ -418,7 +418,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 0.1.1;
+				MARKETING_VERSION = 0.1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.zzzielinski.diskman;
 				PRODUCT_NAME = Diskman;
 				SKIP_INSTALL = NO;
@@ -441,7 +441,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 0.1.1;
+				MARKETING_VERSION = 0.1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.zzzielinski.diskman;
 				PRODUCT_NAME = Diskman;
 				SKIP_INSTALL = NO;
@@ -465,7 +465,7 @@
 					"@executable_path/../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
-				MARKETING_VERSION = 0.1.1;
+				MARKETING_VERSION = 0.1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.zzzielinski.diskman.widgets;
 				PRODUCT_NAME = DiskmanWidgets;
 				SKIP_INSTALL = YES;
@@ -489,7 +489,7 @@
 					"@executable_path/../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
-				MARKETING_VERSION = 0.1.1;
+				MARKETING_VERSION = 0.1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.zzzielinski.diskman.widgets;
 				PRODUCT_NAME = DiskmanWidgets;
 				SKIP_INSTALL = YES;

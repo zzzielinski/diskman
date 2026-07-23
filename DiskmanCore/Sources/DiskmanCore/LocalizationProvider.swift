@@ -331,6 +331,7 @@ public struct LocalizationProvider: Sendable {
 public enum LocalizationKey: String, CaseIterable, Sendable {
     case menuLoadingDisks = "menu.loadingDisks"
     case menuRefreshNow = "menu.refreshNow"
+    case menuRebuildWidgetData = "menu.rebuildWidgetData"
     case menuSettings = "menu.settings"
     case menuLanguage = "menu.language"
     case menuAboutDiskman = "menu.aboutDiskman"
@@ -361,6 +362,7 @@ public enum LocalizationKey: String, CaseIterable, Sendable {
     case settingsAutomatic = "settings.automatic"
     case settingsSnapshot = "settings.snapshot"
     case settingsWidgetShared = "settings.widgetShared"
+    case settingsRebuildWidgetData = "settings.rebuildWidgetData"
     case settingsLanguage = "settings.language"
     case settingsLaunchAtLogin = "settings.launchAtLogin"
     case settingsLaunchAtLoginHelp = "settings.launchAtLoginHelp"
@@ -405,6 +407,8 @@ public enum LocalizationKey: String, CaseIterable, Sendable {
             return "Loading disks..."
         case .menuRefreshNow:
             return "Refresh Now"
+        case .menuRebuildWidgetData:
+            return "Rebuild Widget Data"
         case .menuSettings:
             return "Settings..."
         case .menuLanguage:
@@ -465,6 +469,8 @@ public enum LocalizationKey: String, CaseIterable, Sendable {
             return "Snapshot"
         case .settingsWidgetShared:
             return "Widget shared"
+        case .settingsRebuildWidgetData:
+            return "Rebuild Widget Data"
         case .settingsLanguage:
             return "Language"
         case .settingsLaunchAtLogin:
@@ -488,7 +494,7 @@ public enum LocalizationKey: String, CaseIterable, Sendable {
         case .aboutSubtitle:
             return "A Liquid Glass-inspired disk monitor for macOS."
         case .aboutVersion:
-            return "Version 0.1.0"
+            return "Version %@"
         case .aboutOpenSource:
             return "Open Source"
         case .aboutGithub:
@@ -545,6 +551,7 @@ public enum LocalizationKey: String, CaseIterable, Sendable {
 
 public extension Notification.Name {
     static let diskmanSettingsDidChange = Notification.Name("com.zzzielinski.diskman.settingsDidChange")
+    static let diskmanRebuildWidgetData = Notification.Name("com.zzzielinski.diskman.rebuildWidgetData")
 }
 
 private extension StorageCategoryID {

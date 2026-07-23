@@ -23,7 +23,7 @@ struct AboutView: View {
             }
 
             HStack(spacing: 8) {
-                AboutBadge(text: localization.string(.aboutVersion))
+                AboutBadge(text: versionText)
                 AboutBadge(text: localization.string(.aboutOpenSource))
                 AboutBadge(text: localization.string(.aboutLicense))
             }
@@ -50,6 +50,11 @@ struct AboutView: View {
                 .diskmanAppGlass(in: RoundedRectangle(cornerRadius: 22, style: .continuous))
                 .padding(10)
         }
+    }
+
+    private var versionText: String {
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0.1.2"
+        return localization.string(.aboutVersion, version)
     }
 }
 

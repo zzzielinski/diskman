@@ -26,6 +26,9 @@ enum DiskmanEntryState: Sendable {
 struct DiskmanTimelineProvider: TimelineProvider {
     private let snapshotStore = StorageSnapshotStore()
     private let settingsStore = DiskmanSettingsStore()
+    private let volumeProvider = VolumeProvider()
+    private let categoryScanner = EstimatedStorageCategoryScanner()
+    private let categoryCacheStore = StorageCategoryCacheStore()
 
     func placeholder(in context: Context) -> DiskmanEntry {
         .placeholder
@@ -54,14 +57,16 @@ struct DiskmanTimelineProvider: TimelineProvider {
                     localization: localization
                 )
             }
-
-            return DiskmanEntry(
-                date: Date(),
-                snapshot: .empty,
-                state: .missingSnapshot,
-                localization: localization
-            )
         } catch {
+            if let snapshot = liveSnapshot() {
+                return DiskmanEntry(
+                    date: Date(),
+                    snapshot: snapshot,
+                    state: .loaded,
+                    localization: localization
+                )
+            }
+
             return DiskmanEntry(
                 date: Date(),
                 snapshot: .empty,
@@ -69,6 +74,33 @@ struct DiskmanTimelineProvider: TimelineProvider {
                 localization: localization
             )
         }
+
+        guard let snapshot = liveSnapshot() else {
+            return DiskmanEntry(
+                date: Date(),
+                snapshot: .empty,
+                state: .missingSnapshot,
+                localization: localization
+            )
+        }
+
+        return DiskmanEntry(
+            date: Date(),
+            snapshot: snapshot,
+            state: .loaded,
+            localization: localization
+        )
+    }
+
+    private func liveSnapshot() -> DiskSnapshot? {
+        try? volumeProvider
+            .snapshot()
+            .applyingCategoryMode(
+                settingsStore.categoryMode,
+                scanner: categoryScanner,
+                cacheStore: categoryCacheStore
+            )
+            .filtered(visibleKinds: settingsStore.visibleVolumeKinds)
     }
 
     private var localization: LocalizationProvider {

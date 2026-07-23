@@ -12,6 +12,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var aboutWindowController: NSWindowController?
     private var settingsWindowController: NSWindowController?
     private var settingsObserver: NSObjectProtocol?
+    private var rebuildWidgetDataObserver: NSObjectProtocol?
 
     private var localization: LocalizationProvider {
         LocalizationProvider(settingsStore: settingsStore)
@@ -32,6 +33,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationWillTerminate(_ notification: Notification) {
         if let settingsObserver {
             NotificationCenter.default.removeObserver(settingsObserver)
+        }
+        if let rebuildWidgetDataObserver {
+            NotificationCenter.default.removeObserver(rebuildWidgetDataObserver)
         }
         diskMonitor.stop()
     }
@@ -98,6 +102,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         ))
 
         menu.addItem(makeMenuItem(
+            title: localization.string(.menuRebuildWidgetData),
+            action: #selector(rebuildWidgetData),
+            keyEquivalent: ""
+        ))
+
+        menu.addItem(makeMenuItem(
             title: localization.string(.menuSettings),
             action: #selector(showSettings),
             keyEquivalent: ","
@@ -155,6 +165,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         diskMonitor.refreshNow()
     }
 
+    @objc private func rebuildWidgetData() {
+        diskMonitor.refreshNow()
+        WidgetCenter.shared.reloadAllTimelines()
+    }
+
     @objc private func showSettings() {
         NSApp.activate(ignoringOtherApps: true)
 
@@ -174,7 +189,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         window.titleVisibility = .hidden
         window.titlebarAppearsTransparent = true
         window.isMovableByWindowBackground = true
-        window.contentView = NSHostingView(rootView: SettingsView(settingsStore: settingsStore))
+        window.contentView = NSHostingView(
+            rootView: SettingsView(settingsStore: settingsStore) { [weak self] in
+                self?.rebuildWidgetData()
+            }
+        )
         window.center()
 
         let controller = NSWindowController(window: window)
@@ -254,6 +273,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         ) { [weak self] _ in
             Task { @MainActor in
                 self?.applySettingsChange()
+            }
+        }
+
+        rebuildWidgetDataObserver = NotificationCenter.default.addObserver(
+            forName: .diskmanRebuildWidgetData,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                self?.rebuildWidgetData()
             }
         }
     }

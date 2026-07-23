@@ -1,5 +1,6 @@
 "menu.loadingDisks" = "Wczytywanie dysków...";
 "menu.refreshNow" = "Odśwież teraz";
+"menu.rebuildWidgetData" = "Odbuduj dane widgetu";
 "menu.settings" = "Ustawienia...";
 "menu.language" = "Język";
 "menu.aboutDiskman" = "O Diskman";
@@ -34,6 +35,7 @@
 "settings.automatic" = "Automatyczne";
 "settings.snapshot" = "Snapshot";
 "settings.widgetShared" = "Udostępniony widgetom";
+"settings.rebuildWidgetData" = "Odbuduj dane widgetu";
 "settings.language" = "Język";
 "settings.launchAtLogin" = "Uruchamiaj przy logowaniu";
 "settings.launchAtLoginHelp" = "Uruchamiaj Diskman automatycznie po zalogowaniu.";
@@ -46,7 +48,7 @@
 "settings.launchAtLoginError" = "Nie można zmienić uruchamiania przy logowaniu.";
 
 "about.subtitle" = "Monitor dysków dla macOS inspirowany Liquid Glass.";
-"about.version" = "Wersja 0.1.0";
+"about.version" = "Wersja %@";
 "about.openSource" = "Open Source";
 "about.github" = "GitHub";
 "about.license" = "Licencja MIT";

@@ -1,5 +1,6 @@
 "menu.loadingDisks" = "Loading disks...";
 "menu.refreshNow" = "Refresh Now";
+"menu.rebuildWidgetData" = "Rebuild Widget Data";
 "menu.settings" = "Settings...";
 "menu.language" = "Language";
 "menu.aboutDiskman" = "About Diskman";
@@ -34,6 +35,7 @@
 "settings.automatic" = "Automatic";
 "settings.snapshot" = "Snapshot";
 "settings.widgetShared" = "Widget shared";
+"settings.rebuildWidgetData" = "Rebuild Widget Data";
 "settings.language" = "Language";
 "settings.launchAtLogin" = "Launch at Login";
 "settings.launchAtLoginHelp" = "Start Diskman automatically when you sign in.";
@@ -46,7 +48,7 @@
 "settings.launchAtLoginError" = "Unable to update Launch at Login.";
 
 "about.subtitle" = "A Liquid Glass-inspired disk monitor for macOS.";
-"about.version" = "Version 0.1.0";
+"about.version" = "Version %@";
 "about.openSource" = "Open Source";
 "about.github" = "GitHub";
 "about.license" = "MIT License";

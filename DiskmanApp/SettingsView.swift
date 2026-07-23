@@ -4,6 +4,7 @@ import DiskmanCore
 
 struct SettingsView: View {
     private let settingsStore: DiskmanSettingsStore
+    private let rebuildWidgetData: () -> Void
 
     @State private var languageMode: DiskmanLanguageMode
     @State private var launchAtLoginEnabled: Bool
@@ -13,8 +14,14 @@ struct SettingsView: View {
     @State private var categoryMode: DiskmanCategoryMode
     @State private var settingsError: String?
 
-    init(settingsStore: DiskmanSettingsStore = DiskmanSettingsStore()) {
+    init(
+        settingsStore: DiskmanSettingsStore = DiskmanSettingsStore(),
+        rebuildWidgetData: @escaping () -> Void = {
+            NotificationCenter.default.post(name: .diskmanRebuildWidgetData, object: nil)
+        }
+    ) {
         self.settingsStore = settingsStore
+        self.rebuildWidgetData = rebuildWidgetData
         _languageMode = State(initialValue: settingsStore.languageMode)
         _launchAtLoginEnabled = State(initialValue: settingsStore.launchAtLoginDesired)
         _visibleVolumeKinds = State(initialValue: settingsStore.visibleVolumeKinds)
@@ -132,6 +139,15 @@ struct SettingsView: View {
                     value: localization.string(.settingsWidgetShared),
                     symbolName: "widget.small"
                 )
+
+                Button {
+                    rebuildWidgetData()
+                } label: {
+                    Label(localization.string(.settingsRebuildWidgetData), systemImage: "arrow.trianglehead.2.clockwise")
+                        .font(.system(size: 11, weight: .semibold))
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.small)
             }
         }
         .padding(24)
