@@ -69,11 +69,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
 
         if let button = statusItem.button {
-            let image = NSImage(
+            let image = NSImage(named: "DiskmanLogo") ?? NSImage(
                 systemSymbolName: "internaldrive",
                 accessibilityDescription: "Diskman"
             )
             image?.isTemplate = true
+            image?.size = NSSize(width: 18, height: 18)
 
             button.image = image
             button.imagePosition = .imageOnly

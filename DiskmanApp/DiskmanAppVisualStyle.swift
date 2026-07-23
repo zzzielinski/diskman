@@ -38,14 +38,16 @@ extension View {
 
 struct DiskmanAppIconMark: View {
     var body: some View {
-        Image(systemName: "internaldrive.fill")
-            .font(.system(size: 34, weight: .semibold))
-            .symbolRenderingMode(.hierarchical)
-            .foregroundStyle(.blue)
+        Image("DiskmanLogo")
+            .resizable()
+            .renderingMode(.template)
+            .scaledToFit()
+            .foregroundStyle(.cyan)
+            .padding(15)
             .frame(width: 62, height: 62)
             .background {
                 RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .fill(.blue.opacity(0.12))
+                    .fill(.cyan.opacity(0.12))
             }
             .diskmanAppGlass(in: RoundedRectangle(cornerRadius: 18, style: .continuous))
     }

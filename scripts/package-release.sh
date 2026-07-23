@@ -44,6 +44,9 @@ codesign \
   --entitlements DiskmanWidgets/DiskmanWidgets.entitlements \
   "${WIDGET_PRODUCT_PATH}"
 
+echo "Cleaning app extended attributes..."
+xattr -cr "${APP_PRODUCT_PATH}"
+
 echo "Signing app..."
 codesign \
   --force \
