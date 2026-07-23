@@ -48,6 +48,7 @@ curl -fsSL https://raw.githubusercontent.com/zzzielinski/diskman/main/scripts/in
 ```
 
 The installer downloads `Diskman.app.zip` from the latest release and installs `Diskman.app` into `~/Applications`.
+It also registers the embedded widget extension with macOS after copying the app.
 
 Use a custom install directory:
 
@@ -119,7 +120,7 @@ build/release/Diskman.app.zip
 build/release/Diskman.app.zip.sha256
 ```
 
-Current release builds are unsigned. macOS may show the standard Gatekeeper warning when opening the app for the first time.
+Current release builds are ad-hoc signed but not notarized. macOS may show the standard Gatekeeper warning when opening the app for the first time.
 
 ## Project Structure
 

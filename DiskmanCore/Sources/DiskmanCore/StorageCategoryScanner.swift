@@ -28,13 +28,11 @@ public struct StorageCategoryCacheStore {
     ) {
         self.fileManager = fileManager
         self.cacheURLProvider = {
-            guard let containerURL = fileManager.containerURL(
-                forSecurityApplicationGroupIdentifier: appGroupIdentifier
-            ) else {
-                throw Error.appGroupContainerUnavailable(appGroupIdentifier)
-            }
-
-            return containerURL.appending(path: Self.defaultCacheFileName)
+            try StorageSnapshotStore.sharedContainerURL(
+                appGroupIdentifier: appGroupIdentifier,
+                fileManager: fileManager
+            )
+            .appending(path: Self.defaultCacheFileName)
         }
     }
 

@@ -10,6 +10,7 @@ public struct StorageSnapshotStore {
     }
 
     public static let defaultAppGroupIdentifier = "group.com.zzzielinski.diskman"
+    public static let fallbackApplicationSupportDirectoryName = "Diskman"
     public static let defaultSnapshotFileName = "diskman-snapshot.json"
 
     private let fileManager: FileManager
@@ -21,13 +22,11 @@ public struct StorageSnapshotStore {
     ) {
         self.fileManager = fileManager
         self.snapshotURLProvider = {
-            guard let containerURL = fileManager.containerURL(
-                forSecurityApplicationGroupIdentifier: appGroupIdentifier
-            ) else {
-                throw Error.appGroupContainerUnavailable(appGroupIdentifier)
-            }
-
-            return containerURL.appending(path: Self.defaultSnapshotFileName)
+            try Self.sharedContainerURL(
+                appGroupIdentifier: appGroupIdentifier,
+                fileManager: fileManager
+            )
+            .appending(path: Self.defaultSnapshotFileName)
         }
     }
 
@@ -100,4 +99,24 @@ public struct StorageSnapshotStore {
         decoder.dateDecodingStrategy = .iso8601
         return decoder
     }()
+
+    public static func sharedContainerURL(
+        appGroupIdentifier: String = Self.defaultAppGroupIdentifier,
+        fileManager: FileManager = .default
+    ) throws -> URL {
+        if let containerURL = fileManager.containerURL(
+            forSecurityApplicationGroupIdentifier: appGroupIdentifier
+        ) {
+            return containerURL
+        }
+
+        if let applicationSupportURL = fileManager.urls(
+            for: .applicationSupportDirectory,
+            in: .userDomainMask
+        ).first {
+            return applicationSupportURL.appending(path: fallbackApplicationSupportDirectoryName)
+        }
+
+        throw Error.appGroupContainerUnavailable(appGroupIdentifier)
+    }
 }

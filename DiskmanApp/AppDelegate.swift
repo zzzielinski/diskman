@@ -10,6 +10,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem?
     private var statusMenuItem: NSMenuItem?
     private var aboutWindowController: NSWindowController?
+    private var settingsWindowController: NSWindowController?
     private var settingsObserver: NSObjectProtocol?
 
     private var localization: LocalizationProvider {
@@ -17,6 +18,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        guard terminateIfAnotherInstanceIsRunning() == false else {
+            return
+        }
+
         NSApp.setActivationPolicy(.accessory)
         observeSettingsChanges()
         configureStatusItem()
@@ -37,16 +42,39 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    private func terminateIfAnotherInstanceIsRunning() -> Bool {
+        guard let bundleIdentifier = Bundle.main.bundleIdentifier else {
+            return false
+        }
+
+        let currentPID = ProcessInfo.processInfo.processIdentifier
+        let otherInstances = NSRunningApplication
+            .runningApplications(withBundleIdentifier: bundleIdentifier)
+            .filter { $0.processIdentifier != currentPID && !$0.isTerminated }
+
+        guard let existingInstance = otherInstances.first else {
+            return false
+        }
+
+        existingInstance.activate()
+        NSApp.terminate(nil)
+        return true
+    }
+
     private func configureStatusItem() {
-        let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
 
         if let button = statusItem.button {
-            button.image = NSImage(
+            let image = NSImage(
                 systemSymbolName: "internaldrive",
                 accessibilityDescription: "Diskman"
             )
-            button.imagePosition = .imageLeading
-            button.title = " Diskman"
+            image?.isTemplate = true
+
+            button.image = image
+            button.imagePosition = .imageOnly
+            button.title = ""
+            button.toolTip = "Diskman"
         }
 
         statusItem.menu = makeMenu()
@@ -129,7 +157,29 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func showSettings() {
         NSApp.activate(ignoringOtherApps: true)
-        NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+
+        if let settingsWindowController {
+            settingsWindowController.showWindow(nil)
+            settingsWindowController.window?.makeKeyAndOrderFront(nil)
+            return
+        }
+
+        let window = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 560, height: 660),
+            styleMask: [.titled, .closable, .miniaturizable, .fullSizeContentView],
+            backing: .buffered,
+            defer: false
+        )
+        window.title = localization.string(.menuSettings)
+        window.titleVisibility = .hidden
+        window.titlebarAppearsTransparent = true
+        window.isMovableByWindowBackground = true
+        window.contentView = NSHostingView(rootView: SettingsView(settingsStore: settingsStore))
+        window.center()
+
+        let controller = NSWindowController(window: window)
+        settingsWindowController = controller
+        controller.showWindow(nil)
     }
 
     private func configureDiskMonitor() {
@@ -210,6 +260,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func applySettingsChange() {
         statusItem?.menu = makeMenu()
+        settingsWindowController?.window?.title = localization.string(.menuSettings)
         aboutWindowController?.close()
         aboutWindowController = nil
         diskMonitor.refreshNow()

@@ -2,11 +2,13 @@
 set -euo pipefail
 
 APP_NAME="Diskman"
+APP_BUNDLE_ID="com.zzzielinski.diskman"
 REPO="zzzielinski/diskman"
 ZIP_NAME="${APP_NAME}.app.zip"
 DOWNLOAD_URL="https://github.com/${REPO}/releases/latest/download/${ZIP_NAME}"
 INSTALL_DIR="${DISKMAN_INSTALL_DIR:-${HOME}/Applications}"
 APP_PATH="${INSTALL_DIR}/${APP_NAME}.app"
+WIDGET_PATH="${APP_PATH}/Contents/PlugIns/${APP_NAME}Widgets.appex"
 
 if ! command -v curl >/dev/null 2>&1; then
   echo "curl is required to install ${APP_NAME}." >&2
@@ -37,12 +39,27 @@ fi
 
 mkdir -p "${INSTALL_DIR}"
 
+if pgrep -x "${APP_NAME}" >/dev/null 2>&1; then
+  echo "Quitting running ${APP_NAME}..."
+  osascript -e "tell application id \"${APP_BUNDLE_ID}\" to quit" >/dev/null 2>&1 || true
+  sleep 1
+fi
+
 if [[ -d "${APP_PATH}" ]]; then
   echo "Replacing existing ${APP_PATH}..."
   rm -rf "${APP_PATH}"
 fi
 
 ditto "${TMP_DIR}/${APP_NAME}.app" "${APP_PATH}"
+
+LSREGISTER="/System/Library/Frameworks/CoreServices.framework/Versions/Current/Frameworks/LaunchServices.framework/Versions/Current/Support/lsregister"
+if [[ -x "${LSREGISTER}" ]]; then
+  "${LSREGISTER}" -f -R "${APP_PATH}" >/dev/null 2>&1 || true
+fi
+
+if [[ -d "${WIDGET_PATH}" ]] && command -v pluginkit >/dev/null 2>&1; then
+  pluginkit -a "${WIDGET_PATH}" >/dev/null 2>&1 || true
+fi
 
 echo "${APP_NAME} installed at ${APP_PATH}"
 echo "Open it from Finder or run: open '${APP_PATH}'"
