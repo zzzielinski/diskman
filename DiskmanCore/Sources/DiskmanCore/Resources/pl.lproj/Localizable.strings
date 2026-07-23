@@ -34,8 +34,8 @@
 "settings.refresh" = "Odświeżanie";
 "settings.automatic" = "Automatyczne";
 "settings.snapshot" = "Snapshot";
-"settings.widgetShared" = "Udostępniony widgetom";
-"settings.rebuildWidgetData" = "Odbuduj dane widgetu";
+"settings.widgetShared" = "Udostępniony";
+"settings.rebuildWidgetData" = "Odbuduj dane";
 "settings.language" = "Język";
 "settings.launchAtLogin" = "Uruchamiaj przy logowaniu";
 "settings.launchAtLoginHelp" = "Uruchamiaj Diskman automatycznie po zalogowaniu.";

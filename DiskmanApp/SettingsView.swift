@@ -155,7 +155,7 @@ struct SettingsView: View {
                 }
             }
 
-            HStack(spacing: 12) {
+            HStack(spacing: 8) {
                 SettingsStatusPill(
                     title: localization.string(.settingsRefresh),
                     value: localization.string(.settingsAutomatic),
@@ -170,11 +170,13 @@ struct SettingsView: View {
                 Button {
                     rebuildWidgetData()
                 } label: {
-                    Label(localization.string(.settingsRebuildWidgetData), systemImage: "arrow.trianglehead.2.clockwise")
-                        .font(.system(size: 11, weight: .semibold))
+                    SettingsFooterPillContent(
+                        title: localization.string(.settingsRebuildWidgetData),
+                        value: nil,
+                        symbolName: "arrow.trianglehead.2.clockwise"
+                    )
                 }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.small)
+                .buttonStyle(.plain)
             }
         }
         .padding(24)
@@ -308,22 +310,42 @@ private struct SettingsStatusPill: View {
     let symbolName: String
 
     var body: some View {
+        SettingsFooterPillContent(
+            title: title,
+            value: value,
+            symbolName: symbolName
+        )
+    }
+}
+
+private struct SettingsFooterPillContent: View {
+    let title: String
+    let value: String?
+    let symbolName: String
+
+    var body: some View {
         Label {
             HStack(spacing: 4) {
                 Text(title)
                     .font(.system(size: 11, weight: .semibold))
+                    .lineLimit(1)
 
-                Text(value)
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundStyle(.secondary)
+                if let value {
+                    Text(value)
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
             }
+            .minimumScaleFactor(0.82)
         } icon: {
             Image(systemName: symbolName)
                 .font(.system(size: 12, weight: .semibold))
                 .foregroundStyle(.secondary)
         }
         .padding(.horizontal, 10)
-        .padding(.vertical, 7)
+        .frame(height: 34)
         .background(.secondary.opacity(0.08), in: Capsule())
+        .contentShape(Capsule())
     }
 }

@@ -481,9 +481,9 @@ public enum LocalizationKey: String, CaseIterable, Sendable {
         case .settingsSnapshot:
             return "Snapshot"
         case .settingsWidgetShared:
-            return "Widget shared"
+            return "Shared"
         case .settingsRebuildWidgetData:
-            return "Rebuild Widget Data"
+            return "Rebuild Data"
         case .settingsLanguage:
             return "Language"
         case .settingsLaunchAtLogin:
