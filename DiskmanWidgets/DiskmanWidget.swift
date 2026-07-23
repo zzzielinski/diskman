@@ -5,11 +5,20 @@ import WidgetKit
 struct DiskmanEntry: TimelineEntry {
     let date: Date
     let snapshot: DiskSnapshot
+    let state: DiskmanEntryState
 
     static let placeholder = DiskmanEntry(
         date: Date(),
-        snapshot: .placeholder
+        snapshot: .placeholder,
+        state: .placeholder
     )
+}
+
+enum DiskmanEntryState {
+    case placeholder
+    case loaded
+    case missingSnapshot
+    case readError
 }
 
 struct DiskmanTimelineProvider: TimelineProvider {
@@ -33,10 +42,27 @@ struct DiskmanTimelineProvider: TimelineProvider {
     }
 
     private func entry() -> DiskmanEntry {
-        DiskmanEntry(
-            date: Date(),
-            snapshot: snapshotStore.readOrPlaceholder()
-        )
+        do {
+            if let snapshot = try snapshotStore.read() {
+                return DiskmanEntry(
+                    date: Date(),
+                    snapshot: snapshot,
+                    state: .loaded
+                )
+            }
+
+            return DiskmanEntry(
+                date: Date(),
+                snapshot: .empty,
+                state: .missingSnapshot
+            )
+        } catch {
+            return DiskmanEntry(
+                date: Date(),
+                snapshot: .empty,
+                state: .readError
+            )
+        }
     }
 }
 

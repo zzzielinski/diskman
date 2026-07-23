@@ -23,11 +23,7 @@ struct DiskmanWidgetView: View {
     @ViewBuilder
     private var smallLayout: some View {
         if entry.snapshot.volumes.isEmpty {
-            ContentUnavailableView(
-                "No Disks",
-                systemImage: "internaldrive",
-                description: Text("Open Diskman to refresh storage data.")
-            )
+            unavailableView
         } else {
             SmallDiskRingLayout(volumes: entry.snapshot.volumes)
         }
@@ -36,43 +32,50 @@ struct DiskmanWidgetView: View {
     @ViewBuilder
     private var largeLayout: some View {
         if entry.snapshot.volumes.isEmpty {
-            ContentUnavailableView(
-                "No Disks",
-                systemImage: "internaldrive",
-                description: Text("Open Diskman to refresh storage data.")
-            )
+            unavailableView
         } else {
-            diskBarLayout
+            DiskStorageListLayout(
+                volumes: entry.snapshot.volumes,
+                widgetFamily: widgetFamily
+            )
         }
     }
 
-    private var diskBarLayout: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            ForEach(entry.snapshot.volumes.prefix(3)) { volume in
-                VStack(alignment: .leading, spacing: 7) {
-                    HStack {
-                        Label(volume.displayName, systemImage: volume.kind.symbolName)
-                            .font(.system(size: 14, weight: .semibold))
-                            .lineLimit(1)
+    private var unavailableView: some View {
+        ContentUnavailableView(
+            unavailableTitle,
+            systemImage: unavailableSymbolName,
+            description: Text(unavailableDescription)
+        )
+    }
 
-                        Spacer(minLength: 8)
-
-                        Text(volume.capacitySummary)
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundStyle(.secondary)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.75)
-                    }
-
-                    StorageBar(usedRatio: volume.usedSpaceRatio)
-                        .frame(height: 12)
-                }
-                .accessibilityElement(children: .combine)
-                .accessibilityLabel("\(volume.displayName), \(volume.capacitySummary)")
-            }
+    private var unavailableTitle: String {
+        switch entry.state {
+        case .readError:
+            return "Unable to Load"
+        case .missingSnapshot:
+            return "No Data"
+        default:
+            return "No Disks"
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .padding()
+    }
+
+    private var unavailableSymbolName: String {
+        switch entry.state {
+        case .readError:
+            return "externaldrive.badge.exclamationmark"
+        default:
+            return "internaldrive"
+        }
+    }
+
+    private var unavailableDescription: String {
+        switch entry.state {
+        case .readError:
+            return "Open Diskman to rebuild widget data."
+        default:
+            return "Open Diskman to refresh storage data."
+        }
     }
 }
 
@@ -156,23 +159,91 @@ private struct SmallDiskRingLayout: View {
     }
 }
 
-private struct StorageBar: View {
-    let usedRatio: Double
+private struct DiskStorageListLayout: View {
+    let volumes: [VolumeSnapshot]
+    let widgetFamily: WidgetFamily
 
     var body: some View {
-        GeometryReader { proxy in
-            let clampedUsed = max(0, min(usedRatio, 1))
-            let usedWidth = proxy.size.width * clampedUsed
+        VStack(alignment: .leading, spacing: spacing) {
+            ForEach(visibleVolumes) { volume in
+                DiskStorageRow(volume: volume, isLarge: isLarge)
+            }
 
-            ZStack(alignment: .leading) {
-                Capsule()
-                    .fill(.secondary.opacity(0.22))
+            if hiddenVolumeCount > 0 {
+                Text("+\(hiddenVolumeCount) disks")
+                    .font(.system(size: 11, weight: .semibold, design: .rounded))
+                    .foregroundStyle(.secondary)
+                    .monospacedDigit()
+                    .lineLimit(1)
+                    .accessibilityLabel("\(hiddenVolumeCount) more disks")
+            }
 
-                Capsule()
-                    .fill(.blue)
-                    .frame(width: max(8, usedWidth))
+            Spacer(minLength: 0)
+
+            if let legendCategories {
+                StorageSegmentLegend(categories: legendCategories)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .padding(isLarge ? 18 : 14)
+    }
+
+    private var visibleVolumes: [VolumeSnapshot] {
+        Array(volumes.prefix(maxVisibleVolumes))
+    }
+
+    private var maxVisibleVolumes: Int {
+        isLarge ? 5 : 3
+    }
+
+    private var hiddenVolumeCount: Int {
+        max(0, volumes.count - maxVisibleVolumes)
+    }
+
+    private var legendCategories: [StorageCategorySnapshot]? {
+        visibleVolumes.first?.categories
+    }
+
+    private var spacing: CGFloat {
+        isLarge ? 13 : 11
+    }
+
+    private var isLarge: Bool {
+        widgetFamily == .systemLarge
+    }
+}
+
+private struct DiskStorageRow: View {
+    let volume: VolumeSnapshot
+    let isLarge: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 7) {
+            HStack(spacing: 8) {
+                Label(volume.displayName, systemImage: volume.kind.symbolName)
+                    .font(.system(size: isLarge ? 15 : 14, weight: .semibold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.76)
+
+                Spacer(minLength: 8)
+
+                Text(volume.capacitySummary)
+                    .font(.system(size: isLarge ? 12 : 11, weight: .medium))
+                    .foregroundStyle(.secondary)
+                    .monospacedDigit()
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.72)
+            }
+
+            StorageSegmentBar(
+                categories: volume.categories,
+                totalBytes: volume.totalBytes
+            )
+            .frame(height: isLarge ? 14 : 12)
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(volume.displayName), \(volume.capacitySummary)")
     }
 }
 
@@ -194,6 +265,12 @@ private struct WidgetGlassBackground: View {
 }
 
 #Preview(as: .systemMedium) {
+    DiskmanWidget()
+} timeline: {
+    DiskmanEntry.placeholder
+}
+
+#Preview(as: .systemLarge) {
     DiskmanWidget()
 } timeline: {
     DiskmanEntry.placeholder

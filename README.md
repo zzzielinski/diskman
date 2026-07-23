@@ -20,7 +20,8 @@ Diskman is currently in early scaffolding. The repository already contains:
 - `VolumeProvider`: the first real mounted-volume reader based on Foundation volume APIs,
 - `StorageSnapshotStore`: the JSON snapshot bridge between the app and WidgetKit extension,
 - `DiskMonitor`: polling plus Disk Arbitration-driven refreshes,
-- small WidgetKit disk rings for connected-volume free space.
+- small WidgetKit disk rings for connected-volume free space,
+- medium and large WidgetKit storage bars for used and available space.
 
 See:
 

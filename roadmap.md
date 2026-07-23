@@ -154,17 +154,17 @@ Done kiedy:
 
 ## Etap 6 - Duzy widget
 
-- [ ] Zrobic sredni/duzy wariant widgetu.
-- [ ] Zbudowac komponent `StorageSegmentBar`.
-- [ ] Dla MVP pokazywac segmenty:
-  - [ ] `Used`
-  - [ ] `Available`
-- [ ] Pokazywac nazwe dysku.
-- [ ] Pokazywac tekst `X free of Y`.
-- [ ] Dodac legende.
-- [ ] Obsluzyc wiele dyskow w duzym wariancie.
-- [ ] Dodac empty/error states.
-- [ ] Dodac accessibility labels dla segmentow.
+- [x] Zrobic sredni/duzy wariant widgetu.
+- [x] Zbudowac komponent `StorageSegmentBar`.
+- [x] Dla MVP pokazywac segmenty:
+  - [x] `Used`
+  - [x] `Available`
+- [x] Pokazywac nazwe dysku.
+- [x] Pokazywac tekst `X free of Y`.
+- [x] Dodac legende.
+- [x] Obsluzyc wiele dyskow w duzym wariancie.
+- [x] Dodac empty/error states.
+- [x] Dodac accessibility labels dla segmentow.
 
 Done kiedy:
 
@@ -320,6 +320,6 @@ Done kiedy:
 
 ## Najblizszy nastepny krok
 
-1. Wizualnie sprawdzic maly widget w jasnym i ciemnym trybie.
-2. Zaczac Etap 6: sredni/duzy widget.
-3. Zbudowac `StorageSegmentBar` pod kategorie `Used` i `Available`.
+1. Wizualnie sprawdzic widgety small/medium/large w jasnym i ciemnym trybie.
+2. Zaczac Etap 7: Liquid Glass i design polish.
+3. Wyciagnac wspolny wrapper/modifier `DiskmanGlass`.
