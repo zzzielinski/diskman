@@ -3,6 +3,7 @@ set -euo pipefail
 
 APP_NAME="Diskman"
 APP_BUNDLE_ID="com.zzzielinski.diskman"
+WIDGET_BUNDLE_ID="com.zzzielinski.diskman.widgets"
 REPO="zzzielinski/diskman"
 ZIP_NAME="${APP_NAME}.app.zip"
 DOWNLOAD_URL="https://github.com/${REPO}/releases/latest/download/${ZIP_NAME}"
@@ -81,9 +82,12 @@ if pgrep -x "${APP_NAME}" >/dev/null 2>&1; then
   sleep 1
 fi
 
-if [[ -d "${WIDGET_PATH}" ]] && command -v pluginkit >/dev/null 2>&1; then
+if command -v pluginkit >/dev/null 2>&1; then
   echo "Unregistering old widget extension..."
-  pluginkit -r "${WIDGET_PATH}" >/dev/null 2>&1 || true
+  pluginkit -r -i "${WIDGET_BUNDLE_ID}" >/dev/null 2>&1 || true
+  if [[ -d "${WIDGET_PATH}" ]]; then
+    pluginkit -r "${WIDGET_PATH}" >/dev/null 2>&1 || true
+  fi
 fi
 
 if [[ -d "${APP_PATH}" ]]; then
@@ -92,20 +96,26 @@ if [[ -d "${APP_PATH}" ]]; then
 fi
 
 ditto "${TMP_DIR}/${APP_NAME}.app" "${APP_PATH}"
+touch "${APP_PATH}" >/dev/null 2>&1 || true
+if [[ -d "${WIDGET_PATH}" ]]; then
+  touch "${WIDGET_PATH}" >/dev/null 2>&1 || true
+fi
 
 LSREGISTER="/System/Library/Frameworks/CoreServices.framework/Versions/Current/Frameworks/LaunchServices.framework/Versions/Current/Support/lsregister"
 if [[ -x "${LSREGISTER}" ]]; then
   "${LSREGISTER}" -f -R "${APP_PATH}" >/dev/null 2>&1 || true
+  if [[ -d "${WIDGET_PATH}" ]]; then
+    "${LSREGISTER}" -f -R "${WIDGET_PATH}" >/dev/null 2>&1 || true
+  fi
 fi
 
 if [[ -d "${WIDGET_PATH}" ]] && command -v pluginkit >/dev/null 2>&1; then
   pluginkit -a "${WIDGET_PATH}" >/dev/null 2>&1 || true
 fi
 
-if pgrep -x chronod >/dev/null 2>&1; then
-  echo "Refreshing macOS widget cache..."
-  pkill -x chronod >/dev/null 2>&1 || true
-fi
+echo "Refreshing macOS widget and icon caches..."
+pkill -x chronod >/dev/null 2>&1 || true
+pkill -x iconservicesagent >/dev/null 2>&1 || true
 
 echo "${APP_NAME} installed at ${APP_PATH}"
 if [[ "${OPEN_AFTER_INSTALL}" == true ]]; then
