@@ -133,17 +133,17 @@ Done kiedy:
 
 ## Etap 5 - Maly widget
 
-- [ ] Zrobic widget family dla malego widoku.
-- [ ] Zbudowac komponent `DiskRingView`.
-- [ ] Pokazywac procent wolnego miejsca.
-- [ ] Pokazywac ikone typu dysku.
-- [ ] Obsluzyc 1, 2, 3 i 4+ dyski.
-- [ ] Dobrac kolory statusu:
-  - [ ] ok,
-  - [ ] warning,
-  - [ ] critical.
-- [ ] Dodac glass/fallback material.
-- [ ] Dodac accessibility labels.
+- [x] Zrobic widget family dla malego widoku.
+- [x] Zbudowac komponent `DiskRingView`.
+- [x] Pokazywac procent wolnego miejsca.
+- [x] Pokazywac ikone typu dysku.
+- [x] Obsluzyc 1, 2, 3 i 4+ dyski.
+- [x] Dobrac kolory statusu:
+  - [x] ok,
+  - [x] warning,
+  - [x] critical.
+- [x] Dodac glass/fallback material.
+- [x] Dodac accessibility labels.
 - [ ] Przetestowac jasny i ciemny tryb.
 
 Done kiedy:
@@ -320,6 +320,6 @@ Done kiedy:
 
 ## Najblizszy nastepny krok
 
-1. Zaczac Etap 5: maly widget.
-2. Wyciagnac `DiskRingView` do osobnego komponentu.
-3. Dopracowac obsluge 1, 2, 3 i 4+ dyskow.
+1. Wizualnie sprawdzic maly widget w jasnym i ciemnym trybie.
+2. Zaczac Etap 6: sredni/duzy widget.
+3. Zbudowac `StorageSegmentBar` pod kategorie `Used` i `Available`.

@@ -19,7 +19,8 @@ Diskman is currently in early scaffolding. The repository already contains:
 - `DiskmanCore`: a local Swift package shared by the app and widgets,
 - `VolumeProvider`: the first real mounted-volume reader based on Foundation volume APIs,
 - `StorageSnapshotStore`: the JSON snapshot bridge between the app and WidgetKit extension,
-- `DiskMonitor`: polling plus Disk Arbitration-driven refreshes.
+- `DiskMonitor`: polling plus Disk Arbitration-driven refreshes,
+- small WidgetKit disk rings for connected-volume free space.
 
 See:
 
